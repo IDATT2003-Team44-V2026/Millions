@@ -1,13 +1,14 @@
 package edu.ntnu.idi.idatt2003.model;
 
 import java.math.BigDecimal;
+import edu.ntnu.idi.idatt2003.transactions.TransactionArchive;
 
 public class Player {
     private final String name;
     private final BigDecimal startingMoney;
     private BigDecimal money;
     private final Portfolio portfolio;
-    // private final TransactionArchive transactionArchive; - not yet implemented
+    private final TransactionArchive transactionArchive;
 
     public Player(String name, BigDecimal startingMoney) {
         if (name == null || name.trim().isEmpty()) {
@@ -24,7 +25,7 @@ public class Player {
         this.startingMoney = startingMoney;
         this.money = startingMoney;
         this.portfolio = new Portfolio();
-        // this.transactionArchive = new TransactionArchive(); - not yet implemented
+        this.transactionArchive = new TransactionArchive();
     }
 
     public String getName() {
@@ -62,7 +63,7 @@ public class Player {
         return portfolio;
     }
 
-    // public TransactionArchive getTransactionArchive() { - not yet implemented
-    //     return transactionArchive;
-    // }
+    public TransactionArchive getTransactionArchive() {
+        return transactionArchive;
+    }
 }

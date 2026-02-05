@@ -15,7 +15,20 @@ public class Sale extends Transaction {
         if (isCommitted()) {
             throw new IllegalStateException("Transaction has already been committed");
         }
-        // TODO: Implement sale logic
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+        
+        if (!player.getPortfolio().contains(getShare())) {
+            throw new IllegalStateException("Player does not own the share to sell");
+        }
+        
+        java.math.BigDecimal totalValue = getCalculator().calculateTotal();
+        
+        player.addMoney(totalValue);
+        player.getPortfolio().removeShare(getShare());
+        player.getTransactionArchive().add(this);
+        
         setCommitted();
     }
 }

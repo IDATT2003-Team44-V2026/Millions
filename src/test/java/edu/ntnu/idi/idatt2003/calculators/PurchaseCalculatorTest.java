@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// assertEquals with bigDecimal checks trailing zeroes, use compareTo instead
+
 @DisplayName("Purchase Calculator Tests")
 class PurchaseCalculatorTest {
     private Stock stock;

@@ -5,27 +5,35 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Stock {
-  private String symbol;
-  private String company;
-  private List<BigDecimal> prices;
+  private final String symbol;
+  private final String company;
+  private final List<BigDecimal> prices;
 
   public Stock(String symbol, String company, BigDecimal salesPrice) {
     this.symbol = symbol;
     this.company = company;
+    this.prices = new ArrayList<>();
+    this.prices.add(salesPrice);
   }
 
   public String getSymbol() {
-    return null;
+    return this.symbol;
   }
 
   public String getCompany() {
-    return null;
+    return this.company;
   }
 
   public BigDecimal getSalesPrice() {
-    return null;
+    if (prices.isEmpty()) {
+      return null;
+    }
+    return prices.getLast();
   }
 
   public void addNewSalesPrice(BigDecimal price) {
+    if (price != null) {
+      this.prices.add(price);
+    }
   }
 }

@@ -15,7 +15,20 @@ public class Purchase extends Transaction {
         if (isCommitted()) {
             throw new IllegalStateException("Transaction has already been committed");
         }
-        // TODO: Implement purchase logic
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+        
+        java.math.BigDecimal totalCost = getCalculator().calculateTotal();
+        
+        if (player.getMoney().compareTo(totalCost) < 0) {
+            throw new IllegalStateException("Insufficient funds to complete purchase");
+        }
+        
+        player.withdrawMoney(totalCost);
+        player.getPortfolio().addShare(getShare());
+        player.getTransactionArchive().add(this);
+        
         setCommitted();
     }
 }

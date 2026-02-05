@@ -43,5 +43,9 @@ public abstract class Transaction {
         return committed;
     }
 
+    protected void setCommitted() {
+        this.committed = true;
+    }
+
     public abstract void commit(Player player);
 }

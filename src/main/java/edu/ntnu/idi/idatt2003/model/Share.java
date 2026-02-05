@@ -30,14 +30,14 @@ public class Share {
   }
 
   public Stock getStock() {
-    return this.stock;
+    return stock;
   }
 
   public BigDecimal getQuantity() {
-    return this.quantity;
+    return quantity;
   }
 
   public BigDecimal getPurchasePrice() {
-    return this.purchasePrice;
+    return purchasePrice;
   }
 }

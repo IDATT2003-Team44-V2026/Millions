@@ -30,11 +30,11 @@ public class Stock {
   }
 
   public String getSymbol() {
-    return this.symbol;
+    return symbol;
   }
 
   public String getCompany() {
-    return this.company;
+    return company;
   }
 
   public BigDecimal getSalesPrice() {

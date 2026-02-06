@@ -90,7 +90,9 @@ public class Exchange {
         }
         
         Share share = new Share(stock, quantity, stock.getSalesPrice());
-        return new Purchase(share, week);
+        Purchase purchase = new Purchase(share, week);
+        purchase.commit(player);
+        return purchase;
     }
 
     public Transaction sell(Share share, Player player) {
@@ -105,7 +107,9 @@ public class Exchange {
             throw new IllegalArgumentException("Stock is not listed on this exchange");
         }
         
-        return new Sale(share, week);
+        Sale sale = new Sale(share, week);
+        sale.commit(player);
+        return sale;
     }
 
     public void advance() {

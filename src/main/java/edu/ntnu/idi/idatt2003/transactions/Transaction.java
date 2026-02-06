@@ -43,9 +43,19 @@ public abstract class Transaction {
         return committed;
     }
 
-    protected void setCommitted() {
+    public void commit(Player player) {
+        if (committed) {
+            throw new IllegalStateException("Transaction has already been committed");
+        }
+        if (player == null) {
+            throw new IllegalArgumentException("Player cannot be null");
+        }
+
+        executeTransaction(player);
+
+        player.getTransactionArchive().add(this);
         this.committed = true;
     }
 
-    public abstract void commit(Player player);
+    protected abstract void executeTransaction(Player player);
 }

@@ -3,6 +3,14 @@ package edu.ntnu.idi.idatt2003.model;
 import java.math.BigDecimal;
 import edu.ntnu.idi.idatt2003.transactions.TransactionArchive;
 
+/**
+ * Represents a player in the stock-trading game.
+ *
+ * <p>A player has a name, a money balance, a {@link Portfolio} of share holdings,
+ * and a {@link TransactionArchive} that records all completed transactions.
+ * The starting capital is preserved separately so that the player's overall
+ * performance can be evaluated later.</p>
+ */
 public class Player {
     private final String name;
     private final BigDecimal startingMoney;
@@ -10,6 +18,18 @@ public class Player {
     private final Portfolio portfolio;
     private final TransactionArchive transactionArchive;
 
+    /**
+     * Creates a new player with the given name and starting capital.
+     *
+     * <p>The player is initialised with an empty portfolio and an empty
+     * transaction archive. The current money balance is set equal to
+     * the starting capital.</p>
+     *
+     * @param startingMoney the initial capital; must not be {@code null} or negative
+     * @param name          the player's name; must not be {@code null} or blank
+     * @throws IllegalArgumentException if {@code name} is {@code null} or blank,
+     *                                  or if {@code startingMoney} is {@code null} or negative
+     */
     public Player(String name, BigDecimal startingMoney) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Name cannot be null or empty");
@@ -28,14 +48,30 @@ public class Player {
         this.transactionArchive = new TransactionArchive();
     }
 
+    /**
+     * Returns the player's name.
+     *
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the player's current money balance.
+     *
+     * @return the current balance
+     */
     public BigDecimal getMoney() {
         return money;
     }
 
+    /**
+     * Adds the specified amount to the player's money balance.
+     *
+     * @param amount the amount to add; must not be {@code null} and must be positive
+     * @throws IllegalArgumentException if {@code amount} is {@code null} or not positive
+     */
     public void addMoney(BigDecimal amount) {
         if (amount == null) {
             throw new IllegalArgumentException("Amount cannot be null");
@@ -46,6 +82,14 @@ public class Player {
         this.money = this.money.add(amount);
     }
 
+    /**
+     * Withdraws the specified amount from the player's money balance.
+     *
+     * @param amount the amount to withdraw; must not be {@code null}, must be positive,
+     *               and must not exceed the current balance
+     * @throws IllegalArgumentException if {@code amount} is {@code null}, not positive,
+     *                                  or greater than the current balance (insufficient funds)
+     */
     public void withdrawMoney(BigDecimal amount) {
         if (amount == null) {
             throw new IllegalArgumentException("Amount cannot be null");
@@ -59,10 +103,20 @@ public class Player {
         this.money = this.money.subtract(amount);
     }
 
+    /**
+     * Returns the player's portfolio of share holdings.
+     *
+     * @return the {@link Portfolio}
+     */
     public Portfolio getPortfolio() {
         return portfolio;
     }
 
+    /**
+     * Returns the player's transaction archive containing all completed transactions.
+     *
+     * @return the {@link TransactionArchive}
+     */
     public TransactionArchive getTransactionArchive() {
         return transactionArchive;
     }

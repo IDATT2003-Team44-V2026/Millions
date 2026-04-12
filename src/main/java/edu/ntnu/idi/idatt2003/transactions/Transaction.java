@@ -9,7 +9,7 @@ import edu.ntnu.idi.idatt2003.calculators.TransactionCalculator;
  *
  * <p>A transaction is tied to a {@link Share} and a specific week, and uses a
  * {@link TransactionCalculator} to compute its financial values. Each transaction
- * is unique and can only be committed once; the {@code committed} flag prevents
+ * is unique and https://github.com/IDATT2003-Team44-V2026/Millions/pull/13/conflict?name=src%252Fmain%252Fjava%252Fedu%252Fntnu%252Fidi%252Fidatt2003%252Flogic%252FExchange.java&ancestor_oid=cec7d59e813354dfdda5fdc6d1dd77a51129a3bb&base_oid=5ddcaf816ad5d6b4c22ffa962af207307a045db6&head_oid=d2fa89e4050192206f7306df703df36da5200a2ccan only be committed once; the {@code committed} flag prevents
  * duplicate execution.</p>
  *
  * <p>Subclasses must implement {@link #executeTransaction(Player)} to define the

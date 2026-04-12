@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003.logic;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +126,44 @@ public class Exchange {
         return stockMap.values().stream()
             .filter(stock -> stock.getSymbol().toLowerCase().contains(searchLower) 
                           || stock.getCompany().toLowerCase().contains(searchLower))
+            .toList();
+    }
+
+    /**
+     * Returns the stocks with the largest positive price change since the previous week.
+     *
+     * @param limit the maximum number of stocks to return; must be positive
+     * @return a list of gainers ordered from highest to lowest latest price change
+     * @throws IllegalArgumentException if {@code limit} is not positive
+     */
+    public List<Stock> getGainers(int limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be positive");
+        }
+
+        return stockMap.values().stream()
+            .filter(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0)
+            .sorted(Comparator.comparing(Stock::getLatestPriceChange).reversed())
+            .limit(limit)
+            .toList();
+    }
+
+    /**
+     * Returns the stocks with the worst price change since the previous week.
+     *
+     * @param limit the maximum number of stocks to return; must be positive
+     * @return a list of losers ordered from lowest to highest latest price change
+     * @throws IllegalArgumentException if {@code limit} is not positive
+     */
+    public List<Stock> getLosers(int limit) {
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be positive");
+        }
+
+        return stockMap.values().stream()
+            .filter(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) < 0)
+            .sorted(Comparator.comparing(Stock::getLatestPriceChange))
+            .limit(limit)
             .toList();
     }
 

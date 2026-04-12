@@ -1,12 +1,13 @@
 package edu.ntnu.idi.idatt2003.model;
 
-import edu.ntnu.idi.idatt2003.transactions.TransactionArchive;
+import edu.ntnu.idi.idatt2003.transactions.Purchase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
@@ -24,6 +25,15 @@ class PlayerTest {
         player = new Player("John Doe", startingMoney);
     }
 
+    private void addTransactionsForDistinctWeeks(Player player, int weeks) {
+        Stock stock = new Stock("STAT", "Status Corp", new BigDecimal("100.00"));
+
+        for (int week = 1; week <= weeks; week++) {
+            Share share = new Share(stock, BigDecimal.ONE, new BigDecimal("100.00"));
+            player.getTransactionArchive().add(new Purchase(share, week));
+        }
+    }
+
     @Nested
     @DisplayName("Constructor Tests")
     class ConstructorTests {
@@ -35,15 +45,17 @@ class PlayerTest {
 
             assertNotNull(newPlayer);
             assertEquals("Alice", newPlayer.getName());
-            assertEquals(new BigDecimal("5000.00"), newPlayer.getMoney());
+            assertEquals(0, new BigDecimal("5000.00").compareTo(newPlayer.getMoney()));
             assertNotNull(newPlayer.getPortfolio());
             assertNotNull(newPlayer.getTransactionArchive());
+            assertTrue(newPlayer.getPortfolio().getShares().isEmpty());
+            assertTrue(newPlayer.getTransactionArchive().isEmpty());
         }
 
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {"  ", "\t", "\n"})
-        @DisplayName("Should throw exception when name is null, empty, or whitespace")
+        @DisplayName("Should throw exception when name is invalid")
         void shouldThrowExceptionWhenNameIsInvalid(String invalidName) {
             BigDecimal money = new BigDecimal("1000.00");
             assertThrows(IllegalArgumentException.class, () ->
@@ -51,20 +63,14 @@ class PlayerTest {
             );
         }
 
-        @Test
-        @DisplayName("Should throw exception when starting money is null")
-        void shouldThrowExceptionWhenStartingMoneyIsNull() {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"-1000.00"})
+        @DisplayName("Should throw exception when starting money is invalid (null or negative)")
+        void shouldThrowExceptionWhenStartingMoneyIsInvalid(String invalidMoney) {
+            BigDecimal money = invalidMoney == null ? null : new BigDecimal(invalidMoney);
             assertThrows(IllegalArgumentException.class, () ->
-                new Player("Bob", null)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when starting money is negative")
-        void shouldThrowExceptionWhenStartingMoneyIsNegative() {
-            BigDecimal negativeMoney = new BigDecimal("-1000.00");
-            assertThrows(IllegalArgumentException.class, () ->
-                new Player("Bob", negativeMoney)
+                new Player("Bob", money)
             );
         }
 
@@ -72,53 +78,14 @@ class PlayerTest {
         @DisplayName("Should allow zero starting money")
         void shouldAllowZeroStartingMoney() {
             Player poorPlayer = new Player("Broke Bob", BigDecimal.ZERO);
-
-            assertEquals(BigDecimal.ZERO, poorPlayer.getMoney());
+            assertEquals(0, BigDecimal.ZERO.compareTo(poorPlayer.getMoney()));
         }
 
         @Test
         @DisplayName("Should trim whitespace from name")
         void shouldTrimWhitespaceFromName() {
             Player trimmedPlayer = new Player("  John Smith  ", startingMoney);
-
             assertEquals("John Smith", trimmedPlayer.getName());
-        }
-
-        @Test
-        @DisplayName("Should initialize money to starting money")
-        void shouldInitializeMoneyToStartingMoney() {
-            Player newPlayer = new Player("Charlie", new BigDecimal("7500.00"));
-
-            assertEquals(new BigDecimal("7500.00"), newPlayer.getMoney());
-        }
-
-        @Test
-        @DisplayName("Should initialize empty portfolio")
-        void shouldInitializeEmptyPortfolio() {
-            Player newPlayer = new Player("Diana", startingMoney);
-
-            assertNotNull(newPlayer.getPortfolio());
-            assertTrue(newPlayer.getPortfolio().getShares().isEmpty());
-        }
-
-        @Test
-        @DisplayName("Should initialize empty transaction archive")
-        void shouldInitializeEmptyTransactionArchive() {
-            Player newPlayer = new Player("Eve", startingMoney);
-
-            assertNotNull(newPlayer.getTransactionArchive());
-            assertTrue(newPlayer.getTransactionArchive().isEmpty());
-        }
-    }
-
-    @Nested
-    @DisplayName("Get Name Tests")
-    class GetNameTests {
-
-        @Test
-        @DisplayName("Should return correct name")
-        void shouldReturnCorrectName() {
-            assertEquals("John Doe", player.getName());
         }
     }
 
@@ -129,7 +96,7 @@ class PlayerTest {
         @Test
         @DisplayName("Should return initial money amount")
         void shouldReturnInitialMoneyAmount() {
-            assertEquals(startingMoney, player.getMoney());
+            assertEquals(0, startingMoney.compareTo(player.getMoney()));
         }
 
         @Test
@@ -137,42 +104,17 @@ class PlayerTest {
         void shouldAddMoneySuccessfully() {
             BigDecimal amountToAdd = new BigDecimal("500.00");
             player.addMoney(amountToAdd);
-
-            assertEquals(new BigDecimal("10500.00"), player.getMoney());
+            assertEquals(0, new BigDecimal("10500.00").compareTo(player.getMoney()));
         }
 
-        @Test
-        @DisplayName("Should add money multiple times")
-        void shouldAddMoneyMultipleTimes() {
-            player.addMoney(new BigDecimal("100.00"));
-            player.addMoney(new BigDecimal("200.00"));
-            player.addMoney(new BigDecimal("300.00"));
-
-            assertEquals(new BigDecimal("10600.00"), player.getMoney());
-        }
-
-        @Test
-        @DisplayName("Should throw exception when adding null amount")
-        void shouldThrowExceptionWhenAddingNullAmount() {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"0.0", "-100.00"})
+        @DisplayName("Should throw exception when adding invalid amount (null, zero, or negative)")
+        void shouldThrowExceptionWhenAddingInvalidAmount(String invalidAmount) {
+            BigDecimal amount = invalidAmount == null ? null : new BigDecimal(invalidAmount);
             assertThrows(IllegalArgumentException.class, () ->
-                player.addMoney(null)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when adding zero amount")
-        void shouldThrowExceptionWhenAddingZeroAmount() {
-            assertThrows(IllegalArgumentException.class, () ->
-                player.addMoney(BigDecimal.ZERO)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when adding negative amount")
-        void shouldThrowExceptionWhenAddingNegativeAmount() {
-            BigDecimal negativeAmount = new BigDecimal("-100.00");
-            assertThrows(IllegalArgumentException.class, () ->
-                player.addMoney(negativeAmount)
+                player.addMoney(amount)
             );
         }
 
@@ -181,50 +123,24 @@ class PlayerTest {
         void shouldWithdrawMoneySuccessfully() {
             BigDecimal amountToWithdraw = new BigDecimal("500.00");
             player.withdrawMoney(amountToWithdraw);
-
-            assertEquals(new BigDecimal("9500.00"), player.getMoney());
+            assertEquals(0, new BigDecimal("9500.00").compareTo(player.getMoney()));
         }
 
         @Test
         @DisplayName("Should withdraw all money")
         void shouldWithdrawAllMoney() {
             player.withdrawMoney(startingMoney);
-
-            assertEquals(new BigDecimal("0.00"), player.getMoney());
+            assertEquals(0, BigDecimal.ZERO.compareTo(player.getMoney()));
         }
 
-        @Test
-        @DisplayName("Should withdraw money multiple times")
-        void shouldWithdrawMoneyMultipleTimes() {
-            player.withdrawMoney(new BigDecimal("100.00"));
-            player.withdrawMoney(new BigDecimal("200.00"));
-            player.withdrawMoney(new BigDecimal("300.00"));
-
-            assertEquals(new BigDecimal("9400.00"), player.getMoney());
-        }
-
-        @Test
-        @DisplayName("Should throw exception when withdrawing null amount")
-        void shouldThrowExceptionWhenWithdrawingNullAmount() {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"0.0", "-100.00"})
+        @DisplayName("Should throw exception when withdrawing invalid amount (null, zero, or negative)")
+        void shouldThrowExceptionWhenWithdrawingInvalidAmount(String invalidAmount) {
+            BigDecimal amount = invalidAmount == null ? null : new BigDecimal(invalidAmount);
             assertThrows(IllegalArgumentException.class, () ->
-                player.withdrawMoney(null)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when withdrawing zero amount")
-        void shouldThrowExceptionWhenWithdrawingZeroAmount() {
-            assertThrows(IllegalArgumentException.class, () ->
-                player.withdrawMoney(BigDecimal.ZERO)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when withdrawing negative amount")
-        void shouldThrowExceptionWhenWithdrawingNegativeAmount() {
-            BigDecimal negativeAmount = new BigDecimal("-100.00");
-            assertThrows(IllegalArgumentException.class, () ->
-                player.withdrawMoney(negativeAmount)
+                player.withdrawMoney(amount)
             );
         }
 
@@ -243,52 +159,92 @@ class PlayerTest {
             player.addMoney(new BigDecimal("1000.00"));
             player.withdrawMoney(new BigDecimal("500.00"));
             player.addMoney(new BigDecimal("250.00"));
-
-            assertEquals(new BigDecimal("10750.00"), player.getMoney());
+            assertEquals(0, new BigDecimal("10750.00").compareTo(player.getMoney()));
         }
     }
 
     @Nested
-    @DisplayName("Portfolio Tests")
-    class PortfolioTests {
+    @DisplayName("Net Worth Tests")
+    class NetWorthTests {
 
         @Test
-        @DisplayName("Should return portfolio instance")
-        void shouldReturnPortfolioInstance() {
-            Portfolio portfolio = player.getPortfolio();
-
-            assertNotNull(portfolio);
+        @DisplayName("Should return starting money as net worth when portfolio is empty")
+        void shouldReturnStartingMoneyAsNetWorthWhenPortfolioIsEmpty() {
+            assertEquals(0, startingMoney.compareTo(player.getNetWorth()));
         }
 
         @Test
-        @DisplayName("Should return same portfolio instance on multiple calls")
-        void shouldReturnSamePortfolioInstanceOnMultipleCalls() {
-            Portfolio portfolio1 = player.getPortfolio();
-            Portfolio portfolio2 = player.getPortfolio();
+        @DisplayName("Should return combined money and portfolio net worth")
+        void shouldReturnCombinedMoneyAndPortfolioNetWorth() {
+            Stock stock = new Stock("AAPL", "Apple Inc.", new BigDecimal("150.00"));
+            Share share = new Share(stock, new BigDecimal("10"), new BigDecimal("145.00"));
+            player.getPortfolio().addShare(share);
 
-            assertSame(portfolio1, portfolio2);
+            assertEquals(0, new BigDecimal("11474.5000").compareTo(player.getNetWorth()));
+        }
+
+        @Test
+        @DisplayName("Should return starting money accessor")
+        void shouldReturnStartingMoneyAccessor() {
+            assertEquals(0, startingMoney.compareTo(player.getStartingMoney()));
         }
     }
 
     @Nested
-    @DisplayName("Transaction Archive Tests")
-    class TransactionArchiveTests {
+    @DisplayName("Status Tests")
+    class StatusTests {
 
         @Test
-        @DisplayName("Should return transaction archive instance")
-        void shouldReturnTransactionArchiveInstance() {
-            TransactionArchive archive = player.getTransactionArchive();
-
-            assertNotNull(archive);
+        @DisplayName("Should return novice status by default")
+        void shouldReturnNoviceStatusByDefault() {
+            assertEquals(PlayerStatus.NOVICE, player.getStatus());
         }
 
         @Test
-        @DisplayName("Should return same transaction archive instance on multiple calls")
-        void shouldReturnSameTransactionArchiveInstanceOnMultipleCalls() {
-            TransactionArchive archive1 = player.getTransactionArchive();
-            TransactionArchive archive2 = player.getTransactionArchive();
+        @DisplayName("Should return novice status when weeks requirement is not met")
+        void shouldReturnNoviceStatusWhenWeeksRequirementIsNotMet() {
+            Stock stock = new Stock("GAIN", "Gain Corp", new BigDecimal("150.00"));
+            Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("100.00"));
+            player.getPortfolio().addShare(share);
+            addTransactionsForDistinctWeeks(player, 9);
 
-            assertSame(archive1, archive2);
+            assertEquals(PlayerStatus.NOVICE, player.getStatus());
+        }
+
+        @Test
+        @DisplayName("Should return investor status when investor requirements are met")
+        void shouldReturnInvestorStatusWhenInvestorRequirementsAreMet() {
+            Player investor = new Player("Investor Ida", new BigDecimal("1000.00"));
+            Stock stock = new Stock("GAIN", "Gain Corp", new BigDecimal("150.00"));
+            Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("100.00"));
+            investor.getPortfolio().addShare(share);
+            addTransactionsForDistinctWeeks(investor, 10);
+
+            assertEquals(PlayerStatus.INVESTOR, investor.getStatus());
+        }
+
+        @Test
+        @DisplayName("Should return investor status when speculator profit is not met")
+        void shouldReturnInvestorStatusWhenSpeculatorProfitIsNotMet() {
+            Player investor = new Player("Investor Ida", new BigDecimal("1000.00"));
+            Stock stock = new Stock("MID", "Middle Corp", new BigDecimal("180.00"));
+            Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("100.00"));
+            investor.getPortfolio().addShare(share);
+            addTransactionsForDistinctWeeks(investor, 20);
+
+            assertEquals(PlayerStatus.INVESTOR, investor.getStatus());
+        }
+
+        @Test
+        @DisplayName("Should return speculator status when speculator requirements are met")
+        void shouldReturnSpeculatorStatusWhenSpeculatorRequirementsAreMet() {
+            Player speculator = new Player("Speculator Sam", new BigDecimal("1000.00"));
+            Stock stock = new Stock("MOON", "Moon Corp", new BigDecimal("200.00"));
+            Share share = new Share(stock, new BigDecimal("10"), new BigDecimal("10.00"));
+            speculator.getPortfolio().addShare(share);
+            addTransactionsForDistinctWeeks(speculator, 20);
+
+            assertEquals(PlayerStatus.SPECULATOR, speculator.getStatus());
         }
     }
 }

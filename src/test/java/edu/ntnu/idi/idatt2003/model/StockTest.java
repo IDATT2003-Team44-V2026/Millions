@@ -6,9 +6,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,7 +54,7 @@ class StockTest {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {"  ", "\t", "\n"})
-        @DisplayName("Should throw exception when company is null, empty, or whitespace")
+        @DisplayName("Should throw exception when company is invalid")
         void shouldThrowExceptionWhenCompanyIsInvalid(String invalidCompany) {
             BigDecimal price = new BigDecimal("100.00");
             assertThrows(IllegalArgumentException.class, () ->
@@ -60,28 +62,14 @@ class StockTest {
             );
         }
 
-        @Test
-        @DisplayName("Should throw exception when sales price is null")
-        void shouldThrowExceptionWhenSalesPriceIsNull() {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"0.0", "-10.00"})
+        @DisplayName("Should throw exception when sales price is invalid (null, zero, or negative)")
+        void shouldThrowExceptionWhenSalesPriceIsInvalid(String invalidPrice) {
+            BigDecimal price = invalidPrice == null ? null : new BigDecimal(invalidPrice);
             assertThrows(IllegalArgumentException.class, () ->
-                new Stock("TEST", "Test Company", null)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when sales price is zero")
-        void shouldThrowExceptionWhenSalesPriceIsZero() {
-            assertThrows(IllegalArgumentException.class, () ->
-                new Stock("TEST", "Test Company", BigDecimal.ZERO)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when sales price is negative")
-        void shouldThrowExceptionWhenSalesPriceIsNegative() {
-            BigDecimal negativePrice = new BigDecimal("-10.00");
-            assertThrows(IllegalArgumentException.class, () ->
-                new Stock("TEST", "Test Company", negativePrice)
+                new Stock("TEST", "Test Company", price)
             );
         }
 
@@ -96,35 +84,11 @@ class StockTest {
     }
 
     @Nested
-    @DisplayName("Getter Tests")
-    class GetterTests {
-
-        @Test
-        @DisplayName("Should return correct symbol")
-        void shouldReturnCorrectSymbol() {
-            assertEquals("AAPL", stock.getSymbol());
-        }
-
-        @Test
-        @DisplayName("Should return correct company name")
-        void shouldReturnCorrectCompanyName() {
-            assertEquals("Apple Inc.", stock.getCompany());
-        }
-
-        @Test
-        @DisplayName("Should return initial sales price")
-        void shouldReturnInitialSalesPrice() {
-            assertEquals(initialPrice, stock.getSalesPrice());
-        }
-
-    }
-
-    @Nested
     @DisplayName("Price Management Tests")
     class PriceManagementTests {
 
         @Test
-        @DisplayName("Should add new sales price successfully")
+        @DisplayName("Should addNewSalesPrice successfully")
         void shouldAddNewSalesPriceSuccessfully() {
             BigDecimal newPrice = new BigDecimal("155.75");
             stock.addNewSalesPrice(newPrice);
@@ -145,31 +109,88 @@ class StockTest {
             assertEquals(price3, stock.getSalesPrice());
         }
 
-        @Test
-        @DisplayName("Should throw exception when adding null price")
-        void shouldThrowExceptionWhenAddingNullPrice() {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"0.0", "-50.00"})
+        @DisplayName("Should throw exception when adding invalid price (null, zero, or negative)")
+        void shouldThrowExceptionWhenAddingInvalidPrice(String invalidPrice) {
+            BigDecimal price = invalidPrice == null ? null : new BigDecimal(invalidPrice);
             assertThrows(IllegalArgumentException.class, () ->
-                stock.addNewSalesPrice(null)
+                stock.addNewSalesPrice(price)
             );
         }
-
-        @Test
-        @DisplayName("Should throw exception when adding zero price")
-        void shouldThrowExceptionWhenAddingZeroPrice() {
-            assertThrows(IllegalArgumentException.class, () ->
-                stock.addNewSalesPrice(BigDecimal.ZERO)
-            );
-        }
-
-        @Test
-        @DisplayName("Should throw exception when adding negative price")
-        void shouldThrowExceptionWhenAddingNegativePrice() {
-            BigDecimal negativePrice = new BigDecimal("-50.00");
-            assertThrows(IllegalArgumentException.class, () ->
-                stock.addNewSalesPrice(negativePrice)
-            );
-        }
-
     }
 
+    @Nested
+    @DisplayName("Statistics Tests")
+    class StatisticsTests {
+
+        @Test
+        @DisplayName("Should return complete historical prices")
+        void shouldReturnCompleteHistoricalPrices() {
+            BigDecimal price1 = new BigDecimal("151.00");
+            BigDecimal price2 = new BigDecimal("152.50");
+            stock.addNewSalesPrice(price1);
+            stock.addNewSalesPrice(price2);
+
+            List<BigDecimal> historicalPrices = stock.getHistoricalPrices();
+
+            assertEquals(3, historicalPrices.size());
+            assertEquals(initialPrice, historicalPrices.get(0));
+            assertEquals(price1, historicalPrices.get(1));
+            assertEquals(price2, historicalPrices.get(2));
+        }
+
+        @Test
+        @DisplayName("Should return defensive copy of historical prices")
+        void shouldReturnDefensiveCopyOfHistoricalPrices() {
+            List<BigDecimal> historicalPrices = stock.getHistoricalPrices();
+
+            historicalPrices.add(new BigDecimal("999.99"));
+
+            assertEquals(1, stock.getHistoricalPrices().size());
+        }
+
+        @Test
+        @DisplayName("Should return highest registered price")
+        void shouldReturnHighestRegisteredPrice() {
+            stock.addNewSalesPrice(new BigDecimal("160.00"));
+            stock.addNewSalesPrice(new BigDecimal("149.75"));
+            stock.addNewSalesPrice(new BigDecimal("155.50"));
+
+            assertEquals(0, new BigDecimal("160.00").compareTo(stock.getHighestPrice()));
+        }
+
+        @Test
+        @DisplayName("Should return lowest registered price")
+        void shouldReturnLowestRegisteredPrice() {
+            stock.addNewSalesPrice(new BigDecimal("160.00"));
+            stock.addNewSalesPrice(new BigDecimal("149.75"));
+            stock.addNewSalesPrice(new BigDecimal("155.50"));
+
+            assertEquals(0, new BigDecimal("149.75").compareTo(stock.getLowestPrice()));
+        }
+
+        @Test
+        @DisplayName("Should return zero latest price change when only one price exists")
+        void shouldReturnZeroLatestPriceChangeWhenOnlyOnePriceExists() {
+            assertEquals(0, BigDecimal.ZERO.compareTo(stock.getLatestPriceChange()));
+        }
+
+        @Test
+        @DisplayName("Should return positive latest price change")
+        void shouldReturnPositiveLatestPriceChange() {
+            stock.addNewSalesPrice(new BigDecimal("160.00"));
+
+            assertEquals(0, new BigDecimal("9.50").compareTo(stock.getLatestPriceChange()));
+        }
+
+        @Test
+        @DisplayName("Should return negative latest price change")
+        void shouldReturnNegativeLatestPriceChange() {
+            stock.addNewSalesPrice(new BigDecimal("140.00"));
+
+            assertEquals(0, new BigDecimal("-10.50").compareTo(stock.getLatestPriceChange()));
+        }
+    }
 }

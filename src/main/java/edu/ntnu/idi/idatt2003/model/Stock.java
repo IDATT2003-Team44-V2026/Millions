@@ -77,6 +77,60 @@ public class Stock {
   }
 
   /**
+   * Returns all registered sales prices for this stock.
+   *
+   * <p>The returned list is a defensive copy of the internal price history.
+   * Modifying the returned list does not affect this stock.</p>
+   *
+   * @return a list of all registered sales prices in chronological order
+   */
+  public List<BigDecimal> getHistoricalPrices() {
+    return new ArrayList<>(prices);
+  }
+
+  /**
+   * Returns the highest registered sales price for this stock.
+   *
+   * @return the highest registered sales price, or {@code null} if no prices exist
+   */
+  public BigDecimal getHighestPrice() {
+    if (prices.isEmpty()) {
+      return null;
+    }
+    return prices.stream().max(BigDecimal::compareTo).orElse(null);
+  }
+
+  /**
+   * Returns the lowest registered sales price for this stock.
+   *
+   * @return the lowest registered sales price, or {@code null} if no prices exist
+   */
+  public BigDecimal getLowestPrice() {
+    if (prices.isEmpty()) {
+      return null;
+    }
+    return prices.stream().min(BigDecimal::compareTo).orElse(null);
+  }
+
+  /**
+   * Returns the change between the latest and previous registered sales price.
+   *
+   * <p>If only one price has been registered, the stock is considered to have
+   * no price change and {@link BigDecimal#ZERO} is returned.</p>
+   *
+   * @return the difference between the latest and previous sales price
+   */
+  public BigDecimal getLatestPriceChange() {
+    if (prices.size() < 2) {
+      return BigDecimal.ZERO;
+    }
+
+    BigDecimal latestPrice = prices.get(prices.size() - 1);
+    BigDecimal previousPrice = prices.get(prices.size() - 2);
+    return latestPrice.subtract(previousPrice);
+  }
+
+  /**
    * Adds a new sales price to the stock's price history.
    *
    * <p>The new price becomes the current sales price returned by

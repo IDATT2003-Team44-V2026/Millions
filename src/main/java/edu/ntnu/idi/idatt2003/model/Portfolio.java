@@ -1,5 +1,7 @@
 package edu.ntnu.idi.idatt2003.model;
 
+import edu.ntnu.idi.idatt2003.calculators.SaleCalculator;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +59,23 @@ public class Portfolio {
      */
     public List<Share> getShares() {
         return new ArrayList<>(shares);
+    }
+
+    /**
+     * Returns the total net sale value of all shares in this portfolio.
+     *
+     * <p>Each share is valued using a {@link SaleCalculator}, so the returned
+     * amount reflects the total value the player would receive if all holdings
+     * were sold at their current prices.</p>
+     *
+     * @return the total net worth of this portfolio
+     */
+    public BigDecimal getNetWorth() {
+        BigDecimal netWorth = BigDecimal.ZERO;
+        for (Share share : shares) {
+            netWorth = netWorth.add(new SaleCalculator(share).calculateTotal());
+        }
+        return netWorth;
     }
 
     /**

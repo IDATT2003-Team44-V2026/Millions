@@ -287,6 +287,34 @@ class PortfolioTest {
     }
 
     @Nested
+    @DisplayName("Net Worth Tests")
+    class NetWorthTests {
+
+        @Test
+        @DisplayName("Should return zero net worth for empty portfolio")
+        void shouldReturnZeroNetWorthForEmptyPortfolio() {
+            assertEquals(0, BigDecimal.ZERO.compareTo(portfolio.getNetWorth()));
+        }
+
+        @Test
+        @DisplayName("Should return net worth for single share")
+        void shouldReturnNetWorthForSingleShare() {
+            portfolio.addShare(appleShare1);
+
+            assertEquals(0, new BigDecimal("1474.5000").compareTo(portfolio.getNetWorth()));
+        }
+
+        @Test
+        @DisplayName("Should return total net worth for multiple shares")
+        void shouldReturnTotalNetWorthForMultipleShares() {
+            portfolio.addShare(appleShare1);
+            portfolio.addShare(googleShare);
+
+            assertEquals(0, new BigDecimal("6409.5000").compareTo(portfolio.getNetWorth()));
+        }
+    }
+
+    @Nested
     @DisplayName("Contains Tests")
     class ContainsTests {
 

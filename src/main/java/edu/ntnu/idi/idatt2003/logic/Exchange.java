@@ -32,7 +32,7 @@ public class Exchange {
      *
      * @param name   the name of the exchange; must not be {@code null} or blank
      * @param stocks the initial list of stocks to be listed on the exchange;
-     *                must not be {@code null}, empty, or contain {@code null} elements
+     *              must not be {@code null}, empty, or contain {@code null} elements
      * @throws IllegalArgumentException if {@code name} is {@code null} or blank,
      *                                  if {@code stocks} is {@code null} or empty,
      *                                  or if any stock in the list is {@code null}

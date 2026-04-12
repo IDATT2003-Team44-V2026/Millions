@@ -67,6 +67,15 @@ public class Player {
     }
 
     /**
+     * Returns the player's starting capital.
+     *
+     * @return the starting capital
+     */
+    public BigDecimal getStartingMoney() {
+        return startingMoney;
+    }
+
+    /**
      * Adds the specified amount to the player's money balance.
      *
      * @param amount the amount to add; must not be {@code null} and must be positive
@@ -110,6 +119,46 @@ public class Player {
      */
     public Portfolio getPortfolio() {
         return portfolio;
+    }
+
+    /**
+     * Returns the player's current total net worth.
+     *
+     * <p>The player's net worth is the sum of the remaining money balance and
+     * the current net sale value of the portfolio.</p>
+     *
+     * @return the player's current net worth
+     */
+    public BigDecimal getNetWorth() {
+        return money.add(portfolio.getNetWorth());
+    }
+
+    /**
+     * Returns the player's current status level.
+     *
+     * <p>Status is determined by the player's current net worth compared with
+     * the starting capital, as well as the number of distinct trading weeks
+     * recorded in the transaction archive.</p>
+     *
+     * @return the player's current {@link PlayerStatus}
+     */
+    public PlayerStatus getStatus() {
+        int weeksPlayed = transactionArchive.countDistinctWeeks();
+        BigDecimal netWorth = getNetWorth();
+
+        if (weeksPlayed >= 20
+            && netWorth.compareTo(startingMoney) > 0
+            && netWorth.compareTo(startingMoney.multiply(new BigDecimal("2.00"))) >= 0) {
+            return PlayerStatus.SPECULATOR;
+        }
+
+        if (weeksPlayed >= 10
+            && netWorth.compareTo(startingMoney) > 0
+            && netWorth.compareTo(startingMoney.multiply(new BigDecimal("1.20"))) >= 0) {
+            return PlayerStatus.INVESTOR;
+        }
+
+        return PlayerStatus.NOVICE;
     }
 
     /**

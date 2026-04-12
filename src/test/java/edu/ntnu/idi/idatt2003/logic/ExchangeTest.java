@@ -201,6 +201,93 @@ class ExchangeTest {
     }
 
     @Nested
+    @DisplayName("Statistics Tests")
+    class StatisticsTests {
+
+        @Test
+        @DisplayName("Should return gainers ordered by latest price change")
+        void shouldReturnGainersOrderedByLatestPriceChange() {
+            Stock teslaStock = new Stock("TSLA", "Tesla Inc.", new BigDecimal("100.00"));
+            Exchange statisticsExchange = new Exchange("NASDAQ", List.of(appleStock, googleStock, teslaStock));
+            appleStock.addNewSalesPrice(new BigDecimal("160.00"));
+            googleStock.addNewSalesPrice(new BigDecimal("2505.00"));
+            teslaStock.addNewSalesPrice(new BigDecimal("130.00"));
+
+            List<Stock> gainers = statisticsExchange.getGainers(2);
+
+            assertEquals(2, gainers.size());
+            assertEquals("TSLA", gainers.get(0).getSymbol());
+            assertEquals("AAPL", gainers.get(1).getSymbol());
+        }
+
+        @Test
+        @DisplayName("Should only return stocks with positive latest price change as gainers")
+        void shouldOnlyReturnStocksWithPositiveLatestPriceChangeAsGainers() {
+            appleStock.addNewSalesPrice(new BigDecimal("160.00"));
+            googleStock.addNewSalesPrice(new BigDecimal("2400.00"));
+
+            List<Stock> gainers = exchange.getGainers(5);
+
+            assertEquals(1, gainers.size());
+            assertEquals("AAPL", gainers.getFirst().getSymbol());
+        }
+
+        @Test
+        @DisplayName("Should return losers ordered by latest price change")
+        void shouldReturnLosersOrderedByLatestPriceChange() {
+            Stock teslaStock = new Stock("TSLA", "Tesla Inc.", new BigDecimal("100.00"));
+            Exchange statisticsExchange = new Exchange("NASDAQ", List.of(appleStock, googleStock, teslaStock));
+            appleStock.addNewSalesPrice(new BigDecimal("145.00"));
+            googleStock.addNewSalesPrice(new BigDecimal("2450.00"));
+            teslaStock.addNewSalesPrice(new BigDecimal("97.00"));
+
+            List<Stock> losers = statisticsExchange.getLosers(2);
+
+            assertEquals(2, losers.size());
+            assertEquals("GOOGL", losers.get(0).getSymbol());
+            assertEquals("AAPL", losers.get(1).getSymbol());
+        }
+
+        @Test
+        @DisplayName("Should only return stocks with negative latest price change as losers")
+        void shouldOnlyReturnStocksWithNegativeLatestPriceChangeAsLosers() {
+            appleStock.addNewSalesPrice(new BigDecimal("145.00"));
+            googleStock.addNewSalesPrice(new BigDecimal("2550.00"));
+
+            List<Stock> losers = exchange.getLosers(5);
+
+            assertEquals(1, losers.size());
+            assertEquals("AAPL", losers.getFirst().getSymbol());
+        }
+
+        @Test
+        @DisplayName("Should return fewer stocks than limit when fewer match")
+        void shouldReturnFewerStocksThanLimitWhenFewerMatch() {
+            appleStock.addNewSalesPrice(new BigDecimal("160.00"));
+
+            List<Stock> gainers = exchange.getGainers(5);
+
+            assertEquals(1, gainers.size());
+        }
+
+        @Test
+        @DisplayName("Should throw exception when gainers limit is zero")
+        void shouldThrowExceptionWhenGainersLimitIsZero() {
+            assertThrows(IllegalArgumentException.class, () ->
+                exchange.getGainers(0)
+            );
+        }
+
+        @Test
+        @DisplayName("Should throw exception when losers limit is negative")
+        void shouldThrowExceptionWhenLosersLimitIsNegative() {
+            assertThrows(IllegalArgumentException.class, () ->
+                exchange.getLosers(-1)
+            );
+        }
+    }
+
+    @Nested
     @DisplayName("Buy Tests")
     class BuyTests {
 

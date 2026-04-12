@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.math.BigDecimal;
 
@@ -51,45 +53,25 @@ class PurchaseCalculatorTest {
     @DisplayName("Calculate Gross Tests")
     class CalculateGrossTests {
 
-        @Test
-        @DisplayName("Should calculate gross as purchase price times quantity")
-        void shouldCalculateGrossAsPurchasePriceTimesQuantity() {
-            BigDecimal gross = calculator.calculateGross();
+        @ParameterizedTest(name = "Quantity: {0}, Purchase Price: {1} -> Gross: {2}")
+        @CsvSource({
+            "10, 100.00, 1000.00",
+            "2.5, 100.00, 250.00",
+            "10, 99.99, 999.90",
+            "1, 100.00, 100.00"
+        })
+        @DisplayName("Should calculate gross correctly for various quantity and price combinations")
+        void shouldCalculateGrossCorrectly(String quantityStr, String priceStr, String expectedGrossStr) {
+            BigDecimal qty = new BigDecimal(quantityStr);
+            BigDecimal price = new BigDecimal(priceStr);
+            BigDecimal expectedGross = new BigDecimal(expectedGrossStr);
+            
+            Share customShare = new Share(stock, qty, price);
+            PurchaseCalculator customCalculator = new PurchaseCalculator(customShare);
 
-            assertEquals(0, gross.compareTo(new BigDecimal("1000.00")));
-        }
+            BigDecimal gross = customCalculator.calculateGross();
 
-        @Test
-        @DisplayName("Should calculate gross for fractional quantity")
-        void shouldCalculateGrossForFractionalQuantity() {
-            Share fractionalShare = new Share(stock, new BigDecimal("2.5"), new BigDecimal("100.00"));
-            PurchaseCalculator fractionalCalculator = new PurchaseCalculator(fractionalShare);
-
-            BigDecimal gross = fractionalCalculator.calculateGross();
-
-            assertEquals(0, gross.compareTo(new BigDecimal("250.00")));
-        }
-
-        @Test
-        @DisplayName("Should calculate gross for fractional price")
-        void shouldCalculateGrossForFractionalPrice() {
-            Share fractionalPriceShare = new Share(stock, new BigDecimal("10"), new BigDecimal("99.99"));
-            PurchaseCalculator fractionalPriceCalculator = new PurchaseCalculator(fractionalPriceShare);
-
-            BigDecimal gross = fractionalPriceCalculator.calculateGross();
-
-            assertEquals(0, gross.compareTo(new BigDecimal("999.90")));
-        }
-
-        @Test
-        @DisplayName("Should calculate gross for single share")
-        void shouldCalculateGrossForSingleShare() {
-            Share singleShare = new Share(stock, new BigDecimal("1"), new BigDecimal("100.00"));
-            PurchaseCalculator singleCalculator = new PurchaseCalculator(singleShare);
-
-            BigDecimal gross = singleCalculator.calculateGross();
-
-            assertEquals(0, gross.compareTo(new BigDecimal("100.00")));
+            assertEquals(0, gross.compareTo(expectedGross));
         }
     }
 
@@ -97,34 +79,24 @@ class PurchaseCalculatorTest {
     @DisplayName("Calculate Commission Tests")
     class CalculateCommissionTests {
 
-        @Test
+        @ParameterizedTest(name = "Quantity: {0}, Purchase Price: {1} -> Commission: {2}")
+        @CsvSource({
+            "10, 100.00, 5.00",
+            "1, 10.00, 0.05",
+            "1000, 1000.00, 5000.00"
+        })
         @DisplayName("Should calculate commission as 0.5% of gross")
-        void shouldCalculateCommissionAsHalfPercentOfGross() {
-            BigDecimal commission = calculator.calculateCommission();
+        void shouldCalculateCommissionCorrectly(String quantityStr, String priceStr, String expectedCommissionStr) {
+            BigDecimal qty = new BigDecimal(quantityStr);
+            BigDecimal price = new BigDecimal(priceStr);
+            BigDecimal expectedCommission = new BigDecimal(expectedCommissionStr);
+            
+            Share customShare = new Share(stock, qty, price);
+            PurchaseCalculator customCalculator = new PurchaseCalculator(customShare);
 
-            assertEquals(0, commission.compareTo(new BigDecimal("5.00")));
-        }
+            BigDecimal commission = customCalculator.calculateCommission();
 
-        @Test
-        @DisplayName("Should calculate commission correctly for small amounts")
-        void shouldCalculateCommissionCorrectlyForSmallAmounts() {
-            Share smallShare = new Share(stock, new BigDecimal("1"), new BigDecimal("10.00"));
-            PurchaseCalculator smallCalculator = new PurchaseCalculator(smallShare);
-
-            BigDecimal commission = smallCalculator.calculateCommission();
-
-            assertEquals(0, commission.compareTo(new BigDecimal("0.05")));
-        }
-
-        @Test
-        @DisplayName("Should calculate commission correctly for large amounts")
-        void shouldCalculateCommissionCorrectlyForLargeAmounts() {
-            Share largeShare = new Share(stock, new BigDecimal("1000"), new BigDecimal("1000.00"));
-            PurchaseCalculator largeCalculator = new PurchaseCalculator(largeShare);
-
-            BigDecimal commission = largeCalculator.calculateCommission();
-
-            assertEquals(0, commission.compareTo(new BigDecimal("5000.00")));
+            assertEquals(0, commission.compareTo(expectedCommission));
         }
     }
 
@@ -132,21 +104,17 @@ class PurchaseCalculatorTest {
     @DisplayName("Calculate Tax Tests")
     class CalculateTaxTests {
 
-        @Test
-        @DisplayName("Should return zero tax for purchase")
-        void shouldReturnZeroTaxForPurchase() {
-            BigDecimal tax = calculator.calculateTax();
+        @ParameterizedTest(name = "Quantity: {0}, Price: {1} -> Tax: 0")
+        @CsvSource({
+            "10, 100.00",
+            "1000, 5000.00"
+        })
+        @DisplayName("Should return zero tax for purchase regardless of amount")
+        void shouldReturnZeroTaxForPurchase(String quantityStr, String priceStr) {
+            Share customShare = new Share(stock, new BigDecimal(quantityStr), new BigDecimal(priceStr));
+            PurchaseCalculator customCalculator = new PurchaseCalculator(customShare);
 
-            assertEquals(0, tax.compareTo(BigDecimal.ZERO));
-        }
-
-        @Test
-        @DisplayName("Should always return zero tax regardless of amount")
-        void shouldAlwaysReturnZeroTaxRegardlessOfAmount() {
-            Share largeShare = new Share(stock, new BigDecimal("1000"), new BigDecimal("5000.00"));
-            PurchaseCalculator largeCalculator = new PurchaseCalculator(largeShare);
-
-            BigDecimal tax = largeCalculator.calculateTax();
+            BigDecimal tax = customCalculator.calculateTax();
 
             assertEquals(0, tax.compareTo(BigDecimal.ZERO));
         }
@@ -156,39 +124,29 @@ class PurchaseCalculatorTest {
     @DisplayName("Calculate Total Tests")
     class CalculateTotalTests {
 
-        @Test
+        @ParameterizedTest(name = "Quantity: {0}, Price: {1} -> Total: {2}")
+        @CsvSource({
+            "10, 100.00, 1005.00",
+            "1, 10.00, 10.05",
+            "100, 500.00, 50250.00"
+        })
         @DisplayName("Should calculate total as gross plus commission plus tax")
-        void shouldCalculateTotalAsGrossPlusCommissionPlusTax() {
-            BigDecimal total = calculator.calculateTotal();
+        void shouldCalculateTotalCorrectly(String quantityStr, String priceStr, String expectedTotalStr) {
+            BigDecimal qty = new BigDecimal(quantityStr);
+            BigDecimal price = new BigDecimal(priceStr);
+            BigDecimal expectedTotal = new BigDecimal(expectedTotalStr);
+            
+            Share customShare = new Share(stock, qty, price);
+            PurchaseCalculator customCalculator = new PurchaseCalculator(customShare);
 
-            assertEquals(0, total.compareTo(new BigDecimal("1005.00")));
+            BigDecimal total = customCalculator.calculateTotal();
+
+            assertEquals(0, total.compareTo(expectedTotal));
         }
 
         @Test
-        @DisplayName("Should calculate correct total for small purchase")
-        void shouldCalculateCorrectTotalForSmallPurchase() {
-            Share smallShare = new Share(stock, new BigDecimal("1"), new BigDecimal("10.00"));
-            PurchaseCalculator smallCalculator = new PurchaseCalculator(smallShare);
-
-            BigDecimal total = smallCalculator.calculateTotal();
-
-            assertEquals(0, total.compareTo(new BigDecimal("10.05")));
-        }
-
-        @Test
-        @DisplayName("Should calculate correct total for large purchase")
-        void shouldCalculateCorrectTotalForLargePurchase() {
-            Share largeShare = new Share(stock, new BigDecimal("100"), new BigDecimal("500.00"));
-            PurchaseCalculator largeCalculator = new PurchaseCalculator(largeShare);
-
-            BigDecimal total = largeCalculator.calculateTotal();
-
-            assertEquals(0, total.compareTo(new BigDecimal("50250.00")));
-        }
-
-        @Test
-        @DisplayName("Should verify total equals gross plus commission when tax is zero")
-        void shouldVerifyTotalEqualsGrossPlusCommissionWhenTaxIsZero() {
+        @DisplayName("Should verify total equals sum of components")
+        void shouldVerifyTotalEqualsSumOfComponents() {
             BigDecimal gross = calculator.calculateGross();
             BigDecimal commission = calculator.calculateCommission();
             BigDecimal tax = calculator.calculateTax();

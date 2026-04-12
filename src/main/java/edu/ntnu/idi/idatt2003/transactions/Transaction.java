@@ -25,7 +25,7 @@ public abstract class Transaction {
     private boolean committed;
 
     /**
-     * Creates a new transaction.
+     * Creates a new transaction
      *
      * @param share      the share involved in the transaction; must not be {@code null}
      * @param week       the week number when the transaction takes place; must not be negative

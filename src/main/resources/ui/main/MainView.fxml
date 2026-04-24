@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<!--
+ Root layout of the application shell.
+
+ Contains:
+ - TopBar (always visible)
+ - StackPane center layer with:
+     - dynamic content (views)
+     - overlay
+     - sidebar
+-->
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="edu.ntnu.idi.idatt2003.ui.main.MainController">
+    <!-- top bar -->
+    <top>
+        <fx:include fx:id="topBar"
+                    source="../topbar/TopBar.fxml"/>
+    </top>
+    <center>
+        <StackPane fx:id="centerStack">
+            <!-- dynamic view -->
+            <StackPane fx:id="contentArea"/>
+
+            <!-- dark overlay -->
+            <Pane fx:id="overlay"
+                  visible="false"
+                  mouseTransparent="false"
+                  style="-fx-background-color: rgba(0,0,0,0.35);"/>
+
+            <!-- sidebar -->
+            <fx:include fx:id="sidebar"
+                        source="../sidebar/SidebarView.fxml"/>
+        </StackPane>
+    </center>
+</BorderPane>

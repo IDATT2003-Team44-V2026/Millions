@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="edu.ntnu.idi.idatt2003.ui.topbar.TopBarController"
+      spacing="10"
+      style="-fx-padding: 10; -fx-background-color: #34495e;">
+
+    <!-- Hamburger menu button -->
+    <Button text="☰" onAction="#onMenuClicked"/>
+
+</HBox>

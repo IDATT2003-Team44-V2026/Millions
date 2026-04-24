@@ -1,17 +1,40 @@
 package edu.ntnu.idi.idatt2003;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
-        }
+/**
+ * Entry point for the Millions stock trading application.
+ *
+ * <p>Launches the JavaFX runtime and shows the primary stage maximized
+ * to fill the available screen (normal window, not exclusive fullscreen).
+ * Further UI will be built out under del 3 (MVC, views, and controllers).</p>
+ */
+public class Main extends Application {
+
+    private static final double DEFAULT_WIDTH = 960;
+    private static final double DEFAULT_HEIGHT = 600;
+
+    @Override
+    public void start(Stage primaryStage) {
+        Label placeholder = new Label("Millions");
+        StackPane root = new StackPane(placeholder);
+        Scene scene = new Scene(root, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        primaryStage.setTitle("Millions");
+        primaryStage.setScene(scene);
+        primaryStage.setMaximized(true);
+        primaryStage.show();
+    }
+
+    /**
+     * Starts the JavaFX application.
+     *
+     * @param args command-line arguments (unused)
+     */
+    public static void main(String[] args) {
+        launch(args);
     }
 }

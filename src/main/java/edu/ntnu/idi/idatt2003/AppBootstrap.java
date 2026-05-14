@@ -3,6 +3,7 @@ package edu.ntnu.idi.idatt2003;
 import edu.ntnu.idi.idatt2003.controller.NewGameController;
 import edu.ntnu.idi.idatt2003.controller.PlaceholderController;
 import edu.ntnu.idi.idatt2003.controller.StartController;
+import edu.ntnu.idi.idatt2003.io.ExchangeCsvHandler;
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
 import edu.ntnu.idi.idatt2003.navigation.Route;
 import edu.ntnu.idi.idatt2003.view.NewGameView;
@@ -33,13 +34,14 @@ public class AppBootstrap {
         StartView startView = new StartView();
         NewGameView newGameView = new NewGameView();
         PlaceholderView placeholderView = new PlaceholderView();
+        ExchangeCsvHandler csvHandler = new ExchangeCsvHandler();
 
         navigator.register(Route.START, startView::getRoot);
         navigator.register(Route.NEW_GAME, newGameView::getRoot);
         navigator.register(Route.PLACEHOLDER, placeholderView::getRoot);
 
         new StartController(startView, navigator);
-        new NewGameController(newGameView, navigator);
+        new NewGameController(newGameView, navigator, csvHandler);
         new PlaceholderController(placeholderView, navigator);
 
         navigator.navigateTo(Route.START);

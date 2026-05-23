@@ -1,15 +1,15 @@
 package edu.ntnu.idi.idatt2003;
 
+import edu.ntnu.idi.idatt2003.controller.GameController;
 import edu.ntnu.idi.idatt2003.controller.NewGameController;
-import edu.ntnu.idi.idatt2003.controller.PlaceholderController;
 import edu.ntnu.idi.idatt2003.controller.StartController;
 import edu.ntnu.idi.idatt2003.io.ExchangeCsvHandler;
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
 import edu.ntnu.idi.idatt2003.navigation.Route;
 import edu.ntnu.idi.idatt2003.service.GameSession;
 import edu.ntnu.idi.idatt2003.service.GameSessionFactory;
+import edu.ntnu.idi.idatt2003.view.GameView;
 import edu.ntnu.idi.idatt2003.view.NewGameView;
-import edu.ntnu.idi.idatt2003.view.PlaceholderView;
 import edu.ntnu.idi.idatt2003.view.StartView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -45,16 +45,14 @@ public class AppBootstrap {
      */
     public void start() {
         StartView startView = new StartView();
-        PlaceholderView placeholderView = new PlaceholderView();
         ExchangeCsvHandler csvHandler = new ExchangeCsvHandler();
         GameSessionFactory gameSessionFactory = new GameSessionFactory();
 
         navigator.register(Route.START, startView::getRoot);
         navigator.register(Route.NEW_GAME, () -> createNewGameRoot(csvHandler, gameSessionFactory));
-        navigator.register(Route.PLACEHOLDER, placeholderView::getRoot);
+        navigator.register(Route.GAME, this::createGameRoot);
         
         new StartController(startView, navigator);
-        new PlaceholderController(placeholderView, navigator);
 
         navigator.navigateTo(Route.START);
     }
@@ -70,5 +68,15 @@ public class AppBootstrap {
 
     private void setActiveSession(GameSession gameSession) {
         activeSession = gameSession;
+    }
+
+    private Parent createGameRoot() {
+        if (activeSession == null) {
+            throw new IllegalStateException("Cannot open game route before a session is created");
+        }
+
+        GameView gameView = new GameView();
+        new GameController(gameView, activeSession, navigator);
+        return gameView.getRoot();
     }
 }

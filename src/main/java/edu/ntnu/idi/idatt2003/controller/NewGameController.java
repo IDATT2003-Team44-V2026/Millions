@@ -164,7 +164,7 @@ public class NewGameController {
             activeSessionConsumer.accept(gameSession);
             logGameSessionDetails(gameSession);
             view.clearError();
-            navigator.navigateTo(Route.PLACEHOLDER);
+            navigator.navigateTo(Route.GAME);
         } catch (IllegalArgumentException _) {
             view.showError(START_GAME_FAILED_MESSAGE);
         }

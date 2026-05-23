@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -22,6 +23,7 @@ import javafx.stage.Window;
  */
 public class NewGameController {
 
+    private static final Logger LOGGER = Logger.getLogger(NewGameController.class.getName());
     private static final String INVALID_STOCK_FILE_MESSAGE =
         "Could not load stock data. Please choose a valid CSV file.";
     private static final String MISSING_PLAYER_NAME_MESSAGE = "Enter a player name.";
@@ -160,6 +162,7 @@ public class NewGameController {
                 loadedStocks
             );
             activeSessionConsumer.accept(gameSession);
+            logGameSessionDetails(gameSession);
             view.clearError();
             navigator.navigateTo(Route.PLACEHOLDER);
         } catch (IllegalArgumentException _) {
@@ -174,6 +177,18 @@ public class NewGameController {
             view.showError(INVALID_STARTING_CAPITAL_MESSAGE);
             return null;
         }
+    }
+
+    private void logGameSessionDetails(GameSession gameSession) {
+        LOGGER.info(() -> String.format(
+            "Started game session: player=%s, startingCapital=%s, exchange=%s, week=%d, stocks=%d, file=%s",
+            gameSession.getPlayer().getName(),
+            gameSession.getPlayer().getStartingMoney(),
+            gameSession.getExchange().getName(),
+            gameSession.getExchange().getWeek(),
+            loadedStocks.size(),
+            selectedStockFile
+        ));
     }
 
     private Window getOwnerWindow() {

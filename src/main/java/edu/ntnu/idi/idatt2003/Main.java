@@ -1,7 +1,12 @@
 package edu.ntnu.idi.idatt2003;
 
 import javafx.application.Application;
+import javafx.css.PseudoClass;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -9,6 +14,9 @@ public class Main extends Application {
 
     private static final double DEFAULT_WIDTH = 960;
     private static final double DEFAULT_HEIGHT = 600;
+    private static final PseudoClass KEYBOARD_NAVIGATION =
+        PseudoClass.getPseudoClass("keyboard-navigation");
+    private boolean keyboardNavigationActive;
 
     @Override
     public void start(Stage primaryStage) {
@@ -16,6 +24,7 @@ public class Main extends Application {
 
         Scene scene = new Scene(new StackPane(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
         ApplicationResources.applyStylesheets(scene);
+        configureFocusVisibility(scene);
 
         AppBootstrap appBootstrap = new AppBootstrap(scene);
         appBootstrap.start();
@@ -28,5 +37,35 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void configureFocusVisibility(Scene scene) {
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            keyboardNavigationActive = false;
+            updateKeyboardNavigationClass(scene.getRoot());
+        });
+
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (isKeyboardNavigationKey(event.getCode())) {
+                keyboardNavigationActive = true;
+                updateKeyboardNavigationClass(scene.getRoot());
+            }
+        });
+
+        scene.rootProperty().addListener((observable, oldRoot, newRoot) ->
+            updateKeyboardNavigationClass(newRoot)
+        );
+    }
+
+    private boolean isKeyboardNavigationKey(KeyCode keyCode) {
+        return keyCode == KeyCode.TAB;
+    }
+
+    private void updateKeyboardNavigationClass(Parent root) {
+        if (root == null) {
+            return;
+        }
+
+        root.pseudoClassStateChanged(KEYBOARD_NAVIGATION, keyboardNavigationActive);
     }
 }

@@ -212,3 +212,128 @@
   -fx-font-size: 22px;
   -fx-font-weight: 700;
 }
+
+.data-table {
+  -fx-background-color: transparent;
+  -fx-border-color: #e5e7eb;
+  -fx-border-width: 1px;
+  -fx-border-radius: 12px;
+  -fx-background-radius: 12px;
+}
+
+.data-table .column-header-background {
+  -fx-background-color: #fafafa;
+  -fx-background-radius: 12px 12px 0 0;
+}
+
+.data-table .column-header,
+.data-table .filler {
+  -fx-background-color: transparent;
+  -fx-size: 44px;
+}
+
+.data-table .column-header .label {
+  -fx-text-fill: #52525b;
+  -fx-font-size: 12px;
+  -fx-font-weight: 700;
+}
+
+.data-table .table-row-cell {
+  -fx-background-color: #ffffff;
+  -fx-cell-size: 44px;
+}
+
+.data-table .table-row-cell:odd {
+  -fx-background-color: #fcfcfd;
+}
+
+.data-table .table-row-cell:hover,
+.data-table .table-row-cell:selected {
+  -fx-background-color: #f4f4f5;
+}
+
+.data-table .table-cell {
+  -fx-text-fill: #09090b;
+  -fx-font-size: 13px;
+  -fx-padding: 0 12px;
+  -fx-border-color: transparent #e5e7eb transparent transparent;
+  -fx-border-width: 0 1px 0 0;
+  -fx-alignment: center-left;
+}
+
+.data-table .scroll-bar {
+  -fx-background-color: #fafafa;
+}
+
+.data-table .scroll-bar:vertical {
+  -fx-pref-width: 12px;
+  -fx-padding: 2px;
+}
+
+.data-table .scroll-bar:horizontal {
+  -fx-pref-height: 12px;
+  -fx-padding: 2px;
+}
+
+.data-table .scroll-bar .thumb {
+  -fx-background-color: #d4d4d8;
+  -fx-background-radius: 999px;
+}
+
+.data-table .scroll-bar .thumb:hover {
+  -fx-background-color: #a1a1aa;
+}
+
+.data-table .scroll-bar .track {
+  -fx-background-color: #fafafa;
+  -fx-background-radius: 999px;
+}
+
+.data-table .scroll-bar .increment-button,
+.data-table .scroll-bar .decrement-button {
+  -fx-background-color: transparent;
+  -fx-padding: 0;
+}
+
+.data-table .scroll-bar .increment-arrow,
+.data-table .scroll-bar .decrement-arrow {
+  -fx-background-color: transparent;
+  -fx-padding: 0;
+}
+
+.positive-change {
+  -fx-text-fill: #15803d;
+  -fx-font-weight: 800;
+}
+
+.negative-change {
+  -fx-text-fill: #b91c1c;
+  -fx-font-weight: 800;
+}
+
+.neutral-change {
+  -fx-text-fill: #09090b;
+  -fx-font-weight: 800;
+}
+
+.data-table .table-cell.positive-change {
+  -fx-text-fill: #15803d;
+  -fx-font-weight: 800;
+}
+
+.data-table .table-cell.negative-change {
+  -fx-text-fill: #b91c1c;
+  -fx-font-weight: 800;
+}
+
+.data-table .table-cell.neutral-change {
+  -fx-text-fill: #09090b;
+  -fx-font-weight: 800;
+}
+
+.table-action-button {
+  -fx-font-size: 12px;
+  -fx-padding: 6px 10px;
+  -fx-min-height: 32px;
+  -fx-min-width: 64px;
+}

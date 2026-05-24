@@ -122,6 +122,30 @@ class ExchangeTest {
             assertNull(exchange.getStock("MSFT"));
         }
 
+        @Test
+        @DisplayName("Should return listed stocks ordered by symbol")
+        void shouldReturnListedStocksOrderedBySymbol() {
+            Stock microsoftStock = new Stock("MSFT", "Microsoft Corp", new BigDecimal("300.00"));
+            Exchange sortedExchange = new Exchange("NASDAQ", List.of(googleStock, microsoftStock, appleStock));
+
+            List<Stock> stocks = sortedExchange.getStocks();
+
+            assertEquals(List.of("AAPL", "GOOGL", "MSFT"), stocks.stream()
+                .map(Stock::getSymbol)
+                .toList());
+        }
+
+        @Test
+        @DisplayName("Should return unmodifiable listed stocks")
+        void shouldReturnUnmodifiableListedStocks() {
+            List<Stock> stocks = exchange.getStocks();
+            Stock microsoftStock = new Stock("MSFT", "Microsoft Corp", new BigDecimal("300.00"));
+
+            assertThrows(UnsupportedOperationException.class, () ->
+                stocks.add(microsoftStock)
+            );
+        }
+
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = {"  ", "\t", "\n"})

@@ -2,6 +2,7 @@ package edu.ntnu.idi.idatt2003.controller;
 
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
 import edu.ntnu.idi.idatt2003.navigation.Route;
+import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.observer.GameObserver;
 import edu.ntnu.idi.idatt2003.service.GameSession;
 import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
@@ -64,6 +65,7 @@ public class GameController implements GameObserver {
         view.setOnPortfolio(event -> showPortfolio());
         view.setOnTransactions(event -> showTransactions());
         view.setOnAdvanceWeek(event -> gameSession.advanceWeek());
+        marketView.setOnBuy(this::showBuyPlaceholder);
         view.setOnExit(event -> {
             gameSession.endSession();
             gameSession.removeObserver(this);
@@ -93,9 +95,14 @@ public class GameController implements GameObserver {
             format(gameSession.getPlayer().getNetWorth()),
             gameSession.getExchange().getWeek()
         );
+        marketView.setStocks(gameSession.getExchange().getStocks());
     }
 
     private static String format(BigDecimal amount) {
         return CurrencyFormatter.formatToNOK(amount.doubleValue());
+    }
+
+    private void showBuyPlaceholder(Stock stock) {
+        marketView.showBuyPlaceholder(stock);
     }
 }

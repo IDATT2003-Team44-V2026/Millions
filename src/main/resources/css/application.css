@@ -213,6 +213,74 @@
   -fx-font-weight: 700;
 }
 
+.modal-overlay {
+  -fx-background-color: rgba(24, 24, 27, 0.28);
+}
+
+.modal-card {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #e5e7eb;
+  -fx-border-width: 1px;
+  -fx-border-radius: 16px;
+  -fx-background-radius: 16px;
+  -fx-padding: 24px;
+  -fx-pref-width: 430px;
+  -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.18), 28, 0.24, 0, 10);
+}
+
+.modal-heading {
+  -fx-padding: 0 0 4px 0;
+}
+
+.modal-title {
+  -fx-text-fill: #09090b;
+  -fx-font-size: 20px;
+  -fx-font-weight: 800;
+}
+
+.modal-subtitle {
+  -fx-text-fill: #71717a;
+  -fx-font-size: 12px;
+}
+
+.summary-row {
+  -fx-min-height: 24px;
+}
+
+.summary-card {
+  -fx-background-color: #fafafa;
+  -fx-border-color: #e5e7eb;
+  -fx-border-width: 1px;
+  -fx-border-radius: 12px;
+  -fx-background-radius: 12px;
+  -fx-padding: 12px;
+}
+
+.summary-label {
+  -fx-text-fill: #71717a;
+  -fx-font-size: 12px;
+}
+
+.summary-value {
+  -fx-text-fill: #18181b;
+  -fx-font-size: 12px;
+  -fx-font-weight: 700;
+}
+
+.summary-row-total {
+  -fx-padding: 6px 0 0 0;
+}
+
+.summary-row-total .summary-label,
+.summary-row-total .summary-value {
+  -fx-text-fill: #09090b;
+  -fx-font-weight: 800;
+}
+
+.modal-actions {
+  -fx-padding: 8px 0 0 0;
+}
+
 .data-table {
   -fx-background-color: transparent;
   -fx-border-color: #e5e7eb;

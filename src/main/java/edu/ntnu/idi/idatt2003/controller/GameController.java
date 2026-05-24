@@ -66,6 +66,7 @@ public class GameController implements GameObserver {
         view.setOnTransactions(event -> showTransactions());
         view.setOnAdvanceWeek(event -> gameSession.advanceWeek());
         marketView.setOnBuy(this::showBuyPlaceholder);
+        marketView.setModalHandlers(view::showModal, view::hideModal);
         view.setOnExit(event -> {
             gameSession.endSession();
             gameSession.removeObserver(this);

@@ -22,7 +22,9 @@ public class GameView {
 
     private static final String SELECTED_NAV_CLASS = "sidebar-button-selected";
 
-    private final BorderPane root;
+    private final StackPane root;
+    private final BorderPane shell;
+    private final StackPane modalOverlay;
     private final Button marketButton;
     private final Button portfolioButton;
     private final Button transactionsButton;
@@ -37,8 +39,8 @@ public class GameView {
      * Creates the main game shell.
      */
     public GameView() {
-        root = new BorderPane();
-        root.getStyleClass().add("game-page");
+        shell = new BorderPane();
+        shell.getStyleClass().add("game-page");
 
         marketButton = createSidebarButton("Market");
         portfolioButton = createSidebarButton("Portfolio");
@@ -51,7 +53,7 @@ public class GameView {
         Region sidebarSpacer = new Region();
         VBox.setVgrow(sidebarSpacer, Priority.ALWAYS);
         sidebar.getChildren().addAll(sidebarSpacer, exitButton);
-        root.setLeft(sidebar);
+        shell.setLeft(sidebar);
 
         playerNameValue = new Label("-");
         balanceValue = new Label("-");
@@ -76,7 +78,16 @@ public class GameView {
         StackPane.setAlignment(advanceWeekButton, Pos.CENTER_RIGHT);
         topbar.setPadding(new Insets(18, 22, 18, 22));
         topbar.getStyleClass().add("topbar");
-        root.setTop(topbar);
+        shell.setTop(topbar);
+
+        modalOverlay = new StackPane();
+        modalOverlay.getStyleClass().add("modal-overlay");
+        modalOverlay.setAlignment(Pos.CENTER);
+        modalOverlay.setPadding(new Insets(24));
+        modalOverlay.setVisible(false);
+        modalOverlay.setManaged(false);
+
+        root = new StackPane(shell, modalOverlay);
     }
 
     /**
@@ -95,7 +106,27 @@ public class GameView {
      */
     public void showContent(Node content) {
         BorderPane.setMargin(content, new Insets(18, 22, 22, 22));
-        root.setCenter(content);
+        shell.setCenter(content);
+    }
+
+    /**
+     * Shows modal content over the full game shell.
+     *
+     * @param content the modal content to show
+     */
+    public void showModal(Node content) {
+        modalOverlay.getChildren().setAll(content);
+        modalOverlay.setManaged(true);
+        modalOverlay.setVisible(true);
+    }
+
+    /**
+     * Hides the current modal content.
+     */
+    public void hideModal() {
+        modalOverlay.setVisible(false);
+        modalOverlay.setManaged(false);
+        modalOverlay.getChildren().clear();
     }
 
     /**

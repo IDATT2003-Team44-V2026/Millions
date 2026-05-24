@@ -76,6 +76,7 @@ public class NewGameView {
         chooseFileButton.getStyleClass().add("secondary-button");
         chooseFileButton.setPrefWidth(360);
         chooseFileButton.setMaxWidth(360);
+        chooseFileButton.setAccessibleText("Choose stock data file");
 
         VBox fileGroup = new VBox(6, fileSectionLabel, fileLabel, chooseFileButton);
         fileGroup.getStyleClass().add(FIELD_GROUP_CLASS);

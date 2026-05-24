@@ -6,5 +6,5 @@ package edu.ntnu.idi.idatt2003.navigation;
 public enum Route {
     START,
     NEW_GAME,
-    PLACEHOLDER
+    GAME,
 }

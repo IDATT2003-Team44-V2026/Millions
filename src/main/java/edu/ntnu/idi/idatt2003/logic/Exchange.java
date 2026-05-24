@@ -113,6 +113,17 @@ public class Exchange {
     }
 
     /**
+     * Returns all stocks listed on this exchange, ordered by ticker symbol.
+     *
+     * @return an unmodifiable list of listed stocks
+     */
+    public List<Stock> getStocks() {
+        return stockMap.values().stream()
+            .sorted(Comparator.comparing(Stock::getSymbol))
+            .toList();
+    }
+
+    /**
      * Searches for stocks whose symbol or company name contains the given search term
      * (case-insensitive).
      *

@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.view;
 
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -14,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Main game shell with shared navigation, stats, and swappable content.
@@ -22,7 +24,10 @@ public class GameView {
 
     private static final String SELECTED_NAV_CLASS = "sidebar-button-selected";
 
-    private final BorderPane root;
+    private final StackPane root;
+    private final BorderPane shell;
+    private final StackPane modalOverlay;
+    private final Label toastLabel;
     private final Button marketButton;
     private final Button portfolioButton;
     private final Button transactionsButton;
@@ -37,8 +42,8 @@ public class GameView {
      * Creates the main game shell.
      */
     public GameView() {
-        root = new BorderPane();
-        root.getStyleClass().add("game-page");
+        shell = new BorderPane();
+        shell.getStyleClass().add("game-page");
 
         marketButton = createSidebarButton("Market");
         portfolioButton = createSidebarButton("Portfolio");
@@ -51,7 +56,7 @@ public class GameView {
         Region sidebarSpacer = new Region();
         VBox.setVgrow(sidebarSpacer, Priority.ALWAYS);
         sidebar.getChildren().addAll(sidebarSpacer, exitButton);
-        root.setLeft(sidebar);
+        shell.setLeft(sidebar);
 
         playerNameValue = new Label("-");
         balanceValue = new Label("-");
@@ -76,7 +81,24 @@ public class GameView {
         StackPane.setAlignment(advanceWeekButton, Pos.CENTER_RIGHT);
         topbar.setPadding(new Insets(18, 22, 18, 22));
         topbar.getStyleClass().add("topbar");
-        root.setTop(topbar);
+        shell.setTop(topbar);
+
+        modalOverlay = new StackPane();
+        modalOverlay.getStyleClass().add("modal-overlay");
+        modalOverlay.setAlignment(Pos.CENTER);
+        modalOverlay.setPadding(new Insets(24));
+        modalOverlay.setVisible(false);
+        modalOverlay.setManaged(false);
+
+        toastLabel = new Label();
+        toastLabel.getStyleClass().addAll("toast", "toast-success");
+        toastLabel.setVisible(false);
+        toastLabel.setManaged(false);
+        toastLabel.setMouseTransparent(true);
+
+        root = new StackPane(shell, modalOverlay, toastLabel);
+        StackPane.setAlignment(toastLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(toastLabel, new Insets(0, 0, 28, 0));
     }
 
     /**
@@ -95,7 +117,45 @@ public class GameView {
      */
     public void showContent(Node content) {
         BorderPane.setMargin(content, new Insets(18, 22, 22, 22));
-        root.setCenter(content);
+        shell.setCenter(content);
+    }
+
+    /**
+     * Shows modal content over the full game shell.
+     *
+     * @param content the modal content to show
+     */
+    public void showModal(Node content) {
+        modalOverlay.getChildren().setAll(content);
+        modalOverlay.setManaged(true);
+        modalOverlay.setVisible(true);
+    }
+
+    /**
+     * Hides the current modal content.
+     */
+    public void hideModal() {
+        modalOverlay.setVisible(false);
+        modalOverlay.setManaged(false);
+        modalOverlay.getChildren().clear();
+    }
+
+    /**
+     * Shows a temporary success toast.
+     *
+     * @param message the message to show
+     */
+    public void showSuccessToast(String message) {
+        toastLabel.setText(message);
+        toastLabel.setManaged(true);
+        toastLabel.setVisible(true);
+
+        PauseTransition delay = new PauseTransition(Duration.seconds(2.8));
+        delay.setOnFinished(event -> {
+            toastLabel.setVisible(false);
+            toastLabel.setManaged(false);
+        });
+        delay.play();
     }
 
     /**

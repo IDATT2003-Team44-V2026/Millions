@@ -7,6 +7,7 @@ import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -55,6 +56,7 @@ public class MarketView {
     private final TextField quantityField;
     private Stock selectedStock;
     private Consumer<Stock> buyHandler = stock -> {};
+    private BiConsumer<Stock, BigDecimal> confirmBuyHandler = (stock, quantity) -> {};
     private Consumer<Parent> showModalHandler = modal -> {};
     private Runnable hideModalHandler = () -> {};
 
@@ -141,6 +143,18 @@ public class MarketView {
     }
 
     /**
+     * Sets the handler for confirmed buy actions.
+     *
+     * @param handler the handler receiving the selected stock and quantity
+     */
+    public void setOnConfirmBuy(BiConsumer<Stock, BigDecimal> handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException("Handler cannot be null");
+        }
+        confirmBuyHandler = handler;
+    }
+
+    /**
      * Sets handlers used to show and hide modal content in the owning shell.
      *
      * @param showModalHandler the handler used to show modal content
@@ -155,13 +169,14 @@ public class MarketView {
     }
 
     /**
-     * Shows a placeholder buy modal for future buy flow.
+     * Shows the buy modal for a selected stock.
      *
      * @param stock the selected stock
      */
-    public void showBuyPlaceholder(Stock stock) {
+    public void showBuyDialog(Stock stock) {
         selectedStock = stock;
         quantityField.setText("1");
+        buyErrorLabel.setText("");
         buyTitleLabel.setText("Buy " + stock.getSymbol());
         buySubtitleLabel.setText(stock.getCompany()
             + " · Current price: " + formatCurrency(stock.getSalesPrice()));
@@ -304,7 +319,7 @@ public class MarketView {
 
         Button confirmButton = new Button("Confirm purchase");
         confirmButton.getStyleClass().add("primary-button");
-        confirmButton.setOnAction(event -> hideBuyOverlay());
+        confirmButton.setOnAction(event -> confirmBuy());
         cancelButton.setMinWidth(150);
         confirmButton.setMinWidth(170);
 
@@ -344,14 +359,8 @@ public class MarketView {
             return;
         }
 
-        String quantityText = quantityField.getText().trim();
-        if (!quantityText.matches("\\d+(\\.\\d+)?")) {
-            showInvalidQuantity();
-            return;
-        }
-
-        BigDecimal quantity = new BigDecimal(quantityText);
-        if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+        BigDecimal quantity = parseQuantity();
+        if (quantity == null) {
             showInvalidQuantity();
             return;
         }
@@ -365,11 +374,54 @@ public class MarketView {
         buyErrorLabel.setText("");
     }
 
+    private void confirmBuy() {
+        if (selectedStock == null) {
+            return;
+        }
+
+        BigDecimal quantity = parseQuantity();
+        if (quantity == null) {
+            showInvalidQuantity();
+            return;
+        }
+
+        confirmBuyHandler.accept(selectedStock, quantity);
+    }
+
+    private BigDecimal parseQuantity() {
+        String quantityText = quantityField.getText().trim();
+        if (!quantityText.matches("\\d+(\\.\\d+)?")) {
+            return null;
+        }
+
+        BigDecimal quantity = new BigDecimal(quantityText);
+        if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
+        return quantity;
+    }
+
     private void showInvalidQuantity() {
         grossCostValue.setText("-");
         commissionValue.setText("-");
         totalCostValue.setText("-");
         buyErrorLabel.setText("Enter a positive quantity.");
+    }
+
+    /**
+     * Shows an error in the buy modal.
+     *
+     * @param message the error message to show
+     */
+    public void showBuyError(String message) {
+        buyErrorLabel.setText(message);
+    }
+
+    /**
+     * Closes the buy modal.
+     */
+    public void closeBuyDialog() {
+        hideBuyOverlay();
     }
 
     private void hideBuyOverlay() {

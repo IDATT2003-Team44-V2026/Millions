@@ -66,6 +66,7 @@ public class GameController implements GameObserver {
         view.setOnTransactions(event -> showTransactions());
         view.setOnAdvanceWeek(event -> gameSession.advanceWeek());
         marketView.setOnBuy(this::showBuyPlaceholder);
+        marketView.setOnConfirmBuy(this::confirmBuy);
         marketView.setModalHandlers(view::showModal, view::hideModal);
         view.setOnExit(event -> {
             gameSession.endSession();
@@ -104,6 +105,23 @@ public class GameController implements GameObserver {
     }
 
     private void showBuyPlaceholder(Stock stock) {
-        marketView.showBuyPlaceholder(stock);
+        marketView.showBuyDialog(stock);
+    }
+
+    private void confirmBuy(Stock stock, BigDecimal quantity) {
+        try {
+            gameSession.buy(stock.getSymbol(), quantity);
+            marketView.closeBuyDialog();
+            view.showSuccessToast("Purchased " + quantity + " share(s) of " + stock.getSymbol() + ".");
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            marketView.showBuyError(toUserMessage(exception));
+        }
+    }
+
+    private static String toUserMessage(RuntimeException exception) {
+        if (exception.getMessage() != null && exception.getMessage().contains("Insufficient funds")) {
+            return "You do not have enough money for this purchase.";
+        }
+        return "Could not complete purchase. " + exception.getMessage();
     }
 }

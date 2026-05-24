@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.view;
 
+import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -14,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Main game shell with shared navigation, stats, and swappable content.
@@ -25,6 +27,7 @@ public class GameView {
     private final StackPane root;
     private final BorderPane shell;
     private final StackPane modalOverlay;
+    private final Label toastLabel;
     private final Button marketButton;
     private final Button portfolioButton;
     private final Button transactionsButton;
@@ -87,7 +90,15 @@ public class GameView {
         modalOverlay.setVisible(false);
         modalOverlay.setManaged(false);
 
-        root = new StackPane(shell, modalOverlay);
+        toastLabel = new Label();
+        toastLabel.getStyleClass().addAll("toast", "toast-success");
+        toastLabel.setVisible(false);
+        toastLabel.setManaged(false);
+        toastLabel.setMouseTransparent(true);
+
+        root = new StackPane(shell, modalOverlay, toastLabel);
+        StackPane.setAlignment(toastLabel, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(toastLabel, new Insets(0, 0, 28, 0));
     }
 
     /**
@@ -127,6 +138,24 @@ public class GameView {
         modalOverlay.setVisible(false);
         modalOverlay.setManaged(false);
         modalOverlay.getChildren().clear();
+    }
+
+    /**
+     * Shows a temporary success toast.
+     *
+     * @param message the message to show
+     */
+    public void showSuccessToast(String message) {
+        toastLabel.setText(message);
+        toastLabel.setManaged(true);
+        toastLabel.setVisible(true);
+
+        PauseTransition delay = new PauseTransition(Duration.seconds(2.8));
+        delay.setOnFinished(event -> {
+            toastLabel.setVisible(false);
+            toastLabel.setManaged(false);
+        });
+        delay.play();
     }
 
     /**

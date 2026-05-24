@@ -131,6 +131,22 @@
   -fx-text-alignment: center;
 }
 
+.toast {
+  -fx-background-radius: 999px;
+  -fx-border-radius: 999px;
+  -fx-border-width: 1px;
+  -fx-font-size: 13px;
+  -fx-font-weight: 700;
+  -fx-padding: 12px 18px;
+  -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.14), 18, 0.18, 0, 6);
+}
+
+.toast-success {
+  -fx-background-color: #ecfdf5;
+  -fx-border-color: #bbf7d0;
+  -fx-text-fill: #166534;
+}
+
 .discreet-button {
   -fx-background-color: #ffffff;
   -fx-text-fill: #71717a;

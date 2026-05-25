@@ -269,8 +269,10 @@ public class TransactionsView {
       {
         btn.getStyleClass().addAll("discreet-button", "table-action-button");
         btn.setOnAction(e -> {
-          TransactionRow row = getTableView().getItems().get(getIndex());
-          detailsHandler.accept(row.getTransaction());
+          TransactionRow row = getTableRow().getItem();
+          if (row != null) {
+            detailsHandler.accept(row.getTransaction());
+          }
         });
       }
 

@@ -136,13 +136,18 @@ public class Player {
    * Returns the player's current status level.
    *
    * <p>Status is determined by the player's current net worth compared with
-   * the starting capital, as well as the number of distinct trading weeks recorded in the
-   * transaction archive.</p>
+   * the starting capital, as well as the current in-game week from the exchange.</p>
    *
+   * @param currentWeek the current exchange week; must be at least 1
    * @return the player's current {@link PlayerStatus}
+   * @throws IllegalArgumentException if {@code currentWeek} is less than 1
    */
-  public PlayerStatus getStatus() {
-    int weeksPlayed = transactionArchive.countDistinctWeeks();
+  public PlayerStatus getStatus(int currentWeek) {
+    if (currentWeek < 1) {
+      throw new IllegalArgumentException("Current week must be at least 1");
+    }
+
+    int weeksPlayed = currentWeek;
     BigDecimal netWorth = getNetWorth();
 
     if (weeksPlayed >= 20

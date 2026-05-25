@@ -223,6 +223,12 @@
   -fx-font-weight: 700;
 }
 
+.stat-rank {
+  -fx-text-fill: #71717a;
+  -fx-font-size: 12px;
+  -fx-font-weight: 600;
+}
+
 .section-title {
   -fx-text-fill: #09090b;
   -fx-font-size: 22px;

@@ -6,5 +6,18 @@ package edu.ntnu.idi.idatt2003.model;
 public enum PlayerStatus {
   NOVICE,
   INVESTOR,
-  SPECULATOR
+  SPECULATOR;
+
+  /**
+   * Returns a user-facing label for this status.
+   *
+   * @return the display label
+   */
+  public String getDisplayName() {
+    return switch (this) {
+      case NOVICE -> "Novice";
+      case INVESTOR -> "Investor";
+      case SPECULATOR -> "Speculator";
+    };
+  }
 }

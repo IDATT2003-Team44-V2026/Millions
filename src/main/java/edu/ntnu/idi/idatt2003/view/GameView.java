@@ -34,6 +34,7 @@ public class GameView {
   private final Button exitButton;
   private final Button advanceWeekButton;
   private final Label playerNameValue;
+  private final Label playerRankValue;
   private final Label balanceValue;
   private final Label netWorthValue;
   private final Label weekValue;
@@ -59,13 +60,14 @@ public class GameView {
     shell.setLeft(sidebar);
 
     playerNameValue = new Label("-");
+    playerRankValue = new Label("-");
     balanceValue = new Label("-");
     netWorthValue = new Label("-");
     weekValue = new Label("-");
 
     HBox stats = new HBox(
         18,
-        createStat("Player", playerNameValue),
+        createPlayerStat("Player", playerNameValue, playerRankValue),
         createStat("Balance", balanceValue),
         createStat("Net worth", netWorthValue),
         createStat("Week", weekValue)
@@ -108,6 +110,22 @@ public class GameView {
     statLabel.setLabelFor(value);
 
     VBox box = new VBox(4, statLabel, value);
+    box.getStyleClass().add("stat");
+    box.setAlignment(Pos.CENTER);
+    return box;
+  }
+
+  private static VBox createPlayerStat(String label, Label nameValue, Label rankValue) {
+    Label statLabel = new Label(label);
+    statLabel.getStyleClass().add("stat-label");
+    nameValue.getStyleClass().add("stat-value");
+    rankValue.getStyleClass().add("stat-rank");
+    statLabel.setLabelFor(nameValue);
+
+    VBox values = new VBox(2, nameValue, rankValue);
+    values.setAlignment(Pos.CENTER);
+
+    VBox box = new VBox(4, statLabel, values);
     box.getStyleClass().add("stat");
     box.setAlignment(Pos.CENTER);
     return box;
@@ -186,12 +204,20 @@ public class GameView {
    * Updates the shared game statistics shown in the topbar.
    *
    * @param playerName the player name
+   * @param playerRank the player rank label
    * @param balance    the formatted balance
    * @param netWorth   the formatted net worth
    * @param week       the current week
    */
-  public void updateStats(String playerName, String balance, String netWorth, int week) {
+  public void updateStats(
+      String playerName,
+      String playerRank,
+      String balance,
+      String netWorth,
+      int week
+  ) {
     updateStat(playerNameValue, "Player", playerName);
+    updateStat(playerRankValue, "Rank", playerRank);
     updateStat(balanceValue, "Balance", balance);
     updateStat(netWorthValue, "Net worth", netWorth);
     updateStat(weekValue, "Week", String.valueOf(week));

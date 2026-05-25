@@ -29,6 +29,7 @@ public class LoadGameView {
   private final Button backButton;
   private final Label errorLabel;
   private Consumer<GameSave> deleteHandler = save -> {};
+  private boolean controlsDisabled = false;
 
   /**
    * Creates the load game view.
@@ -62,7 +63,7 @@ public class LoadGameView {
     errorLabel.setAlignment(Pos.CENTER);
 
     saveList.getSelectionModel().selectedItemProperty().addListener(
-        (obs, oldVal, newVal) -> loadButton.setDisable(newVal == null)
+        (obs, oldVal, newVal) -> updateLoadButton()
     );
 
     VBox card = new VBox(
@@ -147,6 +148,21 @@ public class LoadGameView {
    */
   public void setOnBack(EventHandler<ActionEvent> handler) {
     backButton.setOnAction(handler);
+  }
+
+  /**
+   * Disables or re-enables all interactive controls. Used while a background task is running.
+   *
+   * @param disabled {@code true} to disable controls, {@code false} to restore them
+   */
+  public void setControlsDisabled(boolean disabled) {
+    this.controlsDisabled = disabled;
+    backButton.setDisable(disabled);
+    updateLoadButton();
+  }
+
+  private void updateLoadButton() {
+    loadButton.setDisable(controlsDisabled || saveList.getSelectionModel().getSelectedItem() == null);
   }
 
   /**

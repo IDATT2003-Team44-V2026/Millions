@@ -6,9 +6,9 @@ import edu.ntnu.idi.idatt2003.navigation.Navigator;
 import edu.ntnu.idi.idatt2003.navigation.Route;
 import edu.ntnu.idi.idatt2003.service.GameSession;
 import edu.ntnu.idi.idatt2003.view.LoadGameView;
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
+import javafx.concurrent.Task;
 
 /**
  * Controller for the load-game screen.
@@ -52,27 +52,29 @@ public class LoadGameController {
   private void initializeHandlers() {
     view.setOnBack(event -> navigator.navigateTo(Route.START));
     view.setOnLoad(event -> loadSelected());
-    view.setOnDelete(save -> {
-      try {
-        GameRepository.delete(save);
-        loadSaves();
-      } catch (java.io.IOException e) {
-        view.showMessage("Could not delete save: " + e.getMessage());
-      }
-    });
+    view.setOnDelete(save -> deleteSave(save));
   }
 
   private void loadSaves() {
-    try {
-      List<GameSave> saves = GameRepository.listSaves();
+    Task<List<GameSave>> task = new Task<>() {
+      @Override
+      protected List<GameSave> call() throws Exception {
+        return GameRepository.listSaves();
+      }
+    };
+    task.setOnSucceeded(e -> {
+      List<GameSave> saves = task.getValue();
+      view.setSaves(saves);
       if (saves.isEmpty()) {
         view.showMessage("No saved games found.");
       } else {
-        view.setSaves(saves);
+        view.clearMessage();
       }
-    } catch (IOException e) {
-      view.showMessage("Could not read saves: " + e.getMessage());
-    }
+    });
+    task.setOnFailed(e ->
+        view.showMessage("Could not read saves: " + task.getException().getMessage())
+    );
+    Thread.ofVirtual().start(task);
   }
 
   private void loadSelected() {
@@ -80,12 +82,36 @@ public class LoadGameController {
     if (selected == null) {
       return;
     }
-    try {
-      GameSession session = GameRepository.load(selected);
-      sessionConsumer.accept(session);
+    view.setControlsDisabled(true);
+    Task<GameSession> task = new Task<>() {
+      @Override
+      protected GameSession call() throws Exception {
+        return GameRepository.load(selected);
+      }
+    };
+    task.setOnSucceeded(e -> {
+      sessionConsumer.accept(task.getValue());
       navigator.navigateTo(Route.GAME);
-    } catch (Exception e) {
-      view.showMessage("Failed to load save: " + e.getMessage());
-    }
+    });
+    task.setOnFailed(e -> {
+      view.setControlsDisabled(false);
+      view.showMessage("Failed to load save: " + task.getException().getMessage());
+    });
+    Thread.ofVirtual().start(task);
+  }
+
+  private void deleteSave(GameSave save) {
+    Task<Void> task = new Task<>() {
+      @Override
+      protected Void call() throws Exception {
+        GameRepository.delete(save);
+        return null;
+      }
+    };
+    task.setOnSucceeded(e -> loadSaves());
+    task.setOnFailed(e ->
+        view.showMessage("Could not delete save: " + task.getException().getMessage())
+    );
+    Thread.ofVirtual().start(task);
   }
 }

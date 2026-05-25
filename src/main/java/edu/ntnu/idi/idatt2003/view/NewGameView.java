@@ -115,6 +115,10 @@ public class NewGameView {
     errorLabel.setText("");
   }
 
+  public void setChooseFileEnabled(boolean enabled) {
+    chooseFileButton.setDisable(!enabled);
+  }
+
   public void setOnChooseFile(EventHandler<ActionEvent> handler) {
     chooseFileButton.setOnAction(handler);
   }

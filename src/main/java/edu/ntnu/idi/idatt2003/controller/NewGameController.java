@@ -8,12 +8,12 @@ import edu.ntnu.idi.idatt2003.service.GameSession;
 import edu.ntnu.idi.idatt2003.service.GameSessionFactory;
 import edu.ntnu.idi.idatt2003.view.NewGameView;
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -123,15 +123,25 @@ public class NewGameController {
   }
 
   private void loadSelectedStockFile(Path stockFile) {
-    try {
-      List<Stock> stocks = csvHandler.loadStocks(stockFile);
+    view.setChooseFileEnabled(false);
+    Task<List<Stock>> task = new Task<>() {
+      @Override
+      protected List<Stock> call() throws Exception {
+        return csvHandler.loadStocks(stockFile);
+      }
+    };
+    task.setOnSucceeded(e -> {
       selectedStockFile = stockFile;
-      loadedStocks = List.copyOf(stocks);
+      loadedStocks = List.copyOf(task.getValue());
       view.setSelectedFile(stockFile.getFileName().toString());
       view.clearError();
-    } catch (IOException | IllegalArgumentException _) {
+      view.setChooseFileEnabled(true);
+    });
+    task.setOnFailed(e -> {
       view.showError(INVALID_STOCK_FILE_MESSAGE);
-    }
+      view.setChooseFileEnabled(true);
+    });
+    Thread.ofVirtual().start(task);
   }
 
   private void startGame() {

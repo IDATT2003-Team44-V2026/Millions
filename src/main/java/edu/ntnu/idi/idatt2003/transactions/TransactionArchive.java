@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003.transactions;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -102,5 +103,19 @@ public class TransactionArchive {
                 .map(Transaction::getWeek)
                 .distinct()
                 .count();
+    }
+
+    /**
+     * Returns all transactions in the archive, sorted by week descending.
+     *
+     * <p>Within the same week, insertion order is preserved. The returned list
+     * is unmodifiable.</p>
+     *
+     * @return an unmodifiable list of all transactions, newest week first
+     */
+    public List<Transaction> getAllTransactions() {
+        return transactions.stream()
+                .sorted(Comparator.comparing(Transaction::getWeek).reversed())
+                .toList();
     }
 }

@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003;
 
 import edu.ntnu.idi.idatt2003.controller.GameController;
+import edu.ntnu.idi.idatt2003.controller.LoadGameController;
 import edu.ntnu.idi.idatt2003.controller.NewGameController;
 import edu.ntnu.idi.idatt2003.controller.StartController;
 import edu.ntnu.idi.idatt2003.io.ExchangeCsvHandler;
@@ -9,6 +10,7 @@ import edu.ntnu.idi.idatt2003.navigation.Route;
 import edu.ntnu.idi.idatt2003.service.GameSession;
 import edu.ntnu.idi.idatt2003.service.GameSessionFactory;
 import edu.ntnu.idi.idatt2003.view.GameView;
+import edu.ntnu.idi.idatt2003.view.LoadGameView;
 import edu.ntnu.idi.idatt2003.view.NewGameView;
 import edu.ntnu.idi.idatt2003.view.StartView;
 import javafx.scene.Parent;
@@ -54,6 +56,7 @@ public class AppBootstrap {
 
     navigator.register(Route.START, startView::getRoot);
     navigator.register(Route.NEW_GAME, () -> createNewGameRoot(csvHandler, gameSessionFactory));
+    navigator.register(Route.LOAD_GAME, this::createLoadGameRoot);
     navigator.register(Route.GAME, this::createGameRoot);
 
     new StartController(startView, navigator);
@@ -69,6 +72,12 @@ public class AppBootstrap {
     new NewGameController(newGameView, navigator, csvHandler, gameSessionFactory,
         this::setActiveSession);
     return newGameView.getRoot();
+  }
+
+  private Parent createLoadGameRoot() {
+    LoadGameView loadGameView = new LoadGameView();
+    new LoadGameController(loadGameView, navigator, this::setActiveSession);
+    return loadGameView.getRoot();
   }
 
   private Parent createGameRoot() {

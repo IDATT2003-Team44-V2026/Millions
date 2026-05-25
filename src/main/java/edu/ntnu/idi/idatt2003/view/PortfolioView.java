@@ -3,6 +3,7 @@ package edu.ntnu.idi.idatt2003.view;
 import edu.ntnu.idi.idatt2003.calculators.SaleCalculator;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
+import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SaleDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SectionCard;
 import edu.ntnu.idi.idatt2003.view.components.TableCells;
@@ -41,6 +42,7 @@ public class PortfolioView {
   private final FilteredList<ShareRow> filteredShareRows;
   private final SortedList<ShareRow> sortedShareRows;
   private final SaleDialogPane sellDialogPane;
+  private final ReceiptDialogPane receiptPane;
   private Share selectedShare;
   private Consumer<Share> sellHandler = share -> {};
   private Consumer<Share> confirmSellHandler = share -> {};
@@ -58,6 +60,7 @@ public class PortfolioView {
     searchField = buildSearchField();
     shareTable = buildTable();
     sellDialogPane = new SaleDialogPane(this::hideSellOverlay, this::confirmSell);
+    receiptPane = new ReceiptDialogPane(this::hideReceiptOverlay);
 
     VBox content = new VBox(14, searchField, shareTable);
     content.setFillWidth(true);
@@ -188,6 +191,35 @@ public class PortfolioView {
     hideSellOverlay();
   }
 
+  /**
+   * Replaces the sell dialog with a sale receipt for the completed transaction.
+   *
+   * @param share the share that was sold
+   */
+  public void showSellReceipt(Share share) {
+    SaleCalculator calc = new SaleCalculator(share);
+    String qty = share.quantity().stripTrailingZeros().toPlainString() + " share(s)";
+    receiptPane.setContent(
+        "Sale Receipt",
+        share.stock().getSymbol() + " · " + share.stock().getCompany() + " · " + qty,
+        List.of(
+            new ReceiptDialogPane.ReceiptRow(
+                "Sale price", formatCurrency(share.stock().getSalesPrice()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Quantity", share.quantity().stripTrailingZeros().toPlainString(), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Gross value", formatCurrency(calc.calculateGross()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Commission (1 %)", formatCurrency(calc.calculateCommission()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Tax (30 % of profit)", formatCurrency(calc.calculateTax()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Net proceeds", formatCurrency(calc.calculateTotal()), true)
+        )
+    );
+    showModalHandler.accept(receiptPane.getRoot());
+  }
+
   private void configureColumns(TableView<ShareRow> table) {
     TableColumn<ShareRow, String> symbolColumn = new TableColumn<>("Symbol");
     symbolColumn.setCellValueFactory(cellData -> cellData.getValue().symbolProperty());
@@ -278,6 +310,10 @@ public class PortfolioView {
   private void hideSellOverlay() {
     hideModalHandler.run();
     selectedShare = null;
+  }
+
+  private void hideReceiptOverlay() {
+    hideModalHandler.run();
   }
 
   private static String formatCurrency(BigDecimal amount) {

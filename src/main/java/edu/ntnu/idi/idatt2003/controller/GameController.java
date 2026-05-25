@@ -157,6 +157,10 @@ public class GameController implements GameObserver {
             gameSession.getPlayer().getNetWorth())
     );
     marketView.setStocks(gameSession.getExchange().getStocks());
+    marketView.setMovers(
+        gameSession.getExchange().getGainers(3),
+        gameSession.getExchange().getLosers(3)
+    );
     portfolioView.setShares(gameSession.getPlayer().getPortfolio().getShares());
     transactionsView.setTransactions(
         gameSession.getPlayer().getTransactionArchive().getAllTransactions(),
@@ -171,8 +175,7 @@ public class GameController implements GameObserver {
   private void confirmBuy(Stock stock, BigDecimal quantity) {
     try {
       gameSession.buy(stock.getSymbol(), quantity);
-      marketView.closeBuyDialog();
-      view.showSuccessToast("Purchased " + quantity + " share(s) of " + stock.getSymbol() + ".");
+      marketView.showBuyReceipt(stock, quantity);
     } catch (IllegalArgumentException | IllegalStateException exception) {
       marketView.showBuyError(toBuyMessage(exception));
     }
@@ -185,9 +188,7 @@ public class GameController implements GameObserver {
   private void confirmSell(Share share) {
     try {
       gameSession.sell(share);
-      portfolioView.closeSellDialog();
-      view.showSuccessToast("Sold " + share.quantity().stripTrailingZeros().toPlainString()
-          + " share(s) of " + share.stock().getSymbol() + ".");
+      portfolioView.showSellReceipt(share);
     } catch (IllegalArgumentException | IllegalStateException exception) {
       portfolioView.showSellError(toSellMessage(exception));
     }

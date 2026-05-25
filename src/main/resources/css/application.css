@@ -469,3 +469,67 @@
   -fx-text-fill: #09090b;
   -fx-font-weight: 800;
 }
+
+/* ==========================================================================
+   Market movers strip (top gainers / top losers)
+   ========================================================================== */
+
+.movers-card {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #e5e7eb;
+  -fx-border-width: 1px;
+  -fx-border-radius: 12px;
+  -fx-background-radius: 12px;
+  -fx-padding: 10px 14px;
+}
+
+.movers-header {
+  -fx-text-fill: #52525b;
+  -fx-font-size: 11px;
+  -fx-font-weight: 700;
+  -fx-padding: 0 0 6px 0;
+}
+
+.movers-row {
+  -fx-min-height: 22px;
+  -fx-alignment: center-left;
+}
+
+.movers-symbol {
+  -fx-text-fill: #09090b;
+  -fx-font-size: 12px;
+  -fx-font-weight: 600;
+}
+
+.movers-change {
+  -fx-font-size: 12px;
+  -fx-font-weight: 700;
+}
+
+/* ==========================================================================
+   Receipt modal
+   ========================================================================== */
+
+.receipt-card {
+  -fx-pref-width: 400px;
+}
+
+.receipt-badge {
+  -fx-text-fill: #166534;
+  -fx-background-color: #dcfce7;
+  -fx-border-color: #bbf7d0;
+  -fx-border-width: 1px;
+  -fx-border-radius: 999px;
+  -fx-background-radius: 999px;
+  -fx-font-size: 12px;
+  -fx-font-weight: 700;
+  -fx-padding: 4px 10px;
+}
+
+.receipt-divider {
+  -fx-border-color: #e5e7eb;
+  -fx-border-width: 0 0 1px 0;
+  -fx-min-height: 1px;
+  -fx-max-height: 1px;
+  -fx-pref-height: 1px;
+}

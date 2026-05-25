@@ -5,6 +5,7 @@ import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
 import edu.ntnu.idi.idatt2003.view.components.PurchaseDialogPane;
+import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SectionCard;
 import edu.ntnu.idi.idatt2003.view.components.TableCells;
 import edu.ntnu.idi.idatt2003.view.components.TablePlaceholders;
@@ -24,10 +25,12 @@ import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -43,6 +46,9 @@ public class MarketView {
   private final FilteredList<StockRow> filteredStockRows;
   private final SortedList<StockRow> sortedStockRows;
   private final PurchaseDialogPane buyDialogPane;
+  private final ReceiptDialogPane receiptPane;
+  private final VBox gainersRows;
+  private final VBox losersRows;
   private Stock selectedStock;
   private Consumer<Stock> buyHandler = stock -> {};
   private BiConsumer<Stock, BigDecimal> confirmBuyHandler = (stock, quantity) -> {};
@@ -63,8 +69,13 @@ public class MarketView {
     buyDialogPane.getQuantityField().textProperty().addListener(
         (observable, oldValue, newValue) -> updateBuyPreview()
     );
+    receiptPane = new ReceiptDialogPane(this::hideReceiptOverlay);
 
-    VBox content = new VBox(14, searchField, stockTable);
+    gainersRows = new VBox(4);
+    losersRows = new VBox(4);
+    HBox moversStrip = buildMoversStrip();
+
+    VBox content = new VBox(14, moversStrip, searchField, stockTable);
     content.setFillWidth(true);
     content.setMaxHeight(Double.MAX_VALUE);
     VBox.setVgrow(stockTable, Priority.ALWAYS);
@@ -193,6 +204,85 @@ public class MarketView {
     hideBuyOverlay();
   }
 
+  /**
+   * Replaces the buy dialog with a purchase receipt for the completed transaction.
+   *
+   * @param stock    the purchased stock
+   * @param quantity the number of shares purchased
+   */
+  public void showBuyReceipt(Stock stock, BigDecimal quantity) {
+    Share share = new Share(stock, quantity, stock.getSalesPrice());
+    PurchaseCalculator calc = new PurchaseCalculator(share);
+    String qty = quantity.stripTrailingZeros().toPlainString() + " share(s)";
+    receiptPane.setContent(
+        "Purchase Receipt",
+        stock.getSymbol() + " · " + stock.getCompany() + " · " + qty,
+        List.of(
+            new ReceiptDialogPane.ReceiptRow(
+                "Price per share", formatCurrency(stock.getSalesPrice()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Quantity", quantity.stripTrailingZeros().toPlainString(), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Gross cost", formatCurrency(calc.calculateGross()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Commission (0.5 %)", formatCurrency(calc.calculateCommission()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Total paid", formatCurrency(calc.calculateTotal()), true)
+        )
+    );
+    showModalHandler.accept(receiptPane.getRoot());
+  }
+
+  private HBox buildMoversStrip() {
+    VBox gainersCard = buildMoversCard("Top Gainers", gainersRows);
+    VBox losersCard = buildMoversCard("Top Losers", losersRows);
+    HBox strip = new HBox(12, gainersCard, losersCard);
+    HBox.setHgrow(gainersCard, Priority.ALWAYS);
+    HBox.setHgrow(losersCard, Priority.ALWAYS);
+    return strip;
+  }
+
+  private static VBox buildMoversCard(String header, VBox rowsContainer) {
+    Label headerLabel = new Label(header);
+    headerLabel.getStyleClass().add("movers-header");
+    VBox card = new VBox(0, headerLabel, rowsContainer);
+    card.getStyleClass().add("movers-card");
+    card.setMaxWidth(Double.MAX_VALUE);
+    return card;
+  }
+
+  /**
+   * Updates the top gainers and losers strip.
+   *
+   * @param gainers stocks with the highest positive price change
+   * @param losers  stocks with the lowest negative price change
+   */
+  public void setMovers(List<Stock> gainers, List<Stock> losers) {
+    populateMoverRows(gainersRows, gainers, true);
+    populateMoverRows(losersRows, losers, false);
+  }
+
+  private void populateMoverRows(VBox container, List<Stock> stocks, boolean positive) {
+    container.getChildren().clear();
+    if (stocks.isEmpty()) {
+      Label empty = new Label("No data yet");
+      empty.getStyleClass().add("empty-state");
+      container.getChildren().add(empty);
+      return;
+    }
+    for (Stock stock : stocks) {
+      Label symbol = new Label(stock.getSymbol());
+      symbol.getStyleClass().add("movers-symbol");
+      Label change = new Label(formatSignedChange(stock.getLatestPriceChange()));
+      change.getStyleClass().addAll("movers-change",
+          positive ? "positive-change" : "negative-change");
+      HBox row = new HBox(symbol, change);
+      row.getStyleClass().add("movers-row");
+      HBox.setHgrow(symbol, Priority.ALWAYS);
+      container.getChildren().add(row);
+    }
+  }
+
   private void configureColumns(TableView<StockRow> table) {
     TableColumn<StockRow, String> symbolColumn = new TableColumn<>("Symbol");
     symbolColumn.setCellValueFactory(cellData -> cellData.getValue().symbolProperty());
@@ -308,8 +398,19 @@ public class MarketView {
     selectedStock = null;
   }
 
+  private void hideReceiptOverlay() {
+    hideModalHandler.run();
+  }
+
   private static String formatCurrency(BigDecimal amount) {
     return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
+  private static String formatSignedChange(BigDecimal change) {
+    if (change.compareTo(BigDecimal.ZERO) > 0) {
+      return "+" + formatCurrency(change);
+    }
+    return formatCurrency(change);
   }
 
   private static final class StockRow {

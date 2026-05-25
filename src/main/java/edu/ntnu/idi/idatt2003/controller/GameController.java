@@ -103,6 +103,10 @@ public class GameController implements GameObserver {
         );
         marketView.setStocks(gameSession.getExchange().getStocks());
         portfolioView.setShares(gameSession.getPlayer().getPortfolio().getShares());
+        transactionsView.setTransactions(
+            gameSession.getPlayer().getTransactionArchive().getAllTransactions(),
+            gameSession.getExchange().getWeek()
+        );
     }
 
     private static String format(BigDecimal amount) {

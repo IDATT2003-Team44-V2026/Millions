@@ -178,7 +178,7 @@ public class GameController implements GameObserver {
       GameRepository.save(gameSession);
       view.showSuccessToast("Game saved.");
     } catch (java.io.IOException e) {
-      view.showSuccessToast("Save failed: " + e.getMessage());
+      view.showErrorToast("Save failed: " + e.getMessage());
     }
   }
 

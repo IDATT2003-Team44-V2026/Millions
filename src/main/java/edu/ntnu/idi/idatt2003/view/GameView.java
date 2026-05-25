@@ -248,6 +248,21 @@ public class GameView {
    * @param message the message to show
    */
   public void showSuccessToast(String message) {
+    showToast(message, "toast-success");
+  }
+
+  /**
+   * Shows a temporary error toast.
+   *
+   * @param message the message to show
+   */
+  public void showErrorToast(String message) {
+    showToast(message, "toast-error");
+  }
+
+  private void showToast(String message, String styleClass) {
+    toastLabel.getStyleClass().removeAll("toast-success", "toast-error");
+    toastLabel.getStyleClass().add(styleClass);
     toastLabel.setText(message);
     toastLabel.setManaged(true);
     toastLabel.setVisible(true);

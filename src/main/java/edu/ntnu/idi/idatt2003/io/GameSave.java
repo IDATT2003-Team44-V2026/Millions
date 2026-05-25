@@ -7,10 +7,14 @@ import java.util.List;
  */
 public class GameSave {
 
+  static final int CURRENT_VERSION = 1;
+
+  int version = CURRENT_VERSION;
   String playerName;
   String savedAt;
   PlayerData player;
   ExchangeData exchange;
+
 
   static class PlayerData {
 

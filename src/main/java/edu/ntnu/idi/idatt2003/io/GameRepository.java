@@ -12,11 +12,14 @@ import edu.ntnu.idi.idatt2003.transactions.Sale;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,7 +27,7 @@ import java.util.stream.Stream;
  * Handles saving and loading game sessions as JSON files.
  *
  * <p>Save files are stored under {@code $HOME/.millions/saves/} and named after the player
- * (sanitised). Saving overwrites any existing file for that player name.</p>
+ * (sanitised). Saving is atomic: a temp file is written first, then renamed to the target.</p>
  */
 public class GameRepository {
 
@@ -38,7 +41,7 @@ public class GameRepository {
   }
 
   /**
-   * Saves the given game session. Overwrites any existing save for the same player name.
+   * Saves the given game session atomically. Overwrites any existing save for the same player name.
    *
    * @param session the session to save; must not be {@code null}
    * @throws IOException if the file cannot be written
@@ -50,11 +53,19 @@ public class GameRepository {
     Files.createDirectories(SAVE_DIR);
     GameSave dto = toDto(session);
     String filename = sanitizeFilename(session.getPlayer().getName()) + ".json";
-    Files.writeString(SAVE_DIR.resolve(filename), GSON.toJson(dto));
+    Path target = SAVE_DIR.resolve(filename);
+    Path temp = SAVE_DIR.resolve(filename + ".tmp");
+
+    Files.writeString(temp, GSON.toJson(dto));
+    try {
+      Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+    } catch (AtomicMoveNotSupportedException e) {
+      Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
+    }
   }
 
   /**
-   * Returns all readable save files from the save directory.
+   * Returns all readable saves, sorted by save timestamp descending (most recent first).
    *
    * @return a list of saves; empty if the directory does not exist or is empty
    * @throws IOException if the directory cannot be listed
@@ -72,31 +83,35 @@ public class GameRepository {
           if (save != null && save.playerName != null) {
             saves.add(save);
           }
-        } catch (Exception ignored) {
-          // skip corrupted files
+        } catch (Exception e) {
+          System.err.println("Skipping corrupt save file: " + path + " (" + e.getMessage() + ")");
         }
       }
     }
+    saves.sort(Comparator.comparing(
+        s -> s.getSavedAt() != null ? s.getSavedAt() : "",
+        Comparator.reverseOrder()
+    ));
     return saves;
   }
 
   /**
-   * Reconstructs a {@link GameSession} from the given save.
+   * Reconstructs a {@link GameSession} from the given save, re-reading the file from disk.
    *
    * @param save the save to load; must not be {@code null}
    * @return a fully restored game session
+   * @throws IOException if the save file cannot be read
    */
-  public static GameSession load(GameSave save) {
+  public static GameSession load(GameSave save) throws IOException {
     if (save == null) {
       throw new IllegalArgumentException("Save cannot be null");
     }
-
-    List<Stock> stocks = rebuildStocks(save.exchange.stocks);
-    Exchange exchange = new Exchange(save.exchange.name, stocks);
-    exchange.setWeek(save.exchange.week);
-
-    Player player = rebuildPlayer(save.player, stocks);
-    return new GameSession(player, exchange);
+    String filename = sanitizeFilename(save.playerName) + ".json";
+    Path path = SAVE_DIR.resolve(filename);
+    String json = Files.readString(path);
+    GameSave fresh = GSON.fromJson(json, GameSave.class);
+    validate(fresh);
+    return reconstruct(fresh);
   }
 
   /**
@@ -111,6 +126,48 @@ public class GameRepository {
     }
     String filename = sanitizeFilename(save.playerName) + ".json";
     Files.deleteIfExists(SAVE_DIR.resolve(filename));
+  }
+
+  private static void validate(GameSave save) {
+    if (save == null) {
+      throw new IllegalStateException("Save file is empty or corrupt");
+    }
+    if (save.player == null) {
+      throw new IllegalStateException("Missing player data");
+    }
+    if (save.exchange == null) {
+      throw new IllegalStateException("Missing exchange data");
+    }
+    if (save.player.name == null
+        || save.player.startingMoney == null
+        || save.player.currentMoney == null) {
+      throw new IllegalStateException("Incomplete player data");
+    }
+    if (save.player.portfolio == null) {
+      throw new IllegalStateException("Missing portfolio data");
+    }
+    if (save.player.transactions == null) {
+      throw new IllegalStateException("Missing transaction data");
+    }
+    if (save.exchange.stocks == null || save.exchange.stocks.isEmpty()) {
+      throw new IllegalStateException("No stocks in save");
+    }
+    if (save.exchange.week < 1) {
+      throw new IllegalStateException("Invalid week in save: " + save.exchange.week);
+    }
+    for (GameSave.StockData sd : save.exchange.stocks) {
+      if (sd.priceHistory == null || sd.priceHistory.isEmpty()) {
+        throw new IllegalStateException("Stock " + sd.symbol + " has no price history");
+      }
+    }
+  }
+
+  private static GameSession reconstruct(GameSave save) {
+    List<Stock> stocks = rebuildStocks(save.exchange.stocks);
+    Exchange exchange = new Exchange(save.exchange.name, stocks);
+    exchange.setWeek(save.exchange.week);
+    Player player = rebuildPlayer(save.player, stocks);
+    return new GameSession(player, exchange);
   }
 
   private static List<Stock> rebuildStocks(List<GameSave.StockData> stockDataList) {
@@ -132,7 +189,6 @@ public class GameRepository {
 
     Player player = new Player(pd.name, startingMoney);
 
-    // Adjust balance from startingMoney to actual saved value
     int cmp = currentMoney.compareTo(startingMoney);
     if (cmp > 0) {
       player.addMoney(currentMoney.subtract(startingMoney));
@@ -172,7 +228,6 @@ public class GameRepository {
       Share share = new Share(stock, quantity, purchasePrice);
       player.getTransactionArchive().add(new Purchase(share, td.week));
     } else {
-      // For sales, create a snapshot stock so SaleCalculator captures the historical sale price
       BigDecimal salesPrice = new BigDecimal(td.salesPrice);
       Stock snapshotStock = new Stock(td.stockSymbol, td.stockCompany, salesPrice);
       Share share = new Share(snapshotStock, quantity, purchasePrice);
@@ -217,7 +272,6 @@ public class GameRepository {
           td.quantity = tx.getShare().quantity().toPlainString();
           td.purchasePrice = tx.getShare().purchasePrice().toPlainString();
           if (tx instanceof Sale) {
-            // Recover historical sale price from gross / quantity
             BigDecimal gross = tx.getCalculator().calculateGross();
             BigDecimal qty = tx.getShare().quantity();
             td.salesPrice = gross.divide(qty, 10, RoundingMode.HALF_UP)

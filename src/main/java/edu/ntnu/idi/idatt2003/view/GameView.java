@@ -175,6 +175,7 @@ public class GameView {
   public void showContent(Node content) {
     if (content instanceof Region region) {
       region.setMaxWidth(Double.MAX_VALUE);
+      region.setMaxHeight(Double.MAX_VALUE);
     }
     BorderPane.setMargin(content, new Insets(18, 22, 22, 22));
     shell.setCenter(content);

@@ -61,6 +61,7 @@ public class PortfolioView {
 
     VBox content = new VBox(14, searchField, shareTable);
     content.setFillWidth(true);
+    content.setMaxHeight(Double.MAX_VALUE);
     VBox.setVgrow(shareTable, Priority.ALWAYS);
 
     root = SectionCard.create(

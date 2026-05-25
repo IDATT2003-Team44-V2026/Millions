@@ -3,6 +3,8 @@ package edu.ntnu.idi.idatt2003.view.components;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
@@ -33,6 +35,10 @@ public final class SectionCard {
     card.setPadding(new Insets(18));
     card.setFillWidth(true);
     card.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+    VBox.setVgrow(content, Priority.ALWAYS);
+    if (content instanceof Region region) {
+      region.setMaxHeight(Double.MAX_VALUE);
+    }
     return card;
   }
 }

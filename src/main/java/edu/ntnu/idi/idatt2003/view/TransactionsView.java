@@ -75,6 +75,7 @@ public class TransactionsView {
 
     VBox content = new VBox(14, filters, transactionTable);
     content.setFillWidth(true);
+    content.setMaxHeight(Double.MAX_VALUE);
     VBox.setVgrow(transactionTable, Priority.ALWAYS);
 
     root = SectionCard.create(

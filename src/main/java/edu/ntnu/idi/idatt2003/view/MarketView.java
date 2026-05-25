@@ -66,6 +66,7 @@ public class MarketView {
 
     VBox content = new VBox(14, searchField, stockTable);
     content.setFillWidth(true);
+    content.setMaxHeight(Double.MAX_VALUE);
     VBox.setVgrow(stockTable, Priority.ALWAYS);
 
     root = SectionCard.create(

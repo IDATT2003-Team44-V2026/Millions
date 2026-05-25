@@ -6,12 +6,14 @@ import edu.ntnu.idi.idatt2003.transactions.Transaction;
 import edu.ntnu.idi.idatt2003.view.components.SectionCard;
 import edu.ntnu.idi.idatt2003.view.components.TableCells;
 import edu.ntnu.idi.idatt2003.view.components.TablePlaceholders;
+import edu.ntnu.idi.idatt2003.view.components.TransactionDetailDialogPane;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -24,7 +26,9 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -50,7 +54,11 @@ public class TransactionsView {
   private final ObservableList<TransactionRow> transactionRows;
   private final FilteredList<TransactionRow> filteredTransactionRows;
   private final SortedList<TransactionRow> sortedTransactionRows;
+  private final TransactionDetailDialogPane detailPane;
   private Set<Integer> lastDistinctWeeks = Set.of();
+  private Consumer<Transaction> detailsHandler = tx -> {};
+  private Consumer<Parent> showModalHandler = modal -> {};
+  private Runnable hideModalHandler = () -> {};
 
   /**
    * Creates the transactions section view.
@@ -64,6 +72,7 @@ public class TransactionsView {
     typeFilter = buildTypeFilter();
     weekFilter = buildWeekFilter();
     transactionTable = buildTable();
+    detailPane = new TransactionDetailDialogPane(() -> hideModalHandler.run());
 
     HBox filters = new HBox(12, searchField, typeFilter, weekFilter);
     filters.setAlignment(Pos.CENTER_LEFT);
@@ -138,6 +147,42 @@ public class TransactionsView {
   }
 
   /**
+   * Sets the handler invoked when the user clicks Details on a transaction row.
+   *
+   * @param handler the handler receiving the selected transaction
+   */
+  public void setOnDetails(Consumer<Transaction> handler) {
+    if (handler == null) {
+      throw new IllegalArgumentException("Handler cannot be null");
+    }
+    detailsHandler = handler;
+  }
+
+  /**
+   * Sets handlers used to show and hide modal content in the owning shell.
+   *
+   * @param showModalHandler the handler used to show modal content
+   * @param hideModalHandler the handler used to hide modal content
+   */
+  public void setModalHandlers(Consumer<Parent> showModalHandler, Runnable hideModalHandler) {
+    if (showModalHandler == null || hideModalHandler == null) {
+      throw new IllegalArgumentException("Modal handlers cannot be null");
+    }
+    this.showModalHandler = showModalHandler;
+    this.hideModalHandler = hideModalHandler;
+  }
+
+  /**
+   * Shows the transaction detail modal for a given transaction.
+   *
+   * @param transaction the transaction to display
+   */
+  public void showDetailsDialog(Transaction transaction) {
+    detailPane.setTransaction(transaction);
+    showModalHandler.accept(detailPane.getRoot());
+  }
+
+  /**
    * Updates the transactions shown in the table.
    *
    * @param transactions the transactions to show
@@ -202,12 +247,40 @@ public class TransactionsView {
     totalColumn.setCellValueFactory(cellData -> cellData.getValue().totalProperty());
     totalColumn.setCellFactory(column -> TableCells.transactionTotal(TransactionRow::isSale));
 
+    TableColumn<TransactionRow, Void> actionColumn = new TableColumn<>("");
+    actionColumn.setCellFactory(column -> detailsCell());
+    actionColumn.setMinWidth(88);
+    actionColumn.setMaxWidth(96);
+    actionColumn.setSortable(false);
+
     table.getColumns().add(weekColumn);
     table.getColumns().add(typeColumn);
     table.getColumns().add(symbolColumn);
     table.getColumns().add(companyColumn);
     table.getColumns().add(quantityColumn);
     table.getColumns().add(totalColumn);
+    table.getColumns().add(actionColumn);
+  }
+
+  private TableCell<TransactionRow, Void> detailsCell() {
+    return new TableCell<>() {
+      private final Button btn = new Button("Details");
+
+      {
+        btn.getStyleClass().addAll("discreet-button", "table-action-button");
+        btn.setOnAction(e -> {
+          TransactionRow row = getTableView().getItems().get(getIndex());
+          detailsHandler.accept(row.getTransaction());
+        });
+      }
+
+      @Override
+      protected void updateItem(Void item, boolean empty) {
+        super.updateItem(item, empty);
+        setGraphic(empty ? null : btn);
+        setAlignment(Pos.CENTER);
+      }
+    };
   }
 
   private void applyFilters() {
@@ -256,6 +329,7 @@ public class TransactionsView {
 
   private static final class TransactionRow {
 
+    private final Transaction transaction;
     private final IntegerProperty week;
     private final StringProperty type;
     private final StringProperty symbol;
@@ -265,6 +339,7 @@ public class TransactionsView {
     private final boolean sale;
 
     private TransactionRow(Transaction transaction) {
+      this.transaction = transaction;
       this.week = new SimpleIntegerProperty(transaction.getWeek());
       this.type = new SimpleStringProperty(transaction instanceof Purchase ? BUY_TYPE : SELL_TYPE);
       this.symbol = new SimpleStringProperty(transaction.getShare().stock().getSymbol());
@@ -272,6 +347,10 @@ public class TransactionsView {
       this.quantity = new SimpleObjectProperty<>(transaction.getShare().quantity());
       this.total = new SimpleObjectProperty<>(transaction.getCalculator().calculateTotal());
       this.sale = transaction instanceof Sale;
+    }
+
+    private Transaction getTransaction() {
+      return transaction;
     }
 
     private int getWeek() {

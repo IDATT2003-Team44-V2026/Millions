@@ -36,7 +36,18 @@ public class StartController {
       view.clearMessage();
       navigator.navigateTo(Route.NEW_GAME);
     });
-    view.setOnContinueGame(event -> view.showMessage("Continue game is not available yet."));
+    view.setOnContinueGame(event -> {
+      view.clearMessage();
+      try {
+        if (edu.ntnu.idi.idatt2003.io.GameRepository.listSaves().isEmpty()) {
+          view.showMessage("No saved games found. Start a new game first.");
+        } else {
+          navigator.navigateTo(Route.LOAD_GAME);
+        }
+      } catch (java.io.IOException e) {
+        view.showMessage("Could not read saves: " + e.getMessage());
+      }
+    });
     view.setOnLeaderboard(event -> view.showMessage("Leaderboard is not available yet."));
   }
 }

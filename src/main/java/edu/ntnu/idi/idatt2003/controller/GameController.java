@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.controller;
 
+import edu.ntnu.idi.idatt2003.io.GameRepository;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
@@ -169,6 +170,15 @@ public class GameController implements GameObserver {
         gameSession.getPlayer().getTransactionArchive().getAllTransactions(),
         gameSession.getExchange().getWeek()
     );
+  }
+
+  private void saveGame() {
+    try {
+      GameRepository.save(gameSession);
+      view.showSuccessToast("Game saved.");
+    } catch (java.io.IOException e) {
+      view.showErrorToast("Save failed: " + e.getMessage());
+    }
   }
 
   private void showBuyDialog(Stock stock) {

@@ -32,6 +32,7 @@ public class GameView {
   private final Button portfolioButton;
   private final Button transactionsButton;
   private final Button exitButton;
+  private final Button saveButton;
   private final Button advanceWeekButton;
   private final Label playerNameValue;
   private final Label playerRankValue;
@@ -50,6 +51,7 @@ public class GameView {
     marketButton = createSidebarButton("Market");
     portfolioButton = createSidebarButton("Portfolio");
     transactionsButton = createSidebarButton("Transactions");
+    saveButton = createSidebarButton("Save game");
     exitButton = createSidebarButton("Exit game");
 
     playerNameValue = new Label("-");
@@ -246,6 +248,21 @@ public class GameView {
    * @param message the message to show
    */
   public void showSuccessToast(String message) {
+    showToast(message, "toast-success");
+  }
+
+  /**
+   * Shows a temporary error toast.
+   *
+   * @param message the message to show
+   */
+  public void showErrorToast(String message) {
+    showToast(message, "toast-error");
+  }
+
+  private void showToast(String message, String styleClass) {
+    toastLabel.getStyleClass().removeAll("toast-success", "toast-error");
+    toastLabel.getStyleClass().add(styleClass);
     toastLabel.setText(message);
     toastLabel.setManaged(true);
     toastLabel.setVisible(true);
@@ -342,5 +359,9 @@ public class GameView {
 
   public void setOnAdvanceWeek(EventHandler<ActionEvent> handler) {
     advanceWeekButton.setOnAction(handler);
+  }
+
+  public void setOnSave(EventHandler<ActionEvent> handler) {
+    saveButton.setOnAction(handler);
   }
 }

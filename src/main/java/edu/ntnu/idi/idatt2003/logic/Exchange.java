@@ -258,6 +258,19 @@ public class Exchange {
   }
 
   /**
+   * Sets the current week number directly. Used when restoring a saved game.
+   *
+   * @param week the week to restore; must be at least 1
+   * @throws IllegalArgumentException if {@code week} is less than 1
+   */
+  public void setWeek(int week) {
+    if (week < 1) {
+      throw new IllegalArgumentException("Week cannot be less than 1");
+    }
+    this.week = week;
+  }
+
+  /**
    * Advances the exchange by one week, updating all stock prices with random fluctuations.
    *
    * <p>Each stock's price is adjusted by a random percentage in the range

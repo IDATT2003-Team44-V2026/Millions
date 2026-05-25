@@ -81,7 +81,7 @@ public class GameView {
     return sidebar;
   }
 
-  private StackPane buildTopbar() {
+  private HBox buildTopbar() {
     HBox stats = new HBox(
         18,
         createPlayerStat("Player", playerNameValue, playerRankValue),
@@ -90,10 +90,31 @@ public class GameView {
         createStat("Week", weekValue)
     );
     stats.setAlignment(Pos.CENTER);
+    stats.getStyleClass().add("topbar-stats");
 
-    StackPane topbar = new StackPane(stats, advanceWeekButton);
-    StackPane.setAlignment(stats, Pos.CENTER);
-    StackPane.setAlignment(advanceWeekButton, Pos.CENTER_RIGHT);
+    HBox advanceColumn = new HBox(advanceWeekButton);
+    advanceColumn.setAlignment(Pos.CENTER);
+    advanceColumn.getStyleClass().add("topbar-advance-column");
+
+    // Mirror the button column on the left so stats stay centered in the full topbar width.
+    Region balanceColumn = new Region();
+    balanceColumn.getStyleClass().add("topbar-balance-column");
+    balanceColumn.minWidthProperty().bind(advanceColumn.widthProperty());
+    balanceColumn.prefWidthProperty().bind(advanceColumn.widthProperty());
+    balanceColumn.maxWidthProperty().bind(advanceColumn.widthProperty());
+
+    Region statsLeading = new Region();
+    Region statsTrailing = new Region();
+    HBox.setHgrow(statsLeading, Priority.ALWAYS);
+    HBox.setHgrow(statsTrailing, Priority.ALWAYS);
+
+    HBox statsRow = new HBox(statsLeading, stats, statsTrailing);
+    statsRow.setAlignment(Pos.CENTER);
+    HBox.setHgrow(statsRow, Priority.ALWAYS);
+    statsRow.setMaxWidth(Double.MAX_VALUE);
+
+    HBox topbar = new HBox(balanceColumn, statsRow, advanceColumn);
+    topbar.setAlignment(Pos.CENTER);
     topbar.setPadding(new Insets(18, 22, 18, 22));
     topbar.getStyleClass().add("topbar");
     return topbar;

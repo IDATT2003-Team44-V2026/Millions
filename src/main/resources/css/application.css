@@ -224,6 +224,15 @@
   -fx-min-height: 96px;
 }
 
+.topbar-stats {
+  -fx-alignment: center;
+  -fx-spacing: 18;
+}
+
+.topbar-advance-column {
+  -fx-padding: 0 0 0 16;
+}
+
 .stat {
   -fx-background-color: #ffffff;
   -fx-border-color: #e4e4e7;
@@ -231,7 +240,9 @@
   -fx-border-radius: 14px;
   -fx-background-radius: 14px;
   -fx-padding: 10px 16px;
-  -fx-min-width: 150px;
+  -fx-min-width: 120px;
+  -fx-pref-width: 150px;
+  -fx-max-width: 150px;
 }
 
 .stat-label {

@@ -12,6 +12,7 @@ import edu.ntnu.idi.idatt2003.view.MarketView;
 import edu.ntnu.idi.idatt2003.view.PortfolioView;
 import edu.ntnu.idi.idatt2003.view.TransactionsView;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Controller for the main game shell and its swappable sections.
@@ -52,12 +53,42 @@ public class GameController implements GameObserver {
 
     initializeHandlers();
     gameSession.addObserver(this);
+    view.setAdvanceWeekEnabled(gameSession.isActive());
     showMarket();
     refreshStats();
   }
 
   private static String format(BigDecimal amount) {
     return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
+  private static BigDecimal netWorthChangePct(BigDecimal starting, BigDecimal current) {
+    if (starting.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    }
+    return current.subtract(starting)
+        .divide(starting, 4, RoundingMode.HALF_UP)
+        .multiply(new BigDecimal("100"))
+        .setScale(1, RoundingMode.HALF_UP);
+  }
+
+  private static String netWorthChangeText(BigDecimal starting, BigDecimal current) {
+    BigDecimal pct = netWorthChangePct(starting, current);
+    if (pct.compareTo(BigDecimal.ZERO) > 0) {
+      return "+" + pct.toPlainString() + "%";
+    }
+    return pct.toPlainString() + "%";
+  }
+
+  private static String netWorthChangeCss(BigDecimal starting, BigDecimal current) {
+    int cmp = netWorthChangePct(starting, current).compareTo(BigDecimal.ZERO);
+    if (cmp > 0) {
+      return "positive-change";
+    }
+    if (cmp < 0) {
+      return "negative-change";
+    }
+    return "neutral-change";
   }
 
   private static String toBuyMessage(RuntimeException exception) {
@@ -86,12 +117,16 @@ public class GameController implements GameObserver {
     view.setOnAdvanceWeek(event -> gameSession.advanceWeek());
     marketView.setOnBuy(this::showBuyDialog);
     marketView.setOnConfirmBuy(this::confirmBuy);
+    marketView.setOnDetails(marketView::showDetailsDialog);
     marketView.setModalHandlers(view::showModal, view::hideModal);
     portfolioView.setOnSell(this::showSellDialog);
     portfolioView.setOnConfirmSell(this::confirmSell);
     portfolioView.setModalHandlers(view::showModal, view::hideModal);
+    transactionsView.setOnDetails(transactionsView::showDetailsDialog);
+    transactionsView.setModalHandlers(view::showModal, view::hideModal);
     view.setOnExit(event -> {
       gameSession.endSession();
+      view.setAdvanceWeekEnabled(false);
       gameSession.removeObserver(this);
       navigator.navigateTo(Route.START);
     });
@@ -118,9 +153,17 @@ public class GameController implements GameObserver {
         gameSession.getPlayer().getStatus(gameSession.getExchange().getWeek()).getDisplayName(),
         format(gameSession.getPlayer().getMoney()),
         format(gameSession.getPlayer().getNetWorth()),
-        gameSession.getExchange().getWeek()
+        gameSession.getExchange().getWeek(),
+        netWorthChangeText(gameSession.getPlayer().getStartingMoney(),
+            gameSession.getPlayer().getNetWorth()),
+        netWorthChangeCss(gameSession.getPlayer().getStartingMoney(),
+            gameSession.getPlayer().getNetWorth())
     );
     marketView.setStocks(gameSession.getExchange().getStocks());
+    marketView.setMovers(
+        gameSession.getExchange().getGainers(3),
+        gameSession.getExchange().getLosers(3)
+    );
     portfolioView.setShares(gameSession.getPlayer().getPortfolio().getShares());
     transactionsView.setTransactions(
         gameSession.getPlayer().getTransactionArchive().getAllTransactions(),
@@ -135,8 +178,7 @@ public class GameController implements GameObserver {
   private void confirmBuy(Stock stock, BigDecimal quantity) {
     try {
       gameSession.buy(stock.getSymbol(), quantity);
-      marketView.closeBuyDialog();
-      view.showSuccessToast("Purchased " + quantity + " share(s) of " + stock.getSymbol() + ".");
+      marketView.showBuyReceipt(stock, quantity);
     } catch (IllegalArgumentException | IllegalStateException exception) {
       marketView.showBuyError(toBuyMessage(exception));
     }
@@ -149,9 +191,7 @@ public class GameController implements GameObserver {
   private void confirmSell(Share share) {
     try {
       gameSession.sell(share);
-      portfolioView.closeSellDialog();
-      view.showSuccessToast("Sold " + share.quantity().stripTrailingZeros().toPlainString()
-          + " share(s) of " + share.stock().getSymbol() + ".");
+      portfolioView.showSellReceipt(share);
     } catch (IllegalArgumentException | IllegalStateException exception) {
       portfolioView.showSellError(toSellMessage(exception));
     }

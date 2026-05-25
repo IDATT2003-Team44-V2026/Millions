@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.view;
 
+import edu.ntnu.idi.idatt2003.view.components.FormLayouts;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -15,9 +16,6 @@ import javafx.scene.layout.VBox;
  * View for setting up a new game.
  */
 public class NewGameView {
-
-  private static final String FIELD_LABEL_CLASS = "field-label";
-  private static final String FIELD_GROUP_CLASS = "field-group";
 
   private final StackPane root;
   private final VBox card;
@@ -41,51 +39,22 @@ public class NewGameView {
     );
     subtitleLabel.getStyleClass().add("subtitle-label");
 
-    Label nameLabel = new Label("Player name");
-    nameLabel.getStyleClass().add(FIELD_LABEL_CLASS);
-
     nameField = new TextField();
     nameField.setPromptText("Enter your name");
-    nameField.getStyleClass().add("form-input");
-    nameField.setPrefWidth(360);
-    nameField.setMaxWidth(360);
-
-    VBox nameGroup = new VBox(6, nameLabel, nameField);
-    nameGroup.getStyleClass().add(FIELD_GROUP_CLASS);
-
-    Label capitalLabel = new Label("Starting capital");
-    capitalLabel.getStyleClass().add(FIELD_LABEL_CLASS);
+    nameField.getStyleClass().addAll("form-input", "form-width");
 
     capitalField = new TextField();
     capitalField.setPromptText("e.g. 10000");
-    capitalField.getStyleClass().add("form-input");
-    capitalField.setPrefWidth(360);
-    capitalField.setMaxWidth(360);
-
-    VBox capitalGroup = new VBox(6, capitalLabel, capitalField);
-    capitalGroup.getStyleClass().add(FIELD_GROUP_CLASS);
-
-    Label fileSectionLabel = new Label("Stock data");
-    fileSectionLabel.getStyleClass().add(FIELD_LABEL_CLASS);
+    capitalField.getStyleClass().addAll("form-input", "form-width");
 
     fileLabel = new Label("No file selected");
-    fileLabel.getStyleClass().add("file-label");
+    fileLabel.getStyleClass().addAll("file-label", "form-width");
     fileLabel.setWrapText(true);
-    fileLabel.setMaxWidth(360);
 
-    chooseFileButton = new Button("Choose file");
-    chooseFileButton.getStyleClass().add("secondary-button");
-    chooseFileButton.setPrefWidth(360);
-    chooseFileButton.setMaxWidth(360);
+    chooseFileButton = FormLayouts.menuButton("Choose file", false);
     chooseFileButton.setAccessibleText("Choose stock data file");
 
-    VBox fileGroup = new VBox(6, fileSectionLabel, fileLabel, chooseFileButton);
-    fileGroup.getStyleClass().add(FIELD_GROUP_CLASS);
-
-    startButton = new Button("Start game");
-    startButton.getStyleClass().add("primary-button");
-    startButton.setPrefWidth(360);
-    startButton.setMaxWidth(360);
+    startButton = FormLayouts.menuButton("Start game", true);
 
     backButton = new Button("Back");
     backButton.getStyleClass().add("discreet-button");
@@ -93,19 +62,20 @@ public class NewGameView {
     backButton.setMaxWidth(120);
 
     errorLabel = new Label();
-    errorLabel.getStyleClass().add("error-label");
+    errorLabel.getStyleClass().addAll("error-label", "form-width");
     errorLabel.setWrapText(true);
     errorLabel.setAlignment(Pos.CENTER);
-    errorLabel.setPrefWidth(360);
-    errorLabel.setMaxWidth(360);
+
+    VBox fileControls = new VBox(6, fileLabel, chooseFileButton);
+    VBox fileGroup = FormLayouts.fieldGroup("Stock data", fileControls);
 
     card = new VBox(
         18,
         eyebrowLabel,
         titleLabel,
         subtitleLabel,
-        nameGroup,
-        capitalGroup,
+        FormLayouts.fieldGroup("Player name", nameField),
+        FormLayouts.fieldGroup("Starting capital", capitalField),
         fileGroup,
         startButton,
         backButton,

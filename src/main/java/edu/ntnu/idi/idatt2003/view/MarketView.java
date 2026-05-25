@@ -4,6 +4,12 @@ import edu.ntnu.idi.idatt2003.calculators.PurchaseCalculator;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
+import edu.ntnu.idi.idatt2003.view.components.PurchaseDialogPane;
+import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
+import edu.ntnu.idi.idatt2003.view.components.SectionCard;
+import edu.ntnu.idi.idatt2003.view.components.StockDetailDialogPane;
+import edu.ntnu.idi.idatt2003.view.components.TableCells;
+import edu.ntnu.idi.idatt2003.view.components.TablePlaceholders;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
@@ -17,7 +23,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -28,7 +33,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
@@ -36,149 +40,79 @@ import javafx.scene.layout.VBox;
  */
 public class MarketView {
 
-  private static final String POSITIVE_CHANGE_CLASS = "positive-change";
-  private static final String NEGATIVE_CHANGE_CLASS = "negative-change";
-  private static final String NEUTRAL_CHANGE_CLASS = "neutral-change";
-
   private final VBox root;
   private final TextField searchField;
   private final TableView<StockRow> stockTable;
   private final ObservableList<StockRow> stockRows;
   private final FilteredList<StockRow> filteredStockRows;
   private final SortedList<StockRow> sortedStockRows;
-  private final VBox buyDialog;
-  private final Label buyTitleLabel;
-  private final Label buySubtitleLabel;
-  private final Label grossCostValue;
-  private final Label commissionValue;
-  private final Label totalCostValue;
-  private final Label buyErrorLabel;
-  private final TextField quantityField;
+  private final PurchaseDialogPane buyDialogPane;
+  private final ReceiptDialogPane receiptPane;
+  private final StockDetailDialogPane detailPane;
+  private final VBox gainersRows;
+  private final VBox losersRows;
   private Stock selectedStock;
-  private Consumer<Stock> buyHandler = stock -> {
-  };
-  private BiConsumer<Stock, BigDecimal> confirmBuyHandler = (stock, quantity) -> {
-  };
-  private Consumer<Parent> showModalHandler = modal -> {
-  };
-  private Runnable hideModalHandler = () -> {
-  };
+  private Consumer<Stock> buyHandler = stock -> {};
+  private Consumer<Stock> detailsHandler = stock -> {};
+  private BiConsumer<Stock, BigDecimal> confirmBuyHandler = (stock, quantity) -> {};
+  private Consumer<Parent> showModalHandler = modal -> {};
+  private Runnable hideModalHandler = () -> {};
 
   /**
    * Creates the market section view.
    */
   public MarketView() {
-    Label titleLabel = new Label("Market");
-    titleLabel.getStyleClass().add("section-title");
-
-    Label subtitleLabel = new Label("Search available stocks and prepare purchases.");
-    subtitleLabel.getStyleClass().add("subtitle-label");
-
-    searchField = new TextField();
-    searchField.setPromptText("Search by symbol or company");
-    searchField.getStyleClass().add("form-input");
-    searchField.setMaxWidth(Double.MAX_VALUE);
-
     stockRows = FXCollections.observableArrayList();
     filteredStockRows = new FilteredList<>(stockRows, row -> true);
     sortedStockRows = new SortedList<>(filteredStockRows);
-    searchField.textProperty().addListener((observable, oldValue, newValue) ->
+
+    searchField = buildSearchField();
+    stockTable = buildTable();
+    buyDialogPane = new PurchaseDialogPane(this::hideBuyOverlay, this::confirmBuy);
+    buyDialogPane.getQuantityField().textProperty().addListener(
+        (observable, oldValue, newValue) -> updateBuyPreview()
+    );
+    receiptPane = new ReceiptDialogPane(this::hideReceiptOverlay);
+    detailPane = new StockDetailDialogPane(() -> hideModalHandler.run());
+
+    gainersRows = new VBox(4);
+    losersRows = new VBox(4);
+    HBox moversStrip = buildMoversStrip();
+
+    VBox content = new VBox(14, moversStrip, searchField, stockTable);
+    content.setFillWidth(true);
+    content.setMaxHeight(Double.MAX_VALUE);
+    VBox.setVgrow(stockTable, Priority.ALWAYS);
+
+    root = SectionCard.create(
+        "Market",
+        "Search available stocks and prepare purchases.",
+        content
+    );
+  }
+
+  private TextField buildSearchField() {
+    TextField field = new TextField();
+    field.setPromptText("Search by symbol or company");
+    field.getStyleClass().add("form-input");
+    field.setMaxWidth(Double.MAX_VALUE);
+    field.textProperty().addListener((observable, oldValue, newValue) ->
         applySearchFilter(newValue)
     );
-
-    stockTable = new TableView<>();
-    stockTable.getStyleClass().add("data-table");
-    stockTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-    stockTable.setFixedCellSize(44);
-    stockTable.setMaxHeight(Double.MAX_VALUE);
-    sortedStockRows.comparatorProperty().bind(stockTable.comparatorProperty());
-    stockTable.setItems(sortedStockRows);
-    VBox.setVgrow(stockTable, Priority.ALWAYS);
-    configureColumns();
-
-    VBox marketCard = new VBox(14, titleLabel, subtitleLabel, searchField, stockTable);
-    marketCard.getStyleClass().add("content-card");
-    marketCard.setPadding(new Insets(18));
-    marketCard.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
-    buyTitleLabel = new Label();
-    buySubtitleLabel = new Label();
-    grossCostValue = new Label();
-    commissionValue = new Label();
-    totalCostValue = new Label();
-    buyErrorLabel = new Label();
-    quantityField = new TextField("1");
-    buyDialog = createBuyDialog();
-
-    root = marketCard;
+    return field;
   }
 
-  private static TableCell<StockRow, BigDecimal> currencyCell() {
-    return new TableCell<>() {
-      @Override
-      protected void updateItem(BigDecimal item, boolean empty) {
-        super.updateItem(item, empty);
-        setText(empty || item == null ? null : formatCurrency(item));
-        setAlignment(Pos.CENTER_RIGHT);
-      }
-    };
-  }
-
-  private static TableCell<StockRow, BigDecimal> changeCell() {
-    return new TableCell<>() {
-      @Override
-      protected void updateItem(BigDecimal item, boolean empty) {
-        super.updateItem(item, empty);
-        getStyleClass().removeAll(
-            POSITIVE_CHANGE_CLASS,
-            NEGATIVE_CHANGE_CLASS,
-            NEUTRAL_CHANGE_CLASS
-        );
-
-        if (empty || item == null) {
-          setText(null);
-          return;
-        }
-
-        setText(formatChange(item));
-        setAlignment(Pos.CENTER_RIGHT);
-        if (item.compareTo(BigDecimal.ZERO) > 0) {
-          getStyleClass().add(POSITIVE_CHANGE_CLASS);
-        } else if (item.compareTo(BigDecimal.ZERO) < 0) {
-          getStyleClass().add(NEGATIVE_CHANGE_CLASS);
-        } else {
-          getStyleClass().add(NEUTRAL_CHANGE_CLASS);
-        }
-      }
-    };
-  }
-
-  private static HBox createSummaryRow(String labelText, Label valueLabel) {
-    Label label = new Label(labelText);
-    label.getStyleClass().add("summary-label");
-    valueLabel.getStyleClass().add("summary-value");
-
-    HBox row = new HBox(16, label, valueLabel);
-    row.getStyleClass().add("summary-row");
-    row.setAlignment(Pos.CENTER_LEFT);
-    row.setMaxWidth(Double.MAX_VALUE);
-    HBox.setHgrow(label, Priority.ALWAYS);
-    valueLabel.setAlignment(Pos.CENTER_RIGHT);
-    return row;
-  }
-
-  private static String formatCurrency(BigDecimal amount) {
-    return CurrencyFormatter.formatToNOK(amount.doubleValue());
-  }
-
-  private static String formatChange(BigDecimal change) {
-    if (change.compareTo(BigDecimal.ZERO) > 0) {
-      return "+" + formatCurrency(change);
-    }
-    if (change.compareTo(BigDecimal.ZERO) < 0) {
-      return formatCurrency(change);
-    }
-    return formatCurrency(BigDecimal.ZERO);
+  private TableView<StockRow> buildTable() {
+    TableView<StockRow> table = new TableView<>();
+    table.getStyleClass().add("data-table");
+    table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+    table.setFixedCellSize(44);
+    table.setMaxHeight(Double.MAX_VALUE);
+    table.setPlaceholder(TablePlaceholders.create("No stocks match your search."));
+    sortedStockRows.comparatorProperty().bind(table.comparatorProperty());
+    table.setItems(sortedStockRows);
+    configureColumns(table);
+    return table;
   }
 
   /**
@@ -215,6 +149,28 @@ public class MarketView {
   }
 
   /**
+   * Sets the handler invoked when the user clicks Details on a stock row.
+   *
+   * @param handler the handler receiving the selected stock
+   */
+  public void setOnDetails(Consumer<Stock> handler) {
+    if (handler == null) {
+      throw new IllegalArgumentException("Handler cannot be null");
+    }
+    detailsHandler = handler;
+  }
+
+  /**
+   * Shows the stock detail modal for a given stock.
+   *
+   * @param stock the stock to display
+   */
+  public void showDetailsDialog(Stock stock) {
+    detailPane.setStock(stock);
+    showModalHandler.accept(detailPane.getRoot());
+  }
+
+  /**
    * Sets the handler for confirmed buy actions.
    *
    * @param handler the handler receiving the selected stock and quantity
@@ -247,17 +203,117 @@ public class MarketView {
    */
   public void showBuyDialog(Stock stock) {
     selectedStock = stock;
-    quantityField.setText("1");
-    buyErrorLabel.setText("");
-    buyTitleLabel.setText("Buy " + stock.getSymbol());
-    buySubtitleLabel.setText(stock.getCompany()
-        + " · Current price: " + formatCurrency(stock.getSalesPrice()));
+    buyDialogPane.resetQuantity();
+    buyDialogPane.clearError();
+    buyDialogPane.setHeading(
+        "Buy " + stock.getSymbol(),
+        stock.getCompany() + " · Current price: " + formatCurrency(stock.getSalesPrice())
+    );
     updateBuyPreview();
-    showModalHandler.accept(buyDialog);
-    quantityField.requestFocus();
+    showModalHandler.accept(buyDialogPane.getRoot());
+    buyDialogPane.getQuantityField().requestFocus();
   }
 
-  private void configureColumns() {
+  /**
+   * Shows an error in the buy modal.
+   *
+   * @param message the error message to show
+   */
+  public void showBuyError(String message) {
+    buyDialogPane.showError(message);
+  }
+
+  /**
+   * Closes the buy modal.
+   */
+  public void closeBuyDialog() {
+    hideBuyOverlay();
+  }
+
+  /**
+   * Replaces the buy dialog with a purchase receipt for the completed transaction.
+   *
+   * @param stock    the purchased stock
+   * @param quantity the number of shares purchased
+   */
+  public void showBuyReceipt(Stock stock, BigDecimal quantity) {
+    Share share = new Share(stock, quantity, stock.getSalesPrice());
+    PurchaseCalculator calc = new PurchaseCalculator(share);
+    String qty = quantity.stripTrailingZeros().toPlainString() + " share(s)";
+    receiptPane.setContent(
+        "Purchase Receipt",
+        stock.getSymbol() + " · " + stock.getCompany() + " · " + qty,
+        List.of(
+            new ReceiptDialogPane.ReceiptRow(
+                "Price per share", formatCurrency(stock.getSalesPrice()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Quantity", quantity.stripTrailingZeros().toPlainString(), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Gross cost", formatCurrency(calc.calculateGross()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Commission (0.5 %)", formatCurrency(calc.calculateCommission()), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Total paid", formatCurrency(calc.calculateTotal()), true)
+        )
+    );
+    showModalHandler.accept(receiptPane.getRoot());
+  }
+
+  private HBox buildMoversStrip() {
+    VBox gainersCard = buildMoversCard("Top Gainers", gainersRows);
+    VBox losersCard = buildMoversCard("Top Losers", losersRows);
+    HBox strip = new HBox(12, gainersCard, losersCard);
+    HBox.setHgrow(gainersCard, Priority.ALWAYS);
+    HBox.setHgrow(losersCard, Priority.ALWAYS);
+    return strip;
+  }
+
+  private static VBox buildMoversCard(String header, VBox rowsContainer) {
+    Label headerLabel = new Label(header);
+    headerLabel.getStyleClass().add("movers-header");
+    VBox card = new VBox(0, headerLabel, rowsContainer);
+    card.getStyleClass().add("movers-card");
+    card.setPrefWidth(0);
+    card.setMaxWidth(Double.MAX_VALUE);
+    return card;
+  }
+
+  /**
+   * Updates the top gainers and losers strip.
+   *
+   * @param gainers stocks with the highest positive price change
+   * @param losers  stocks with the lowest negative price change
+   */
+  public void setMovers(List<Stock> gainers, List<Stock> losers) {
+    populateMoverRows(gainersRows, gainers, true);
+    populateMoverRows(losersRows, losers, false);
+  }
+
+  private static final int MOVERS_COUNT = 3;
+
+  private void populateMoverRows(VBox container, List<Stock> stocks, boolean positive) {
+    container.getChildren().clear();
+    for (int i = 0; i < MOVERS_COUNT; i++) {
+      if (i < stocks.size()) {
+        Stock stock = stocks.get(i);
+        Label symbol = new Label(stock.getSymbol());
+        symbol.getStyleClass().add("movers-symbol");
+        Label change = new Label(formatSignedChange(stock.getLatestPriceChange()));
+        change.getStyleClass().addAll("movers-change",
+            positive ? "positive-change" : "negative-change");
+        HBox row = new HBox(symbol, change);
+        row.getStyleClass().add("movers-row");
+        HBox.setHgrow(symbol, Priority.ALWAYS);
+        container.getChildren().add(row);
+      } else {
+        Label placeholder = new Label("—");
+        placeholder.getStyleClass().addAll("movers-row", "empty-state");
+        container.getChildren().add(placeholder);
+      }
+    }
+  }
+
+  private void configureColumns(TableView<StockRow> table) {
     TableColumn<StockRow, String> symbolColumn = new TableColumn<>("Symbol");
     symbolColumn.setCellValueFactory(cellData -> cellData.getValue().symbolProperty());
 
@@ -266,22 +322,22 @@ public class MarketView {
 
     TableColumn<StockRow, BigDecimal> priceColumn = new TableColumn<>("Price");
     priceColumn.setCellValueFactory(cellData -> cellData.getValue().priceProperty());
-    priceColumn.setCellFactory(column -> currencyCell());
+    priceColumn.setCellFactory(column -> TableCells.currency());
 
     TableColumn<StockRow, BigDecimal> changeColumn = new TableColumn<>("Change");
     changeColumn.setCellValueFactory(cellData -> cellData.getValue().changeProperty());
-    changeColumn.setCellFactory(column -> changeCell());
+    changeColumn.setCellFactory(column -> TableCells.signedChange());
 
-    TableColumn<StockRow, Void> actionColumn = new TableColumn<>("Action");
-    actionColumn.setCellFactory(column -> buyButtonCell());
-    actionColumn.setMinWidth(96);
-    actionColumn.setMaxWidth(110);
+    TableColumn<StockRow, Void> actionColumn = new TableColumn<>("Actions");
+    actionColumn.setCellFactory(column -> actionsCell());
+    actionColumn.setMinWidth(168);
+    actionColumn.setMaxWidth(184);
 
-    stockTable.getColumns().add(symbolColumn);
-    stockTable.getColumns().add(companyColumn);
-    stockTable.getColumns().add(priceColumn);
-    stockTable.getColumns().add(changeColumn);
-    stockTable.getColumns().add(actionColumn);
+    table.getColumns().add(symbolColumn);
+    table.getColumns().add(companyColumn);
+    table.getColumns().add(priceColumn);
+    table.getColumns().add(changeColumn);
+    table.getColumns().add(actionColumn);
   }
 
   private void applySearchFilter(String searchText) {
@@ -292,9 +348,11 @@ public class MarketView {
     );
   }
 
-  private TableCell<StockRow, Void> buyButtonCell() {
+  private TableCell<StockRow, Void> actionsCell() {
     return new TableCell<>() {
       private final Button buyButton = new Button("Buy");
+      private final Button detailsButton = new Button("Details");
+      private final HBox buttons = new HBox(6, detailsButton, buyButton);
 
       {
         buyButton.getStyleClass().addAll("secondary-button", "table-action-button");
@@ -302,74 +360,21 @@ public class MarketView {
           StockRow row = getTableView().getItems().get(getIndex());
           buyHandler.accept(row.getStock());
         });
+        detailsButton.getStyleClass().addAll("discreet-button", "table-action-button");
+        detailsButton.setOnAction(event -> {
+          StockRow row = getTableView().getItems().get(getIndex());
+          detailsHandler.accept(row.getStock());
+        });
+        buttons.setAlignment(Pos.CENTER);
       }
 
       @Override
       protected void updateItem(Void item, boolean empty) {
         super.updateItem(item, empty);
-        setGraphic(empty ? null : buyButton);
+        setGraphic(empty ? null : buttons);
         setAlignment(Pos.CENTER);
       }
     };
-  }
-
-  private VBox createBuyDialog() {
-    buyTitleLabel.getStyleClass().add("modal-title");
-    buySubtitleLabel.getStyleClass().add("modal-subtitle");
-    buySubtitleLabel.setWrapText(true);
-
-    VBox heading = new VBox(4, buyTitleLabel, buySubtitleLabel);
-    heading.getStyleClass().add("modal-heading");
-
-    Label quantityLabel = new Label("Quantity");
-    quantityLabel.getStyleClass().add("field-label");
-    quantityLabel.setLabelFor(quantityField);
-
-    quantityField.getStyleClass().add("form-input");
-    quantityField.setMaxWidth(Double.MAX_VALUE);
-    quantityField.textProperty().addListener((observable, oldValue, newValue) ->
-        updateBuyPreview()
-    );
-
-    VBox quantityGroup = new VBox(6, quantityLabel, quantityField);
-    quantityGroup.getStyleClass().add("field-group");
-
-    HBox grossCostRow = createSummaryRow("Gross cost", grossCostValue);
-    HBox commissionRow = createSummaryRow("Commission (0.5 %)", commissionValue);
-    HBox totalCostRow = createSummaryRow("Total cost", totalCostValue);
-    totalCostRow.getStyleClass().add("summary-row-total");
-
-    VBox summaryBox = new VBox(6, grossCostRow, commissionRow, totalCostRow);
-    summaryBox.getStyleClass().add("summary-card");
-
-    buyErrorLabel.getStyleClass().add("error-label");
-    buyErrorLabel.setWrapText(true);
-
-    Button cancelButton = new Button("Cancel");
-    cancelButton.getStyleClass().add("secondary-button");
-    cancelButton.setOnAction(event -> hideBuyOverlay());
-
-    Button confirmButton = new Button("Confirm purchase");
-    confirmButton.getStyleClass().add("primary-button");
-    confirmButton.setOnAction(event -> confirmBuy());
-    cancelButton.setMinWidth(150);
-    confirmButton.setMinWidth(170);
-
-    HBox actions = new HBox(12, cancelButton, confirmButton);
-    actions.getStyleClass().add("modal-actions");
-    actions.setAlignment(Pos.CENTER_RIGHT);
-
-    VBox dialog = new VBox(
-        16,
-        heading,
-        quantityGroup,
-        summaryBox,
-        buyErrorLabel,
-        actions
-    );
-    dialog.getStyleClass().add("modal-card");
-    dialog.setMaxSize(430, Region.USE_PREF_SIZE);
-    return dialog;
   }
 
   private void updateBuyPreview() {
@@ -377,19 +382,22 @@ public class MarketView {
       return;
     }
 
-    BigDecimal quantity = parseQuantity();
+    BigDecimal quantity = parseQuantity(buyDialogPane.getQuantityField().getText());
     if (quantity == null) {
-      showInvalidQuantity();
+      buyDialogPane.showInvalidPreview();
+      buyDialogPane.showError("Enter a positive quantity.");
       return;
     }
 
     Share previewShare = new Share(selectedStock, quantity, selectedStock.getSalesPrice());
     PurchaseCalculator calculator = new PurchaseCalculator(previewShare);
 
-    grossCostValue.setText(formatCurrency(calculator.calculateGross()));
-    commissionValue.setText(formatCurrency(calculator.calculateCommission()));
-    totalCostValue.setText(formatCurrency(calculator.calculateTotal()));
-    buyErrorLabel.setText("");
+    buyDialogPane.setPreview(
+        formatCurrency(calculator.calculateGross()),
+        formatCurrency(calculator.calculateCommission()),
+        formatCurrency(calculator.calculateTotal())
+    );
+    buyDialogPane.clearError();
   }
 
   private void confirmBuy() {
@@ -397,54 +405,50 @@ public class MarketView {
       return;
     }
 
-    BigDecimal quantity = parseQuantity();
+    BigDecimal quantity = parseQuantity(buyDialogPane.getQuantityField().getText());
     if (quantity == null) {
-      showInvalidQuantity();
+      buyDialogPane.showInvalidPreview();
+      buyDialogPane.showError("Enter a positive quantity.");
       return;
     }
 
     confirmBuyHandler.accept(selectedStock, quantity);
   }
 
-  private BigDecimal parseQuantity() {
-    String quantityText = quantityField.getText().trim();
-    if (!quantityText.matches("\\d+(\\.\\d+)?")) {
+  private static BigDecimal parseQuantity(String quantityText) {
+    if (quantityText == null) {
+      return null;
+    }
+    String trimmed = quantityText.trim();
+    if (!trimmed.matches("\\d+(\\.\\d+)?")) {
       return null;
     }
 
-    BigDecimal quantity = new BigDecimal(quantityText);
+    BigDecimal quantity = new BigDecimal(trimmed);
     if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
       return null;
     }
     return quantity;
   }
 
-  private void showInvalidQuantity() {
-    grossCostValue.setText("-");
-    commissionValue.setText("-");
-    totalCostValue.setText("-");
-    buyErrorLabel.setText("Enter a positive quantity.");
-  }
-
-  /**
-   * Shows an error in the buy modal.
-   *
-   * @param message the error message to show
-   */
-  public void showBuyError(String message) {
-    buyErrorLabel.setText(message);
-  }
-
-  /**
-   * Closes the buy modal.
-   */
-  public void closeBuyDialog() {
-    hideBuyOverlay();
-  }
-
   private void hideBuyOverlay() {
     hideModalHandler.run();
     selectedStock = null;
+  }
+
+  private void hideReceiptOverlay() {
+    hideModalHandler.run();
+  }
+
+  private static String formatCurrency(BigDecimal amount) {
+    return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
+  private static String formatSignedChange(BigDecimal change) {
+    if (change.compareTo(BigDecimal.ZERO) > 0) {
+      return "+" + formatCurrency(change);
+    }
+    return formatCurrency(change);
   }
 
   private static final class StockRow {

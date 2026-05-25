@@ -76,7 +76,7 @@ public class GameView {
   }
 
   private VBox buildSidebar() {
-    VBox sidebar = new VBox(10, marketButton, portfolioButton, transactionsButton, saveButton);
+    VBox sidebar = new VBox(10, marketButton, portfolioButton, transactionsButton);
     sidebar.getStyleClass().add("sidebar");
 
     Region sidebarSpacer = new Region();

@@ -56,4 +56,36 @@ class GameSessionTest {
         assertEquals(new BigDecimal("1000.00"), player.getMoney());
         assertEquals(0, notifications.get());
     }
+
+    @Test
+    @DisplayName("Should sell share and notify observers")
+    void shouldSellShareAndNotifyObservers() {
+        session.buy("AAPL", new BigDecimal("2"));
+        var share = player.getPortfolio().getShares().getFirst();
+        BigDecimal moneyAfterBuy = player.getMoney();
+
+        session.sell(share);
+
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertEquals(1, player.getTransactionArchive().getSales(1).size());
+        assertTrue(player.getMoney().compareTo(moneyAfterBuy) > 0);
+        assertEquals(2, notifications.get());
+    }
+
+    @Test
+    @DisplayName("Should not notify observers when sell fails")
+    void shouldNotNotifyObserversWhenSellFails() {
+        var share = new edu.ntnu.idi.idatt2003.model.Share(
+            appleStock,
+            new BigDecimal("1"),
+            new BigDecimal("100.00")
+        );
+
+        assertThrows(IllegalStateException.class, () -> session.sell(share));
+
+        assertTrue(player.getPortfolio().getShares().isEmpty());
+        assertTrue(player.getTransactionArchive().isEmpty());
+        assertEquals(new BigDecimal("1000.00"), player.getMoney());
+        assertEquals(0, notifications.get());
+    }
 }

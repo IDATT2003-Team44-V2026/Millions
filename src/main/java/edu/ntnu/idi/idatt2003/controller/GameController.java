@@ -2,6 +2,7 @@ package edu.ntnu.idi.idatt2003.controller;
 
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
 import edu.ntnu.idi.idatt2003.navigation.Route;
+import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.observer.GameObserver;
 import edu.ntnu.idi.idatt2003.service.GameSession;
@@ -65,9 +66,12 @@ public class GameController implements GameObserver {
         view.setOnPortfolio(event -> showPortfolio());
         view.setOnTransactions(event -> showTransactions());
         view.setOnAdvanceWeek(event -> gameSession.advanceWeek());
-        marketView.setOnBuy(this::showBuyPlaceholder);
+        marketView.setOnBuy(this::showBuyDialog);
         marketView.setOnConfirmBuy(this::confirmBuy);
         marketView.setModalHandlers(view::showModal, view::hideModal);
+        portfolioView.setOnSell(this::showSellDialog);
+        portfolioView.setOnConfirmSell(this::confirmSell);
+        portfolioView.setModalHandlers(view::showModal, view::hideModal);
         view.setOnExit(event -> {
             gameSession.endSession();
             gameSession.removeObserver(this);
@@ -98,13 +102,14 @@ public class GameController implements GameObserver {
             gameSession.getExchange().getWeek()
         );
         marketView.setStocks(gameSession.getExchange().getStocks());
+        portfolioView.setShares(gameSession.getPlayer().getPortfolio().getShares());
     }
 
     private static String format(BigDecimal amount) {
         return CurrencyFormatter.formatToNOK(amount.doubleValue());
     }
 
-    private void showBuyPlaceholder(Stock stock) {
+    private void showBuyDialog(Stock stock) {
         marketView.showBuyDialog(stock);
     }
 
@@ -114,14 +119,36 @@ public class GameController implements GameObserver {
             marketView.closeBuyDialog();
             view.showSuccessToast("Purchased " + quantity + " share(s) of " + stock.getSymbol() + ".");
         } catch (IllegalArgumentException | IllegalStateException exception) {
-            marketView.showBuyError(toUserMessage(exception));
+            marketView.showBuyError(toBuyMessage(exception));
         }
     }
 
-    private static String toUserMessage(RuntimeException exception) {
+    private void showSellDialog(Share share) {
+        portfolioView.showSellDialog(share);
+    }
+
+    private void confirmSell(Share share) {
+        try {
+            gameSession.sell(share);
+            portfolioView.closeSellDialog();
+            view.showSuccessToast("Sold " + share.getQuantity().stripTrailingZeros().toPlainString()
+                + " share(s) of " + share.getStock().getSymbol() + ".");
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            portfolioView.showSellError(toSellMessage(exception));
+        }
+    }
+
+    private static String toBuyMessage(RuntimeException exception) {
         if (exception.getMessage() != null && exception.getMessage().contains("Insufficient funds")) {
             return "You do not have enough money for this purchase.";
         }
         return "Could not complete purchase. " + exception.getMessage();
+    }
+
+    private static String toSellMessage(RuntimeException exception) {
+        if (exception.getMessage() != null && exception.getMessage().contains("does not own")) {
+            return "You no longer own this share.";
+        }
+        return "Could not complete sale. " + exception.getMessage();
     }
 }

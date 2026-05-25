@@ -1,5 +1,18 @@
+/* ==========================================================================
+   Global
+   ========================================================================== */
+
 .root {
   -fx-font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  -fx-background-color: #fafafa;
+}
+
+/* ==========================================================================
+   Setup screens (Start, New game)
+   ========================================================================== */
+
+.start-page,
+.game-page {
   -fx-background-color: #fafafa;
 }
 
@@ -35,6 +48,12 @@
   -fx-padding: 0 0 4px 0;
 }
 
+.section-title {
+  -fx-text-fill: #09090b;
+  -fx-font-size: 22px;
+  -fx-font-weight: 700;
+}
+
 .field-group {
   -fx-spacing: 6px;
 }
@@ -63,6 +82,11 @@
   -fx-background-color: #ffffff;
 }
 
+.form-width {
+  -fx-pref-width: 360;
+  -fx-max-width: 360;
+}
+
 .file-label {
   -fx-text-fill: #71717a;
   -fx-font-size: 12px;
@@ -72,6 +96,18 @@
   -fx-background-radius: 10px;
   -fx-padding: 12px;
 }
+
+.error-label {
+  -fx-text-fill: #dc2626;
+  -fx-font-size: 12px;
+  -fx-padding: 2px 0 0 2px;
+  -fx-alignment: center;
+  -fx-text-alignment: center;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
 
 .primary-button,
 .secondary-button,
@@ -123,30 +159,6 @@
   -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.22), 8, 0.22, 0, 0);
 }
 
-.error-label {
-  -fx-text-fill: #dc2626;
-  -fx-font-size: 12px;
-  -fx-padding: 2px 0 0 2px;
-  -fx-alignment: center;
-  -fx-text-alignment: center;
-}
-
-.toast {
-  -fx-background-radius: 999px;
-  -fx-border-radius: 999px;
-  -fx-border-width: 1px;
-  -fx-font-size: 13px;
-  -fx-font-weight: 700;
-  -fx-padding: 12px 18px;
-  -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.14), 18, 0.18, 0, 6);
-}
-
-.toast-success {
-  -fx-background-color: #ecfdf5;
-  -fx-border-color: #bbf7d0;
-  -fx-text-fill: #166534;
-}
-
 .discreet-button {
   -fx-background-color: #ffffff;
   -fx-text-fill: #71717a;
@@ -167,6 +179,17 @@
   -fx-background-color: #fafafa;
   -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.18), 7, 0.2, 0, 0);
 }
+
+.table-action-button {
+  -fx-font-size: 12px;
+  -fx-padding: 6px 10px;
+  -fx-min-height: 32px;
+  -fx-min-width: 64px;
+}
+
+/* ==========================================================================
+   Game shell (sidebar, topbar, toast)
+   ========================================================================== */
 
 .sidebar {
   -fx-background-color: #ffffff;
@@ -229,9 +252,20 @@
   -fx-font-weight: 600;
 }
 
-.form-width {
-  -fx-pref-width: 360;
-  -fx-max-width: 360;
+.toast {
+  -fx-background-radius: 999px;
+  -fx-border-radius: 999px;
+  -fx-border-width: 1px;
+  -fx-font-size: 13px;
+  -fx-font-weight: 700;
+  -fx-padding: 12px 18px;
+  -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.14), 18, 0.18, 0, 6);
+}
+
+.toast-success {
+  -fx-background-color: #ecfdf5;
+  -fx-border-color: #bbf7d0;
+  -fx-text-fill: #166534;
 }
 
 .empty-state {
@@ -240,11 +274,9 @@
   -fx-font-weight: 500;
 }
 
-.section-title {
-  -fx-text-fill: #09090b;
-  -fx-font-size: 22px;
-  -fx-font-weight: 700;
-}
+/* ==========================================================================
+   Modals (buy / sell)
+   ========================================================================== */
 
 .modal-overlay {
   -fx-background-color: rgba(24, 24, 27, 0.28);
@@ -313,6 +345,10 @@
 .modal-actions {
   -fx-padding: 8px 0 0 0;
 }
+
+/* ==========================================================================
+   Data tables (market, portfolio, transactions)
+   ========================================================================== */
 
 .data-table {
   -fx-background-color: transparent;
@@ -402,6 +438,7 @@
   -fx-padding: 0;
 }
 
+/* Applied on table cells via TableCells */
 .positive-change {
   -fx-text-fill: #15803d;
   -fx-font-weight: 800;
@@ -415,26 +452,4 @@
 .neutral-change {
   -fx-text-fill: #09090b;
   -fx-font-weight: 800;
-}
-
-.data-table .table-cell.positive-change {
-  -fx-text-fill: #15803d;
-  -fx-font-weight: 800;
-}
-
-.data-table .table-cell.negative-change {
-  -fx-text-fill: #b91c1c;
-  -fx-font-weight: 800;
-}
-
-.data-table .table-cell.neutral-change {
-  -fx-text-fill: #09090b;
-  -fx-font-weight: 800;
-}
-
-.table-action-button {
-  -fx-font-size: 12px;
-  -fx-padding: 6px 10px;
-  -fx-min-height: 32px;
-  -fx-min-width: 64px;
 }

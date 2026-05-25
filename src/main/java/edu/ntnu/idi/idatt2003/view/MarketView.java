@@ -7,6 +7,7 @@ import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
 import edu.ntnu.idi.idatt2003.view.components.PurchaseDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SectionCard;
+import edu.ntnu.idi.idatt2003.view.components.StockDetailDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.TableCells;
 import edu.ntnu.idi.idatt2003.view.components.TablePlaceholders;
 import java.math.BigDecimal;
@@ -47,10 +48,12 @@ public class MarketView {
   private final SortedList<StockRow> sortedStockRows;
   private final PurchaseDialogPane buyDialogPane;
   private final ReceiptDialogPane receiptPane;
+  private final StockDetailDialogPane detailPane;
   private final VBox gainersRows;
   private final VBox losersRows;
   private Stock selectedStock;
   private Consumer<Stock> buyHandler = stock -> {};
+  private Consumer<Stock> detailsHandler = stock -> {};
   private BiConsumer<Stock, BigDecimal> confirmBuyHandler = (stock, quantity) -> {};
   private Consumer<Parent> showModalHandler = modal -> {};
   private Runnable hideModalHandler = () -> {};
@@ -70,6 +73,7 @@ public class MarketView {
         (observable, oldValue, newValue) -> updateBuyPreview()
     );
     receiptPane = new ReceiptDialogPane(this::hideReceiptOverlay);
+    detailPane = new StockDetailDialogPane(() -> hideModalHandler.run());
 
     gainersRows = new VBox(4);
     losersRows = new VBox(4);
@@ -142,6 +146,28 @@ public class MarketView {
       throw new IllegalArgumentException("Handler cannot be null");
     }
     buyHandler = handler;
+  }
+
+  /**
+   * Sets the handler invoked when the user clicks Details on a stock row.
+   *
+   * @param handler the handler receiving the selected stock
+   */
+  public void setOnDetails(Consumer<Stock> handler) {
+    if (handler == null) {
+      throw new IllegalArgumentException("Handler cannot be null");
+    }
+    detailsHandler = handler;
+  }
+
+  /**
+   * Shows the stock detail modal for a given stock.
+   *
+   * @param stock the stock to display
+   */
+  public void showDetailsDialog(Stock stock) {
+    detailPane.setStock(stock);
+    showModalHandler.accept(detailPane.getRoot());
   }
 
   /**
@@ -302,10 +328,10 @@ public class MarketView {
     changeColumn.setCellValueFactory(cellData -> cellData.getValue().changeProperty());
     changeColumn.setCellFactory(column -> TableCells.signedChange());
 
-    TableColumn<StockRow, Void> actionColumn = new TableColumn<>("Action");
-    actionColumn.setCellFactory(column -> buyButtonCell());
-    actionColumn.setMinWidth(96);
-    actionColumn.setMaxWidth(110);
+    TableColumn<StockRow, Void> actionColumn = new TableColumn<>("Actions");
+    actionColumn.setCellFactory(column -> actionsCell());
+    actionColumn.setMinWidth(168);
+    actionColumn.setMaxWidth(184);
 
     table.getColumns().add(symbolColumn);
     table.getColumns().add(companyColumn);
@@ -322,9 +348,11 @@ public class MarketView {
     );
   }
 
-  private TableCell<StockRow, Void> buyButtonCell() {
+  private TableCell<StockRow, Void> actionsCell() {
     return new TableCell<>() {
       private final Button buyButton = new Button("Buy");
+      private final Button detailsButton = new Button("Details");
+      private final HBox buttons = new HBox(6, detailsButton, buyButton);
 
       {
         buyButton.getStyleClass().addAll("secondary-button", "table-action-button");
@@ -332,12 +360,18 @@ public class MarketView {
           StockRow row = getTableView().getItems().get(getIndex());
           buyHandler.accept(row.getStock());
         });
+        detailsButton.getStyleClass().addAll("discreet-button", "table-action-button");
+        detailsButton.setOnAction(event -> {
+          StockRow row = getTableView().getItems().get(getIndex());
+          detailsHandler.accept(row.getStock());
+        });
+        buttons.setAlignment(Pos.CENTER);
       }
 
       @Override
       protected void updateItem(Void item, boolean empty) {
         super.updateItem(item, empty);
-        setGraphic(empty ? null : buyButton);
+        setGraphic(empty ? null : buttons);
         setAlignment(Pos.CENTER);
       }
     };

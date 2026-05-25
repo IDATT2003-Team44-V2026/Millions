@@ -117,6 +117,7 @@ public class GameController implements GameObserver {
     view.setOnAdvanceWeek(event -> gameSession.advanceWeek());
     marketView.setOnBuy(this::showBuyDialog);
     marketView.setOnConfirmBuy(this::confirmBuy);
+    marketView.setOnDetails(marketView::showDetailsDialog);
     marketView.setModalHandlers(view::showModal, view::hideModal);
     portfolioView.setOnSell(this::showSellDialog);
     portfolioView.setOnConfirmSell(this::confirmSell);

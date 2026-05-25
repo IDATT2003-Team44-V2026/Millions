@@ -247,6 +247,7 @@ public class MarketView {
     headerLabel.getStyleClass().add("movers-header");
     VBox card = new VBox(0, headerLabel, rowsContainer);
     card.getStyleClass().add("movers-card");
+    card.setPrefWidth(0);
     card.setMaxWidth(Double.MAX_VALUE);
     return card;
   }
@@ -262,24 +263,27 @@ public class MarketView {
     populateMoverRows(losersRows, losers, false);
   }
 
+  private static final int MOVERS_COUNT = 3;
+
   private void populateMoverRows(VBox container, List<Stock> stocks, boolean positive) {
     container.getChildren().clear();
-    if (stocks.isEmpty()) {
-      Label empty = new Label("No data yet");
-      empty.getStyleClass().add("empty-state");
-      container.getChildren().add(empty);
-      return;
-    }
-    for (Stock stock : stocks) {
-      Label symbol = new Label(stock.getSymbol());
-      symbol.getStyleClass().add("movers-symbol");
-      Label change = new Label(formatSignedChange(stock.getLatestPriceChange()));
-      change.getStyleClass().addAll("movers-change",
-          positive ? "positive-change" : "negative-change");
-      HBox row = new HBox(symbol, change);
-      row.getStyleClass().add("movers-row");
-      HBox.setHgrow(symbol, Priority.ALWAYS);
-      container.getChildren().add(row);
+    for (int i = 0; i < MOVERS_COUNT; i++) {
+      if (i < stocks.size()) {
+        Stock stock = stocks.get(i);
+        Label symbol = new Label(stock.getSymbol());
+        symbol.getStyleClass().add("movers-symbol");
+        Label change = new Label(formatSignedChange(stock.getLatestPriceChange()));
+        change.getStyleClass().addAll("movers-change",
+            positive ? "positive-change" : "negative-change");
+        HBox row = new HBox(symbol, change);
+        row.getStyleClass().add("movers-row");
+        HBox.setHgrow(symbol, Priority.ALWAYS);
+        container.getChildren().add(row);
+      } else {
+        Label placeholder = new Label("—");
+        placeholder.getStyleClass().addAll("movers-row", "empty-state");
+        container.getChildren().add(placeholder);
+      }
     }
   }
 

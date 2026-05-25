@@ -229,6 +229,17 @@
   -fx-font-weight: 600;
 }
 
+.form-width {
+  -fx-pref-width: 360;
+  -fx-max-width: 360;
+}
+
+.empty-state {
+  -fx-text-fill: #71717a;
+  -fx-font-size: 13px;
+  -fx-font-weight: 500;
+}
+
 .section-title {
   -fx-text-fill: #09090b;
   -fx-font-size: 22px;

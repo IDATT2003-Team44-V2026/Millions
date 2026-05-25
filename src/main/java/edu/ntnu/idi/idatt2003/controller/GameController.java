@@ -52,6 +52,7 @@ public class GameController implements GameObserver {
 
     initializeHandlers();
     gameSession.addObserver(this);
+    view.setAdvanceWeekEnabled(gameSession.isActive());
     showMarket();
     refreshStats();
   }
@@ -92,6 +93,7 @@ public class GameController implements GameObserver {
     portfolioView.setModalHandlers(view::showModal, view::hideModal);
     view.setOnExit(event -> {
       gameSession.endSession();
+      view.setAdvanceWeekEnabled(false);
       gameSession.removeObserver(this);
       navigator.navigateTo(Route.START);
     });

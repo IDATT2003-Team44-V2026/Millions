@@ -51,20 +51,37 @@ public class GameView {
     transactionsButton = createSidebarButton("Transactions");
     exitButton = createSidebarButton("Exit game");
 
+    playerNameValue = new Label("-");
+    playerRankValue = new Label("-");
+    balanceValue = new Label("-");
+    netWorthValue = new Label("-");
+    weekValue = new Label("-");
+    advanceWeekButton = new Button("Advance week");
+    advanceWeekButton.getStyleClass().add("primary-button");
+    advanceWeekButton.setAccessibleText("Advance to the next week");
+
+    shell.setLeft(buildSidebar());
+    shell.setTop(buildTopbar());
+
+    modalOverlay = buildModalLayer();
+    toastLabel = buildToast();
+
+    root = new StackPane(shell, modalOverlay, toastLabel);
+    StackPane.setAlignment(toastLabel, Pos.BOTTOM_CENTER);
+    StackPane.setMargin(toastLabel, new Insets(0, 0, 28, 0));
+  }
+
+  private VBox buildSidebar() {
     VBox sidebar = new VBox(10, marketButton, portfolioButton, transactionsButton);
     sidebar.getStyleClass().add("sidebar");
 
     Region sidebarSpacer = new Region();
     VBox.setVgrow(sidebarSpacer, Priority.ALWAYS);
     sidebar.getChildren().addAll(sidebarSpacer, exitButton);
-    shell.setLeft(sidebar);
+    return sidebar;
+  }
 
-    playerNameValue = new Label("-");
-    playerRankValue = new Label("-");
-    balanceValue = new Label("-");
-    netWorthValue = new Label("-");
-    weekValue = new Label("-");
-
+  private StackPane buildTopbar() {
     HBox stats = new HBox(
         18,
         createPlayerStat("Player", playerNameValue, playerRankValue),
@@ -74,33 +91,31 @@ public class GameView {
     );
     stats.setAlignment(Pos.CENTER);
 
-    advanceWeekButton = new Button("Advance week");
-    advanceWeekButton.getStyleClass().add("primary-button");
-    advanceWeekButton.setAccessibleText("Advance to the next week");
-
     StackPane topbar = new StackPane(stats, advanceWeekButton);
     StackPane.setAlignment(stats, Pos.CENTER);
     StackPane.setAlignment(advanceWeekButton, Pos.CENTER_RIGHT);
     topbar.setPadding(new Insets(18, 22, 18, 22));
     topbar.getStyleClass().add("topbar");
-    shell.setTop(topbar);
+    return topbar;
+  }
 
-    modalOverlay = new StackPane();
-    modalOverlay.getStyleClass().add("modal-overlay");
-    modalOverlay.setAlignment(Pos.CENTER);
-    modalOverlay.setPadding(new Insets(24));
-    modalOverlay.setVisible(false);
-    modalOverlay.setManaged(false);
+  private StackPane buildModalLayer() {
+    StackPane overlay = new StackPane();
+    overlay.getStyleClass().add("modal-overlay");
+    overlay.setAlignment(Pos.CENTER);
+    overlay.setPadding(new Insets(24));
+    overlay.setVisible(false);
+    overlay.setManaged(false);
+    return overlay;
+  }
 
-    toastLabel = new Label();
-    toastLabel.getStyleClass().addAll("toast", "toast-success");
-    toastLabel.setVisible(false);
-    toastLabel.setManaged(false);
-    toastLabel.setMouseTransparent(true);
-
-    root = new StackPane(shell, modalOverlay, toastLabel);
-    StackPane.setAlignment(toastLabel, Pos.BOTTOM_CENTER);
-    StackPane.setMargin(toastLabel, new Insets(0, 0, 28, 0));
+  private Label buildToast() {
+    Label toast = new Label();
+    toast.getStyleClass().addAll("toast", "toast-success");
+    toast.setVisible(false);
+    toast.setManaged(false);
+    toast.setMouseTransparent(true);
+    return toast;
   }
 
   private static VBox createStat(String label, Label value) {
@@ -158,6 +173,9 @@ public class GameView {
    * @param content the content to show
    */
   public void showContent(Node content) {
+    if (content instanceof Region region) {
+      region.setMaxWidth(Double.MAX_VALUE);
+    }
     BorderPane.setMargin(content, new Insets(18, 22, 22, 22));
     shell.setCenter(content);
   }
@@ -221,6 +239,15 @@ public class GameView {
     updateStat(balanceValue, "Balance", balance);
     updateStat(netWorthValue, "Net worth", netWorth);
     updateStat(weekValue, "Week", String.valueOf(week));
+  }
+
+  /**
+   * Enables or disables the advance week control.
+   *
+   * @param enabled whether advancing the week is allowed
+   */
+  public void setAdvanceWeekEnabled(boolean enabled) {
+    advanceWeekButton.setDisable(!enabled);
   }
 
   /**

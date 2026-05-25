@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.view;
 
+import edu.ntnu.idi.idatt2003.view.components.FormLayouts;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -33,16 +34,14 @@ public class StartView {
     );
     subtitleLabel.getStyleClass().add("subtitle-label");
 
-    newGameButton = createMenuButton("New game", true);
-    continueGameButton = createMenuButton("Continue game", false);
-    leaderboardButton = createMenuButton("Leaderboard", false);
+    newGameButton = FormLayouts.menuButton("New game", true);
+    continueGameButton = FormLayouts.menuButton("Continue game", false);
+    leaderboardButton = FormLayouts.menuButton("Leaderboard", false);
 
     messageLabel = new Label();
-    messageLabel.getStyleClass().add("error-label");
+    messageLabel.getStyleClass().addAll("error-label", "form-width");
     messageLabel.setWrapText(true);
     messageLabel.setAlignment(Pos.CENTER);
-    messageLabel.setPrefWidth(360);
-    messageLabel.setMaxWidth(360);
 
     VBox card = new VBox(
         18,
@@ -62,15 +61,6 @@ public class StartView {
     root = new StackPane(card);
     root.setAlignment(Pos.CENTER);
     root.getStyleClass().add("start-page");
-  }
-
-  private static Button createMenuButton(String text, boolean primary) {
-    Button button = new Button(text);
-    button.getStyleClass().add(primary ? "primary-button" : "secondary-button");
-    button.setPrefWidth(360);
-    button.setMaxWidth(360);
-
-    return button;
   }
 
   public Parent getRoot() {

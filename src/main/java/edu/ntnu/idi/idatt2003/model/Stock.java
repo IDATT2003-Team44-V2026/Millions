@@ -1,17 +1,18 @@
 package edu.ntnu.idi.idatt2003.model;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a stock listed on an exchange.
  *
  * <p>A stock is identified by a unique ticker symbol and an associated company name.
- * It maintains a chronological history of sales prices, where the most recent entry
- * is considered the current sales price.</p>
+ * It maintains a chronological history of sales prices, where the most recent entry is considered
+ * the current sales price.</p>
  */
 public class Stock {
+
   private final String symbol;
   private final String company;
   private final List<BigDecimal> prices;
@@ -22,9 +23,9 @@ public class Stock {
    * @param symbol     the ticker symbol for the stock; must not be {@code null} or blank
    * @param company    the name of the company; must not be {@code null} or blank
    * @param salesPrice the initial sales price; must not be {@code null} and must be positive
-   * @throws IllegalArgumentException if {@code symbol} is {@code null} or blank,
-   *                                  if {@code company} is {@code null} or blank,
-   *                                  or if {@code salesPrice} is {@code null} or not positive
+   * @throws IllegalArgumentException if {@code symbol} is {@code null} or blank, if {@code company}
+   *                                  is {@code null} or blank, or if {@code salesPrice} is
+   *                                  {@code null} or not positive
    */
   public Stock(String symbol, String company, BigDecimal salesPrice) {
     if (symbol == null || symbol.trim().isEmpty()) {
@@ -39,7 +40,7 @@ public class Stock {
     if (salesPrice.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Sales price must be positive");
     }
-    
+
     this.symbol = symbol.trim();
     this.company = company.trim();
     this.prices = new ArrayList<>();

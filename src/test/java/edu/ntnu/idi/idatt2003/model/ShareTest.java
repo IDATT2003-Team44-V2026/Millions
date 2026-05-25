@@ -34,9 +34,9 @@ class ShareTest {
             Share newShare = new Share(stock, new BigDecimal("5"), new BigDecimal("100.00"));
 
             assertNotNull(newShare);
-            assertEquals(stock, newShare.getStock());
-            assertEquals(new BigDecimal("5"), newShare.getQuantity());
-            assertEquals(new BigDecimal("100.00"), newShare.getPurchasePrice());
+            assertEquals(stock, newShare.stock());
+            assertEquals(new BigDecimal("5"), newShare.quantity());
+            assertEquals(new BigDecimal("100.00"), newShare.purchasePrice());
         }
 
         @Test
@@ -103,7 +103,7 @@ class ShareTest {
             BigDecimal fractionalQuantity = new BigDecimal("0.5");
             Share fractionalShare = new Share(stock, fractionalQuantity, purchasePrice);
 
-            assertEquals(fractionalQuantity, fractionalShare.getQuantity());
+            assertEquals(fractionalQuantity, fractionalShare.quantity());
         }
 
         @Test
@@ -112,7 +112,7 @@ class ShareTest {
             BigDecimal fractionalPrice = new BigDecimal("99.99");
             Share fractionalShare = new Share(stock, quantity, fractionalPrice);
 
-            assertEquals(fractionalPrice, fractionalShare.getPurchasePrice());
+            assertEquals(fractionalPrice, fractionalShare.purchasePrice());
         }
     }
 
@@ -123,25 +123,25 @@ class ShareTest {
         @Test
         @DisplayName("Should return correct stock")
         void shouldReturnCorrectStock() {
-            assertEquals(stock, share.getStock());
+            assertEquals(stock, share.stock());
         }
 
         @Test
         @DisplayName("Should return correct quantity")
         void shouldReturnCorrectQuantity() {
-            assertEquals(quantity, share.getQuantity());
+            assertEquals(quantity, share.quantity());
         }
 
         @Test
         @DisplayName("Should return correct purchase price")
         void shouldReturnCorrectPurchasePrice() {
-            assertEquals(purchasePrice, share.getPurchasePrice());
+            assertEquals(purchasePrice, share.purchasePrice());
         }
 
         @Test
         @DisplayName("Should return same stock instance")
         void shouldReturnSameStockInstance() {
-            Stock retrievedStock = share.getStock();
+            Stock retrievedStock = share.stock();
             assertSame(stock, retrievedStock);
         }
     }

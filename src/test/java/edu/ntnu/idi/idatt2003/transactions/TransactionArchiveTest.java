@@ -439,4 +439,41 @@ class TransactionArchiveTest {
             assertSame(p2, transactions.get(2));
         }
     }
+
+    @Nested
+    @DisplayName("getAllTransactions Tests")
+    class GetAllTransactionsTests {
+
+        @Test
+        @DisplayName("Should return all transactions ordered by week descending")
+        void shouldReturnAllTransactionsOrderedByWeekDescending() {
+            Purchase week1Purchase = new Purchase(share1, 1);
+            Sale week2Sale = new Sale(share2, 2);
+            Purchase week3Purchase = new Purchase(share1, 3);
+
+            archive.add(week1Purchase);
+            archive.add(week2Sale);
+            archive.add(week3Purchase);
+
+            List<Transaction> transactions = archive.getAllTransactions();
+
+            assertEquals(3, transactions.size());
+            assertSame(week3Purchase, transactions.get(0));
+            assertSame(week2Sale, transactions.get(1));
+            assertSame(week1Purchase, transactions.get(2));
+        }
+
+        @Test
+        @DisplayName("Should return unmodifiable transaction list")
+        void shouldReturnUnmodifiableTransactionList() {
+            Purchase purchase = new Purchase(share1, 1);
+            archive.add(purchase);
+
+            List<Transaction> transactions = archive.getAllTransactions();
+
+            assertThrows(UnsupportedOperationException.class, () ->
+                transactions.add(new Sale(share2, 1))
+            );
+        }
+    }
 }

@@ -5,8 +5,8 @@ package edu.ntnu.idi.idatt2003.observer;
  */
 public interface GameObserver {
 
-    /**
-     * Called when the game state changes.
-     */
-    void onGameStateChanged();
+  /**
+   * Called when the game state changes.
+   */
+  void onGameStateChanged();
 }

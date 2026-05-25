@@ -14,85 +14,86 @@ import javafx.scene.layout.VBox;
  * Start menu view for choosing how to enter the application.
  */
 public class StartView {
-    private final StackPane root;
-    private final Button newGameButton;
-    private final Button continueGameButton;
-    private final Button leaderboardButton;
-    private final Label messageLabel;
 
-    public StartView() {
-        Label eyebrowLabel = new Label("Millions");
-        eyebrowLabel.getStyleClass().add("eyebrow-label");
+  private final StackPane root;
+  private final Button newGameButton;
+  private final Button continueGameButton;
+  private final Button leaderboardButton;
+  private final Label messageLabel;
 
-        Label titleLabel = new Label("Welcome to Millions");
-        titleLabel.getStyleClass().add("title-label");
+  public StartView() {
+    Label eyebrowLabel = new Label("Millions");
+    eyebrowLabel.getStyleClass().add("eyebrow-label");
 
-        Label subtitleLabel = new Label(
-            "Choose how you want to play."
-        );
-        subtitleLabel.getStyleClass().add("subtitle-label");
+    Label titleLabel = new Label("Welcome to Millions");
+    titleLabel.getStyleClass().add("title-label");
 
-        newGameButton = createMenuButton("New game", true);
-        continueGameButton = createMenuButton("Continue game", false);
-        leaderboardButton = createMenuButton("Leaderboard", false);
+    Label subtitleLabel = new Label(
+        "Choose how you want to play."
+    );
+    subtitleLabel.getStyleClass().add("subtitle-label");
 
-        messageLabel = new Label();
-        messageLabel.getStyleClass().add("error-label");
-        messageLabel.setWrapText(true);
-        messageLabel.setAlignment(Pos.CENTER);
-        messageLabel.setPrefWidth(360);
-        messageLabel.setMaxWidth(360);
+    newGameButton = createMenuButton("New game", true);
+    continueGameButton = createMenuButton("Continue game", false);
+    leaderboardButton = createMenuButton("Leaderboard", false);
 
-        VBox card = new VBox(
-            18,
-            eyebrowLabel,
-            titleLabel,
-            subtitleLabel,
-            newGameButton,
-            continueGameButton,
-            leaderboardButton,
-            messageLabel
-        );
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setFillWidth(false);
-        card.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-        card.getStyleClass().add("start-card");
+    messageLabel = new Label();
+    messageLabel.getStyleClass().add("error-label");
+    messageLabel.setWrapText(true);
+    messageLabel.setAlignment(Pos.CENTER);
+    messageLabel.setPrefWidth(360);
+    messageLabel.setMaxWidth(360);
 
-        root = new StackPane(card);
-        root.setAlignment(Pos.CENTER);
-        root.getStyleClass().add("start-page");
-    }
+    VBox card = new VBox(
+        18,
+        eyebrowLabel,
+        titleLabel,
+        subtitleLabel,
+        newGameButton,
+        continueGameButton,
+        leaderboardButton,
+        messageLabel
+    );
+    card.setAlignment(Pos.CENTER_LEFT);
+    card.setFillWidth(false);
+    card.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+    card.getStyleClass().add("start-card");
 
-    public Parent getRoot() {
-        return root;
-    }
+    root = new StackPane(card);
+    root.setAlignment(Pos.CENTER);
+    root.getStyleClass().add("start-page");
+  }
 
-    public void showMessage(String message) {
-        messageLabel.setText(message);
-    }
+  private static Button createMenuButton(String text, boolean primary) {
+    Button button = new Button(text);
+    button.getStyleClass().add(primary ? "primary-button" : "secondary-button");
+    button.setPrefWidth(360);
+    button.setMaxWidth(360);
 
-    public void clearMessage() {
-        messageLabel.setText("");
-    }
+    return button;
+  }
 
-    public void setOnNewGame(EventHandler<ActionEvent> handler) {
-        newGameButton.setOnAction(handler);
-    }
+  public Parent getRoot() {
+    return root;
+  }
 
-    public void setOnContinueGame(EventHandler<ActionEvent> handler) {
-        continueGameButton.setOnAction(handler);
-    }
+  public void showMessage(String message) {
+    messageLabel.setText(message);
+  }
 
-    public void setOnLeaderboard(EventHandler<ActionEvent> handler) {
-        leaderboardButton.setOnAction(handler);
-    }
+  public void clearMessage() {
+    messageLabel.setText("");
+  }
 
-    private static Button createMenuButton(String text, boolean primary) {
-        Button button = new Button(text);
-        button.getStyleClass().add(primary ? "primary-button" : "secondary-button");
-        button.setPrefWidth(360);
-        button.setMaxWidth(360);
+  public void setOnNewGame(EventHandler<ActionEvent> handler) {
+    newGameButton.setOnAction(handler);
+  }
 
-        return button;
-    }
+  public void setOnContinueGame(EventHandler<ActionEvent> handler) {
+    continueGameButton.setOnAction(handler);
+  }
+
+  public void setOnLeaderboard(EventHandler<ActionEvent> handler) {
+    leaderboardButton.setOnAction(handler);
+  }
 }

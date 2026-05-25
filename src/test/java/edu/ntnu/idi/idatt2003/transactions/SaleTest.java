@@ -159,7 +159,7 @@ class SaleTest {
             Sale profitSale = new Sale(profitShare, 1);
 
             BigDecimal initialMoney = player.getMoney();
-            BigDecimal purchaseCost = profitShare.getPurchasePrice().multiply(profitShare.getQuantity());
+            BigDecimal purchaseCost = profitShare.purchasePrice().multiply(profitShare.quantity());
             profitSale.commit(player);
 
             BigDecimal received = player.getMoney().subtract(initialMoney);
@@ -175,7 +175,7 @@ class SaleTest {
             Sale lossSale = new Sale(lossShare, 1);
 
             BigDecimal initialMoney = player.getMoney();
-            BigDecimal purchaseCost = lossShare.getPurchasePrice().multiply(lossShare.getQuantity());
+            BigDecimal purchaseCost = lossShare.purchasePrice().multiply(lossShare.quantity());
             lossSale.commit(player);
 
             BigDecimal received = player.getMoney().subtract(initialMoney);

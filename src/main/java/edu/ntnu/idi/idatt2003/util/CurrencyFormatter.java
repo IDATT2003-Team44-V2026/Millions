@@ -16,7 +16,8 @@ public final class CurrencyFormatter {
 
   private static final Locale NORWEGIAN_BOKMAL_NORWAY = Locale.forLanguageTag("nb-NO");
 
-  private CurrencyFormatter() {}
+  private CurrencyFormatter() {
+  }
 
   /**
    * Formats the given amount using Norwegian currency formatting conventions.

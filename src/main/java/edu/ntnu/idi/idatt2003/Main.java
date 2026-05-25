@@ -12,60 +12,60 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private static final double DEFAULT_WIDTH = 960;
-    private static final double DEFAULT_HEIGHT = 600;
-    private static final PseudoClass KEYBOARD_NAVIGATION =
-        PseudoClass.getPseudoClass("keyboard-navigation");
-    private boolean keyboardNavigationActive;
+  private static final double DEFAULT_WIDTH = 960;
+  private static final double DEFAULT_HEIGHT = 600;
+  private static final PseudoClass KEYBOARD_NAVIGATION =
+      PseudoClass.getPseudoClass("keyboard-navigation");
+  private boolean keyboardNavigationActive;
 
-    @Override
-    public void start(Stage primaryStage) {
-        ApplicationResources.loadFonts();
+  public static void main(String[] args) {
+    launch(args);
+  }
 
-        Scene scene = new Scene(new StackPane(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
-        ApplicationResources.applyStylesheets(scene);
-        configureFocusVisibility(scene);
+  @Override
+  public void start(Stage primaryStage) {
+    ApplicationResources.loadFonts();
 
-        AppBootstrap appBootstrap = new AppBootstrap(scene);
-        appBootstrap.start();
+    Scene scene = new Scene(new StackPane(), DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    ApplicationResources.applyStylesheets(scene);
+    configureFocusVisibility(scene);
 
-        primaryStage.setTitle("Millions");
-        primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
-        primaryStage.show();
+    AppBootstrap appBootstrap = new AppBootstrap(scene);
+    appBootstrap.start();
+
+    primaryStage.setTitle("Millions");
+    primaryStage.setScene(scene);
+    primaryStage.setMaximized(true);
+    primaryStage.show();
+  }
+
+  private void configureFocusVisibility(Scene scene) {
+    scene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+      keyboardNavigationActive = false;
+      updateKeyboardNavigationClass(scene.getRoot());
+    });
+
+    scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+      if (isKeyboardNavigationKey(event.getCode())) {
+        keyboardNavigationActive = true;
+        updateKeyboardNavigationClass(scene.getRoot());
+      }
+    });
+
+    scene.rootProperty().addListener((observable, oldRoot, newRoot) ->
+        updateKeyboardNavigationClass(newRoot)
+    );
+  }
+
+  private boolean isKeyboardNavigationKey(KeyCode keyCode) {
+    return keyCode == KeyCode.TAB;
+  }
+
+  private void updateKeyboardNavigationClass(Parent root) {
+    if (root == null) {
+      return;
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    private void configureFocusVisibility(Scene scene) {
-        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-            keyboardNavigationActive = false;
-            updateKeyboardNavigationClass(scene.getRoot());
-        });
-
-        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (isKeyboardNavigationKey(event.getCode())) {
-                keyboardNavigationActive = true;
-                updateKeyboardNavigationClass(scene.getRoot());
-            }
-        });
-
-        scene.rootProperty().addListener((observable, oldRoot, newRoot) ->
-            updateKeyboardNavigationClass(newRoot)
-        );
-    }
-
-    private boolean isKeyboardNavigationKey(KeyCode keyCode) {
-        return keyCode == KeyCode.TAB;
-    }
-
-    private void updateKeyboardNavigationClass(Parent root) {
-        if (root == null) {
-            return;
-        }
-
-        root.pseudoClassStateChanged(KEYBOARD_NAVIGATION, keyboardNavigationActive);
-    }
+    root.pseudoClassStateChanged(KEYBOARD_NAVIGATION, keyboardNavigationActive);
+  }
 }

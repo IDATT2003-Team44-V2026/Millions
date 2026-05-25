@@ -3,29 +3,26 @@ package edu.ntnu.idi.idatt2003.model;
 import java.math.BigDecimal;
 
 /**
- * Represents a share holding, i.e. a specific quantity of a {@link Stock}
- * acquired at a given purchase price.
+ * Represents a share holding, i.e. a specific quantity of a {@link Stock} acquired at a given
+ * purchase price.
  *
  * <p>A share is immutable once created; the stock, quantity, and purchase price
  * cannot be changed after construction.</p>
  */
-public class Share {
-  private final Stock stock;
-  private final BigDecimal quantity;
-  private final BigDecimal purchasePrice;
+public record Share(Stock stock, BigDecimal quantity, BigDecimal purchasePrice) {
 
   /**
    * Creates a new share holding.
    *
    * @param stock         the stock that this share refers to; must not be {@code null}
    * @param quantity      the number of shares held; must not be {@code null} and must be positive
-   * @param purchasePrice the price per share at the time of purchase; must not be {@code null}
-   *                      and must be positive
-   * @throws IllegalArgumentException if {@code stock} is {@code null},
-   *                                  if {@code quantity} is {@code null} or not positive,
-   *                                  or if {@code purchasePrice} is {@code null} or not positive
+   * @param purchasePrice the price per share at the time of purchase; must not be {@code null} and
+   *                      must be positive
+   * @throws IllegalArgumentException if {@code stock} is {@code null}, if {@code quantity} is
+   *                                  {@code null} or not positive, or if {@code purchasePrice} is
+   *                                  {@code null} or not positive
    */
-  public Share(Stock stock, BigDecimal quantity, BigDecimal purchasePrice) {
+  public Share {
     if (stock == null) {
       throw new IllegalArgumentException("Stock cannot be null");
     }
@@ -41,10 +38,7 @@ public class Share {
     if (purchasePrice.compareTo(BigDecimal.ZERO) <= 0) {
       throw new IllegalArgumentException("Purchase price must be positive");
     }
-    
-    this.stock = stock;
-    this.quantity = quantity;
-    this.purchasePrice = purchasePrice;
+
   }
 
   /**
@@ -52,7 +46,8 @@ public class Share {
    *
    * @return the underlying {@link Stock}
    */
-  public Stock getStock() {
+  @Override
+  public Stock stock() {
     return stock;
   }
 
@@ -61,7 +56,8 @@ public class Share {
    *
    * @return the quantity
    */
-  public BigDecimal getQuantity() {
+  @Override
+  public BigDecimal quantity() {
     return quantity;
   }
 
@@ -70,7 +66,8 @@ public class Share {
    *
    * @return the purchase price
    */
-  public BigDecimal getPurchasePrice() {
+  @Override
+  public BigDecimal purchasePrice() {
     return purchasePrice;
   }
 }

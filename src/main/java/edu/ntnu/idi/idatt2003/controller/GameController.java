@@ -12,6 +12,7 @@ import edu.ntnu.idi.idatt2003.view.MarketView;
 import edu.ntnu.idi.idatt2003.view.PortfolioView;
 import edu.ntnu.idi.idatt2003.view.TransactionsView;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Controller for the main game shell and its swappable sections.
@@ -59,6 +60,35 @@ public class GameController implements GameObserver {
 
   private static String format(BigDecimal amount) {
     return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
+  private static BigDecimal netWorthChangePct(BigDecimal starting, BigDecimal current) {
+    if (starting.compareTo(BigDecimal.ZERO) == 0) {
+      return BigDecimal.ZERO;
+    }
+    return current.subtract(starting)
+        .divide(starting, 4, RoundingMode.HALF_UP)
+        .multiply(new BigDecimal("100"))
+        .setScale(1, RoundingMode.HALF_UP);
+  }
+
+  private static String netWorthChangeText(BigDecimal starting, BigDecimal current) {
+    BigDecimal pct = netWorthChangePct(starting, current);
+    if (pct.compareTo(BigDecimal.ZERO) > 0) {
+      return "+" + pct.toPlainString() + "%";
+    }
+    return pct.toPlainString() + "%";
+  }
+
+  private static String netWorthChangeCss(BigDecimal starting, BigDecimal current) {
+    int cmp = netWorthChangePct(starting, current).compareTo(BigDecimal.ZERO);
+    if (cmp > 0) {
+      return "positive-change";
+    }
+    if (cmp < 0) {
+      return "negative-change";
+    }
+    return "neutral-change";
   }
 
   private static String toBuyMessage(RuntimeException exception) {
@@ -120,7 +150,11 @@ public class GameController implements GameObserver {
         gameSession.getPlayer().getStatus(gameSession.getExchange().getWeek()).getDisplayName(),
         format(gameSession.getPlayer().getMoney()),
         format(gameSession.getPlayer().getNetWorth()),
-        gameSession.getExchange().getWeek()
+        gameSession.getExchange().getWeek(),
+        netWorthChangeText(gameSession.getPlayer().getStartingMoney(),
+            gameSession.getPlayer().getNetWorth()),
+        netWorthChangeCss(gameSession.getPlayer().getStartingMoney(),
+            gameSession.getPlayer().getNetWorth())
     );
     marketView.setStocks(gameSession.getExchange().getStocks());
     portfolioView.setShares(gameSession.getPlayer().getPortfolio().getShares());

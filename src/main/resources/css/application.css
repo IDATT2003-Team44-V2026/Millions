@@ -263,6 +263,11 @@
   -fx-font-weight: 600;
 }
 
+.stat-change {
+  -fx-font-size: 12px;
+  -fx-font-weight: 700;
+}
+
 .toast {
   -fx-background-radius: 999px;
   -fx-border-radius: 999px;

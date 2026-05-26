@@ -49,6 +49,5 @@ public class StartController {
         view.showMessage("Could not read saves: " + e.getMessage());
       }
     });
-    view.setOnLeaderboard(event -> view.showMessage("Leaderboard is not available yet."));
   }
 }

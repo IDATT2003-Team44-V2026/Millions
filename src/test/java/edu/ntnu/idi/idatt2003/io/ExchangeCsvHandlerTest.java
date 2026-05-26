@@ -23,12 +23,51 @@ class ExchangeCsvHandlerTest {
     Path tempDir;
 
     @Nested
+    @DisplayName("Parse Stock Tests")
+    class ParseStockTests {
+
+        @Test
+        @DisplayName("Should parse valid line into stock")
+        void shouldParseValidLine() throws StockDataParseException {
+            Stock stock = handler.parseStock("AAPL,Apple Inc.,276.43", 1);
+
+            assertEquals("AAPL", stock.getSymbol());
+            assertEquals("Apple Inc.", stock.getCompany());
+            assertEquals(0, new BigDecimal("276.43").compareTo(stock.getSalesPrice()));
+        }
+
+        @Test
+        @DisplayName("Should throw when price field is missing")
+        void shouldThrowWhenPriceFieldIsMissing() {
+            assertThrows(StockDataParseException.class, () ->
+                handler.parseStock("AAPL,Apple Inc.", 1)
+            );
+        }
+
+        @Test
+        @DisplayName("Should throw when price is non-numeric")
+        void shouldThrowWhenPriceIsNonNumeric() {
+            assertThrows(StockDataParseException.class, () ->
+                handler.parseStock("AAPL,Apple Inc.,abc", 1)
+            );
+        }
+
+        @Test
+        @DisplayName("Should throw when symbol is empty")
+        void shouldThrowWhenSymbolIsEmpty() {
+            assertThrows(StockDataParseException.class, () ->
+                handler.parseStock(",Apple Inc.,276.43", 1)
+            );
+        }
+    }
+
+    @Nested
     @DisplayName("Load Stocks Tests")
     class LoadStocksTests {
 
         @Test
         @DisplayName("Should load stocks from valid CSV file")
-        void shouldLoadStocksFromValidCsvFile() throws IOException {
+        void shouldLoadStocksFromValidCsvFile() throws IOException, StockDataParseException {
             Path file = tempDir.resolve("stocks.csv");
             Files.writeString(file, """
                 # Top stocks
@@ -48,7 +87,7 @@ class ExchangeCsvHandlerTest {
 
         @Test
         @DisplayName("Should ignore blank lines and comments")
-        void shouldIgnoreBlankLinesAndComments() throws IOException {
+        void shouldIgnoreBlankLinesAndComments() throws IOException, StockDataParseException {
             Path file = tempDir.resolve("stocks.csv");
             Files.writeString(file, """
 
@@ -78,7 +117,7 @@ class ExchangeCsvHandlerTest {
             Path file = tempDir.resolve("stocks.csv");
             Files.writeString(file, "AAPL,Apple Inc.");
 
-            assertThrows(IllegalArgumentException.class, () ->
+            assertThrows(StockDataParseException.class, () ->
                 handler.loadStocks(file)
             );
         }
@@ -89,7 +128,7 @@ class ExchangeCsvHandlerTest {
             Path file = tempDir.resolve("stocks.csv");
             Files.writeString(file, "AAPL,Apple Inc.,abc");
 
-            assertThrows(IllegalArgumentException.class, () ->
+            assertThrows(StockDataParseException.class, () ->
                 handler.loadStocks(file)
             );
         }
@@ -166,7 +205,7 @@ class ExchangeCsvHandlerTest {
 
         @Test
         @DisplayName("Should round trip saved and loaded stocks")
-        void shouldRoundTripSavedAndLoadedStocks() throws IOException {
+        void shouldRoundTripSavedAndLoadedStocks() throws IOException, StockDataParseException {
             Path file = tempDir.resolve("stocks.csv");
             List<Stock> stocks = List.of(
                 new Stock("AAPL", "Apple Inc.", new BigDecimal("276.43")),

@@ -19,7 +19,6 @@ public class StartView {
   private final StackPane root;
   private final Button newGameButton;
   private final Button continueGameButton;
-  private final Button leaderboardButton;
   private final Label messageLabel;
 
   public StartView() {
@@ -36,7 +35,6 @@ public class StartView {
 
     newGameButton = FormLayouts.menuButton("New game", true);
     continueGameButton = FormLayouts.menuButton("Continue game", false);
-    leaderboardButton = FormLayouts.menuButton("Leaderboard", false);
 
     messageLabel = new Label();
     messageLabel.getStyleClass().addAll("error-label", "form-width");
@@ -50,7 +48,6 @@ public class StartView {
         subtitleLabel,
         newGameButton,
         continueGameButton,
-        leaderboardButton,
         messageLabel
     );
     card.setAlignment(Pos.CENTER_LEFT);
@@ -83,7 +80,4 @@ public class StartView {
     continueGameButton.setOnAction(handler);
   }
 
-  public void setOnLeaderboard(EventHandler<ActionEvent> handler) {
-    leaderboardButton.setOnAction(handler);
-  }
 }

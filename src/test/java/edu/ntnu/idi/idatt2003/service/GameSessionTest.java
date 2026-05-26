@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("Game Session Tests")
@@ -110,5 +111,50 @@ class GameSessionTest {
         assertTrue(player.getTransactionArchive().isEmpty());
         assertEquals(new BigDecimal("1000.00"), player.getMoney());
         assertEquals(0, notifications.get());
+    }
+
+    @Nested
+    @DisplayName("Sell All Tests")
+    class SellAllTests {
+
+        @Test
+        @DisplayName("Should empty portfolio after selling all")
+        void shouldEmptyPortfolioAfterSellingAll() {
+            session.buy("AAPL", new BigDecimal("3"));
+
+            session.sellAll();
+
+            assertTrue(player.getPortfolio().getShares().isEmpty());
+        }
+
+        @Test
+        @DisplayName("Should increase balance after selling all")
+        void shouldIncreaseBalanceAfterSellingAll() {
+            session.buy("AAPL", new BigDecimal("3"));
+            BigDecimal balanceAfterBuy = player.getMoney();
+
+            session.sellAll();
+
+            assertTrue(player.getMoney().compareTo(balanceAfterBuy) > 0);
+        }
+
+        @Test
+        @DisplayName("Should notify observers exactly once after selling all")
+        void shouldNotifyObserversOnceAfterSellingAll() {
+            session.buy("AAPL", new BigDecimal("2"));
+            notifications.set(0);
+
+            session.sellAll();
+
+            assertEquals(1, notifications.get());
+        }
+
+        @Test
+        @DisplayName("Should still notify observers when portfolio is empty")
+        void shouldNotifyObserversWhenPortfolioIsEmpty() {
+            session.sellAll();
+
+            assertEquals(1, notifications.get());
+        }
     }
 }

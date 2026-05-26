@@ -2,6 +2,7 @@ package edu.ntnu.idi.idatt2003.service;
 
 import edu.ntnu.idi.idatt2003.logic.Exchange;
 import edu.ntnu.idi.idatt2003.model.Player;
+import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.observer.GameObserver;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,8 +62,16 @@ public class GameSession {
     notifyObservers();
   }
 
-  public void sell(edu.ntnu.idi.idatt2003.model.Share share) {
+  public void sell(Share share) {
     exchange.sell(share, player);
+    notifyObservers();
+  }
+
+  public void sellAll() {
+    List<Share> shares = new ArrayList<>(player.getPortfolio().getShares());
+    for (Share share : shares) {
+      exchange.sell(share, player);
+    }
     notifyObservers();
   }
 

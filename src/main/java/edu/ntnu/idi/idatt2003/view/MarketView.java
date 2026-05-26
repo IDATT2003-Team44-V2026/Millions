@@ -357,13 +357,17 @@ public class MarketView {
       {
         buyButton.getStyleClass().addAll("secondary-button", "table-action-button");
         buyButton.setOnAction(event -> {
-          StockRow row = getTableView().getItems().get(getIndex());
-          buyHandler.accept(row.getStock());
+          StockRow row = getTableRow().getItem();
+          if (row != null) {
+            buyHandler.accept(row.getStock());
+          }
         });
         detailsButton.getStyleClass().addAll("discreet-button", "table-action-button");
         detailsButton.setOnAction(event -> {
-          StockRow row = getTableView().getItems().get(getIndex());
-          detailsHandler.accept(row.getStock());
+          StockRow row = getTableRow().getItem();
+          if (row != null) {
+            detailsHandler.accept(row.getStock());
+          }
         });
         buttons.setAlignment(Pos.CENTER);
       }

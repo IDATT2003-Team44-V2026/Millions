@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  */
 public class GameRepository {
 
-  private static final Path SAVE_DIR =
+  static Path SAVE_DIR =
       Path.of(System.getProperty("user.home"), ".millions", "saves");
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
   private static final DateTimeFormatter TIMESTAMP_FMT =
@@ -81,6 +81,7 @@ public class GameRepository {
           String json = Files.readString(path);
           GameSave save = GSON.fromJson(json, GameSave.class);
           if (save != null && save.playerName != null) {
+            validate(save);
             saves.add(save);
           }
         } catch (Exception e) {

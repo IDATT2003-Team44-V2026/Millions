@@ -1,6 +1,6 @@
 # Millions
 
-A desktop stock-trading simulation built with JavaFX. Players buy and sell shares across weekly market cycles, track their portfolio, and work toward the Investor and Speculator status tiers by growing their net worth over time.
+A desktop stock-trading simulation built with JavaFX. Players buy and sell shares across weekly market cycles, track their portfolio, and work toward achieving higher ranks by growing their net worth over time.
 
 ## About
 
@@ -8,11 +8,13 @@ Millions is a turn-based stock market game developed as a course project for IDA
 
 Player status is determined by weeks actively traded and net worth relative to starting capital:
 
-| Status | Weeks traded | Net worth |
-|---|---|---|
-| Novice | — | — |
-| Investor | ≥ 10 | ≥ 120 % of starting capital |
-| Speculator | ≥ 20 | ≥ 200 % of starting capital |
+
+| Status     | Weeks traded | Net worth                   |
+| ---------- | ------------ | --------------------------- |
+| Novice     | —            | —                           |
+| Investor   | ≥ 10         | ≥ 120 % of starting capital |
+| Speculator | ≥ 20         | ≥ 200 % of starting capital |
+
 
 ## Prerequisites
 
@@ -73,6 +75,3 @@ Save files are written to `~/.millions/saves/` as JSON.
 - [Gson 2.11](https://github.com/google/gson) — JSON serialisation for save files
 - [JUnit Jupiter 6](https://junit.org/junit5/) — unit testing
 
-## Authors
-
-- Patrik Johansen ([@patrikpj](https://github.com/patrikpj))

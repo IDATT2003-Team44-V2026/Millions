@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -70,6 +71,28 @@ class GameSessionTest {
         assertEquals(1, player.getTransactionArchive().getSales(1).size());
         assertTrue(player.getMoney().compareTo(moneyAfterBuy) > 0);
         assertEquals(2, notifications.get());
+    }
+
+    @Test
+    @DisplayName("Should advance week and notify observers")
+    void shouldAdvanceWeekAndNotifyObservers() {
+        int weekBefore = session.getExchange().getWeek();
+
+        session.advanceWeek();
+
+        assertEquals(weekBefore + 1, session.getExchange().getWeek());
+        assertEquals(1, notifications.get());
+    }
+
+    @Test
+    @DisplayName("Should end session and notify observers")
+    void shouldEndSessionAndNotifyObservers() {
+        assertTrue(session.isActive());
+
+        session.endSession();
+
+        assertFalse(session.isActive());
+        assertEquals(1, notifications.get());
     }
 
     @Test

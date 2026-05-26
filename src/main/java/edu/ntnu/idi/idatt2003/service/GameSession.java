@@ -3,6 +3,7 @@ package edu.ntnu.idi.idatt2003.service;
 import edu.ntnu.idi.idatt2003.logic.Exchange;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Share;
+import java.math.BigDecimal;
 import edu.ntnu.idi.idatt2003.observer.GameObserver;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,25 @@ public class GameSession {
 
   public void sell(Share share) {
     exchange.sell(share, player);
+    notifyObservers();
+  }
+
+  public void sellPartial(Share original, BigDecimal qty) {
+    if (qty == null || qty.compareTo(BigDecimal.ZERO) <= 0) {
+      throw new IllegalArgumentException("Quantity must be positive");
+    }
+    if (qty.compareTo(original.quantity()) > 0) {
+      throw new IllegalArgumentException("Quantity exceeds owned amount");
+    }
+    Share soldPortion = new Share(original.stock(), qty, original.purchasePrice());
+    BigDecimal remaining = original.quantity().subtract(qty);
+    player.getPortfolio().removeShare(original);
+    player.getPortfolio().addShare(soldPortion);
+    if (remaining.compareTo(BigDecimal.ZERO) > 0) {
+      player.getPortfolio().addShare(
+          new Share(original.stock(), remaining, original.purchasePrice()));
+    }
+    exchange.sell(soldPortion, player);
     notifyObservers();
   }
 

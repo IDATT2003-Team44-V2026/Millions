@@ -298,7 +298,7 @@ public class MarketView {
         Stock stock = stocks.get(i);
         Label symbol = new Label(stock.getSymbol());
         symbol.getStyleClass().add("movers-symbol");
-        Label change = new Label(formatSignedChange(stock.getLatestPriceChange()));
+        Label change = new Label(formatSignedPct(stock.getLatestPriceChangePct()));
         change.getStyleClass().addAll("movers-change",
             positive ? "positive-change" : "negative-change");
         HBox row = new HBox(symbol, change);
@@ -324,9 +324,9 @@ public class MarketView {
     priceColumn.setCellValueFactory(cellData -> cellData.getValue().priceProperty());
     priceColumn.setCellFactory(column -> TableCells.currency());
 
-    TableColumn<StockRow, BigDecimal> changeColumn = new TableColumn<>("Change");
+    TableColumn<StockRow, BigDecimal> changeColumn = new TableColumn<>("Change %");
     changeColumn.setCellValueFactory(cellData -> cellData.getValue().changeProperty());
-    changeColumn.setCellFactory(column -> TableCells.signedChange());
+    changeColumn.setCellFactory(column -> TableCells.signedPct());
 
     TableColumn<StockRow, Void> actionColumn = new TableColumn<>("Actions");
     actionColumn.setCellFactory(column -> actionsCell());
@@ -448,11 +448,11 @@ public class MarketView {
     return CurrencyFormatter.formatToNOK(amount.doubleValue());
   }
 
-  private static String formatSignedChange(BigDecimal change) {
-    if (change.compareTo(BigDecimal.ZERO) > 0) {
-      return "+" + formatCurrency(change);
+  private static String formatSignedPct(BigDecimal pct) {
+    if (pct.compareTo(BigDecimal.ZERO) > 0) {
+      return "+" + pct.toPlainString() + "%";
     }
-    return formatCurrency(change);
+    return pct.toPlainString() + "%";
   }
 
   private static final class StockRow {
@@ -468,7 +468,7 @@ public class MarketView {
       this.symbol = new SimpleStringProperty(stock.getSymbol());
       this.company = new SimpleStringProperty(stock.getCompany());
       this.price = new SimpleObjectProperty<>(stock.getSalesPrice());
-      this.change = new SimpleObjectProperty<>(stock.getLatestPriceChange());
+      this.change = new SimpleObjectProperty<>(stock.getLatestPriceChangePct());
     }
 
     private Stock getStock() {

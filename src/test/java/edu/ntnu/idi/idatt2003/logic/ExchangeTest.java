@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.logic;
 
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
@@ -29,7 +30,7 @@ class ExchangeTest {
     void setUp() {
         appleStock = new Stock("AAPL", "Apple Inc.", new BigDecimal("150.00"));
         googleStock = new Stock("GOOGL", "Alphabet Inc.", new BigDecimal("2500.00"));
-        exchange = new Exchange("NYSE", List.of(appleStock, googleStock));
+        exchange = new Exchange("NYSE", List.of(appleStock, googleStock), Difficulty.NORMAL);
         player = new Player("John Doe", new BigDecimal("100000.00"));
     }
 
@@ -40,7 +41,7 @@ class ExchangeTest {
         @Test
         @DisplayName("Should create exchange with valid parameters")
         void shouldCreateExchangeWithValidParameters() {
-            Exchange newExchange = new Exchange("NASDAQ", List.of(appleStock));
+            Exchange newExchange = new Exchange("NASDAQ", List.of(appleStock), Difficulty.NORMAL);
 
             assertNotNull(newExchange);
             assertEquals("NASDAQ", newExchange.getName());
@@ -56,7 +57,7 @@ class ExchangeTest {
             List<Stock> stocks = List.of(appleStock);
 
             assertThrows(IllegalArgumentException.class, () ->
-                new Exchange(invalidName, stocks)
+                new Exchange(invalidName, stocks, Difficulty.NORMAL)
             );
         }
 
@@ -64,7 +65,7 @@ class ExchangeTest {
         @DisplayName("Should throw exception when stocks list is null")
         void shouldThrowExceptionWhenStocksListIsNull() {
             assertThrows(IllegalArgumentException.class, () ->
-                new Exchange("NYSE", null)
+                new Exchange("NYSE", null, Difficulty.NORMAL)
             );
         }
 
@@ -74,7 +75,7 @@ class ExchangeTest {
             List<Stock> emptyStocks = List.of();
 
             assertThrows(IllegalArgumentException.class, () ->
-                new Exchange("NYSE", emptyStocks)
+                new Exchange("NYSE", emptyStocks, Difficulty.NORMAL)
             );
         }
 
@@ -86,7 +87,7 @@ class ExchangeTest {
             stocks.add(null);
 
             assertThrows(IllegalArgumentException.class, () ->
-                new Exchange("NYSE", stocks)
+                new Exchange("NYSE", stocks, Difficulty.NORMAL)
             );
         }
     }
@@ -126,7 +127,7 @@ class ExchangeTest {
         @DisplayName("Should return listed stocks ordered by symbol")
         void shouldReturnListedStocksOrderedBySymbol() {
             Stock microsoftStock = new Stock("MSFT", "Microsoft Corp", new BigDecimal("300.00"));
-            Exchange sortedExchange = new Exchange("NASDAQ", List.of(googleStock, microsoftStock, appleStock));
+            Exchange sortedExchange = new Exchange("NASDAQ", List.of(googleStock, microsoftStock, appleStock), Difficulty.NORMAL);
 
             List<Stock> stocks = sortedExchange.getStocks();
 
@@ -232,7 +233,7 @@ class ExchangeTest {
         @DisplayName("Should return gainers ordered by latest price change")
         void shouldReturnGainersOrderedByLatestPriceChange() {
             Stock teslaStock = new Stock("TSLA", "Tesla Inc.", new BigDecimal("100.00"));
-            Exchange statisticsExchange = new Exchange("NASDAQ", List.of(appleStock, googleStock, teslaStock));
+            Exchange statisticsExchange = new Exchange("NASDAQ", List.of(appleStock, googleStock, teslaStock), Difficulty.NORMAL);
             appleStock.addNewSalesPrice(new BigDecimal("160.00"));
             googleStock.addNewSalesPrice(new BigDecimal("2505.00"));
             teslaStock.addNewSalesPrice(new BigDecimal("130.00"));
@@ -260,7 +261,7 @@ class ExchangeTest {
         @DisplayName("Should return losers ordered by latest price change")
         void shouldReturnLosersOrderedByLatestPriceChange() {
             Stock teslaStock = new Stock("TSLA", "Tesla Inc.", new BigDecimal("100.00"));
-            Exchange statisticsExchange = new Exchange("NASDAQ", List.of(appleStock, googleStock, teslaStock));
+            Exchange statisticsExchange = new Exchange("NASDAQ", List.of(appleStock, googleStock, teslaStock), Difficulty.NORMAL);
             appleStock.addNewSalesPrice(new BigDecimal("145.00"));
             googleStock.addNewSalesPrice(new BigDecimal("2450.00"));
             teslaStock.addNewSalesPrice(new BigDecimal("97.00"));
@@ -268,8 +269,8 @@ class ExchangeTest {
             List<Stock> losers = statisticsExchange.getLosers(2);
 
             assertEquals(2, losers.size());
-            assertEquals("GOOGL", losers.get(0).getSymbol());
-            assertEquals("AAPL", losers.get(1).getSymbol());
+            assertEquals("AAPL", losers.get(0).getSymbol());
+            assertEquals("TSLA", losers.get(1).getSymbol());
         }
 
         @Test

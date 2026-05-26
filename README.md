@@ -1,19 +1,38 @@
 # Millions
 
-A desktop stock-trading simulation built with JavaFX. Players buy and sell shares across weekly market cycles, track their portfolio, and work toward achieving higher ranks by growing their net worth over time.
+A stock trading game built with JavaFX. Buy and sell shares over weekly market cycles, grow your portfolio, and climb the ranks.
 
 ## About
 
-Millions is a turn-based stock market game developed as a course project for IDATT2003 at NTNU. Each week the market updates stock prices. Players decide which shares to buy or sell, then advance to the next week. A session can be saved at any time and resumed later. When a player is done, they can sell all their holdings at once and review a session summary before returning to the main menu.
+Millions is a turn-based stock market game made as a course project for IDATT2003 at NTNU. Each week the market updates stock prices using Geometric Brownian Motion (GBM). You decide what to buy or sell, then move on to the next week. You can save at any point and come back later. When you're done, you can sell everything at once and see a summary of how your session went.
 
-Player status is determined by weeks actively traded and net worth relative to starting capital:
+Player rank is based on how many weeks you've traded and how much your net worth has grown:
 
-
-| Status     | Weeks traded | Net worth                   |
+| Rank       | Weeks traded | Net worth                   |
 | ---------- | ------------ | --------------------------- |
-| Novice     | —            | —                           |
-| Investor   | ≥ 10         | ≥ 120 % of starting capital |
-| Speculator | ≥ 20         | ≥ 200 % of starting capital |
+| Novice     |              |                             |
+| Investor   | >= 10        | >= 120% of starting capital |
+| Speculator | >= 20        | >= 200% of starting capital |
+
+## Features
+
+**Difficulty** is picked at the start and controls how the market moves each week:
+
+| Difficulty | Annual drift | Annual volatility | Feel                              |
+| ---------- | ------------ | ----------------- | --------------------------------- |
+| Easy       | 12%          | 10%               | Market trends upward, mild swings |
+| Normal     | 8%           | 20%               | Standard market conditions        |
+| Hard       | 2%           | 35%               | Barely rising, highly volatile    |
+
+**GBM price simulation** - stock prices follow `S·exp((μ−σ²/2)·dt + σ·√dt·Z)` with a weekly time step, so prices can never go negative.
+
+**Market view** - the Change % column shows percentage change with green/red/black colouring. Top gainers and losers are ranked by percentage change, not absolute value.
+
+**Portfolio** - you can sell any amount up to what you own. The sell dialog pre-fills your full holding and updates the proceeds live as you change the quantity.
+
+**Stock details** - available from both the market table and the portfolio table. Shows a price history chart and key stats.
+
+**Saves** - difficulty is stored in the save file. Saves from before difficulty was added load as Normal.
 
 
 ## Prerequisites
@@ -35,7 +54,7 @@ mvn compile
 mvn javafx:run
 ```
 
-On first launch, choose **New game**, enter a player name and starting capital, and select a stock data CSV file. The CSV format is one stock per line:
+On first launch, choose **New game**, enter a player name and starting capital, and pick a stock data CSV file. The CSV format is one stock per line:
 
 ```
 # symbol,company,price
@@ -71,7 +90,6 @@ Save files are written to `~/.millions/saves/` as JSON.
 
 ## Technologies
 
-- [JavaFX 25](https://openjfx.io) — UI framework
-- [Gson 2.11](https://github.com/google/gson) — JSON serialisation for save files
-- [JUnit Jupiter 6](https://junit.org/junit5/) — unit testing
-
+- [JavaFX 25](https://openjfx.io) - UI framework
+- [Gson 2.11](https://github.com/google/gson) - JSON serialisation for save files
+- [JUnit Jupiter 6](https://junit.org/junit5/) - unit testing

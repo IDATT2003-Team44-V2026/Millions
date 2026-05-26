@@ -460,7 +460,7 @@
   -fx-padding: 0;
 }
 
-/* Applied on table cells via TableCells */
+/* Applied on labels (movers strip, stat changes, etc.) */
 .positive-change {
   -fx-text-fill: #15803d;
   -fx-font-weight: 800;
@@ -472,6 +472,22 @@
 }
 
 .neutral-change {
+  -fx-text-fill: #09090b;
+  -fx-font-weight: 800;
+}
+
+/* More specific selectors needed to override .data-table .table-cell */
+.data-table .table-cell.positive-change {
+  -fx-text-fill: #15803d;
+  -fx-font-weight: 800;
+}
+
+.data-table .table-cell.negative-change {
+  -fx-text-fill: #b91c1c;
+  -fx-font-weight: 800;
+}
+
+.data-table .table-cell.neutral-change {
   -fx-text-fill: #09090b;
   -fx-font-weight: 800;
 }

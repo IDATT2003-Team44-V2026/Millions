@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import edu.ntnu.idi.idatt2003.logic.Exchange;
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
@@ -43,7 +44,7 @@ class GameRepositoryTest {
   private static GameSession buildSession(String playerName, String capital) {
     Stock stock = new Stock("AAPL", "Apple Inc.", new BigDecimal("150.00"));
     stock.addNewSalesPrice(new BigDecimal("155.00"));
-    Exchange exchange = new Exchange("NASDAQ", List.of(stock));
+    Exchange exchange = new Exchange("NASDAQ", List.of(stock), Difficulty.NORMAL);
     Player player = new Player(playerName, new BigDecimal(capital));
     return new GameSession(player, exchange);
   }

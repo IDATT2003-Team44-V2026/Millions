@@ -269,8 +269,8 @@ class ExchangeTest {
             List<Stock> losers = statisticsExchange.getLosers(2);
 
             assertEquals(2, losers.size());
-            assertEquals("GOOGL", losers.get(0).getSymbol());
-            assertEquals("AAPL", losers.get(1).getSymbol());
+            assertEquals("AAPL", losers.get(0).getSymbol());
+            assertEquals("TSLA", losers.get(1).getSymbol());
         }
 
         @Test

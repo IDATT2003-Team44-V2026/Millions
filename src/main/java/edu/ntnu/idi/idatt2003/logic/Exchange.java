@@ -7,6 +7,7 @@ import edu.ntnu.idi.idatt2003.transactions.Transaction;
 import edu.ntnu.idi.idatt2003.transactions.TransactionFactory;
 import edu.ntnu.idi.idatt2003.transactions.TransactionType;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -285,10 +286,12 @@ public class Exchange {
 
       double changePercent = (random.nextDouble() * 0.20) - 0.10;
       BigDecimal change = currentPrice.multiply(BigDecimal.valueOf(changePercent));
-      BigDecimal newPrice = currentPrice.add(change);
+      BigDecimal newPrice = currentPrice.add(change)
+          .setScale(2, RoundingMode.HALF_UP);
 
       if (newPrice.compareTo(BigDecimal.ZERO) <= 0) {
-        newPrice = currentPrice.multiply(BigDecimal.valueOf(0.5));
+        newPrice = currentPrice.multiply(BigDecimal.valueOf(0.5))
+            .setScale(2, RoundingMode.HALF_UP);
       }
 
       stock.addNewSalesPrice(newPrice);

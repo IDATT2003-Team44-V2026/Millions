@@ -188,7 +188,7 @@ class PlayerTest {
         @Test
         @DisplayName("Should return novice status by default")
         void shouldReturnNoviceStatusByDefault() {
-            assertEquals(PlayerStatus.NOVICE, player.getStatus(1));
+            assertEquals(PlayerStatus.NOVICE, player.getStatus());
         }
 
         @Test
@@ -197,8 +197,11 @@ class PlayerTest {
             Stock stock = new Stock("GAIN", "Gain Corp", new BigDecimal("150.00"));
             Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("100.00"));
             player.getPortfolio().addShare(share);
+            for (int week = 1; week <= 9; week++) {
+                player.getTransactionArchive().add(new Purchase(share, week));
+            }
 
-            assertEquals(PlayerStatus.NOVICE, player.getStatus(9));
+            assertEquals(PlayerStatus.NOVICE, player.getStatus());
         }
 
         @Test
@@ -208,8 +211,11 @@ class PlayerTest {
             Stock stock = new Stock("GAIN", "Gain Corp", new BigDecimal("150.00"));
             Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("100.00"));
             investor.getPortfolio().addShare(share);
+            for (int week = 1; week <= 10; week++) {
+                investor.getTransactionArchive().add(new Purchase(share, week));
+            }
 
-            assertEquals(PlayerStatus.INVESTOR, investor.getStatus(10));
+            assertEquals(PlayerStatus.INVESTOR, investor.getStatus());
         }
 
         @Test
@@ -219,8 +225,11 @@ class PlayerTest {
             Stock stock = new Stock("MID", "Middle Corp", new BigDecimal("180.00"));
             Share share = new Share(stock, new BigDecimal("5"), new BigDecimal("100.00"));
             investor.getPortfolio().addShare(share);
+            for (int week = 1; week <= 20; week++) {
+                investor.getTransactionArchive().add(new Purchase(share, week));
+            }
 
-            assertEquals(PlayerStatus.INVESTOR, investor.getStatus(20));
+            assertEquals(PlayerStatus.INVESTOR, investor.getStatus());
         }
 
         @Test
@@ -230,19 +239,23 @@ class PlayerTest {
             Stock stock = new Stock("MOON", "Moon Corp", new BigDecimal("200.00"));
             Share share = new Share(stock, new BigDecimal("10"), new BigDecimal("10.00"));
             speculator.getPortfolio().addShare(share);
+            for (int week = 1; week <= 20; week++) {
+                speculator.getTransactionArchive().add(new Purchase(share, week));
+            }
 
-            assertEquals(PlayerStatus.SPECULATOR, speculator.getStatus(20));
+            assertEquals(PlayerStatus.SPECULATOR, speculator.getStatus());
         }
 
         @Test
-        @DisplayName("Should use exchange week rather than distinct transaction weeks")
-        void shouldUseExchangeWeekRatherThanDistinctTransactionWeeks() {
+        @DisplayName("Should use distinct transaction weeks, not exchange week, for status")
+        void shouldUseDistinctTransactionWeeksForStatus() {
             Stock stock = new Stock("GAIN", "Gain Corp", new BigDecimal("500.00"));
             Share share = new Share(stock, new BigDecimal("8"), new BigDecimal("100.00"));
             player.getPortfolio().addShare(share);
             player.getTransactionArchive().add(new Purchase(share, 1));
 
-            assertEquals(PlayerStatus.INVESTOR, player.getStatus(10));
+            // Only 1 distinct week → NOVICE even though net worth is well above thresholds
+            assertEquals(PlayerStatus.NOVICE, player.getStatus());
         }
     }
 }

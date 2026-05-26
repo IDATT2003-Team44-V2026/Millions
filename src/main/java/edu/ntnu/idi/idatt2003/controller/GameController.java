@@ -152,7 +152,7 @@ public class GameController implements GameObserver {
   private void refreshStats() {
     view.updateStats(
         gameSession.getPlayer().getName(),
-        gameSession.getPlayer().getStatus(gameSession.getExchange().getWeek()).getDisplayName(),
+        gameSession.getPlayer().getStatus().getDisplayName(),
         format(gameSession.getPlayer().getMoney()),
         format(gameSession.getPlayer().getNetWorth()),
         gameSession.getExchange().getWeek(),

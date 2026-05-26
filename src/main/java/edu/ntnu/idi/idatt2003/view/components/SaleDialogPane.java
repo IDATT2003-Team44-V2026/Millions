@@ -4,6 +4,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -16,6 +17,7 @@ public final class SaleDialogPane {
   private final VBox root;
   private final Label titleLabel;
   private final Label subtitleLabel;
+  private final TextField quantityField;
   private final Label grossValueLabel;
   private final Label commissionValue;
   private final Label taxValue;
@@ -38,6 +40,10 @@ public final class SaleDialogPane {
 
     VBox heading = new VBox(4, titleLabel, subtitleLabel);
     heading.getStyleClass().add("modal-heading");
+
+    quantityField = new TextField();
+    quantityField.setPromptText("e.g. 5");
+    quantityField.getStyleClass().add("form-input");
 
     grossValueLabel = new Label("-");
     commissionValue = new Label("-");
@@ -70,7 +76,7 @@ public final class SaleDialogPane {
     actions.getStyleClass().add("modal-actions");
     actions.setAlignment(Pos.CENTER_RIGHT);
 
-    root = new VBox(16, heading, summaryBox, errorLabel, actions);
+    root = new VBox(16, heading, FormLayouts.fieldGroup("Quantity", quantityField), summaryBox, errorLabel, actions);
     root.getStyleClass().add("modal-card");
     root.setMaxSize(430, Region.USE_PREF_SIZE);
   }
@@ -82,6 +88,34 @@ public final class SaleDialogPane {
    */
   public Parent getRoot() {
     return root;
+  }
+
+  /**
+   * Returns the quantity input field.
+   *
+   * @return the quantity field
+   */
+  public TextField getQuantityField() {
+    return quantityField;
+  }
+
+  /**
+   * Resets the quantity field to the given value and requests focus.
+   *
+   * @param value the value to pre-fill
+   */
+  public void resetQuantity(String value) {
+    quantityField.setText(value);
+  }
+
+  /**
+   * Resets all preview labels to their placeholder state.
+   */
+  public void showInvalidPreview() {
+    grossValueLabel.setText("-");
+    commissionValue.setText("-");
+    taxValue.setText("-");
+    totalProceedsValue.setText("-");
   }
 
   /**

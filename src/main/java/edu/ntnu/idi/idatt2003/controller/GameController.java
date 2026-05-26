@@ -249,10 +249,11 @@ public class GameController implements GameObserver {
     portfolioView.showSellDialog(share);
   }
 
-  private void confirmSell(Share share) {
+  private void confirmSell(Share share, BigDecimal qty) {
     try {
-      gameSession.sell(share);
-      portfolioView.showSellReceipt(share);
+      gameSession.sellPartial(share, qty);
+      Share soldShare = new Share(share.stock(), qty, share.purchasePrice());
+      portfolioView.showSellReceipt(soldShare);
     } catch (IllegalArgumentException | IllegalStateException exception) {
       portfolioView.showSellError(toSellMessage(exception));
     }

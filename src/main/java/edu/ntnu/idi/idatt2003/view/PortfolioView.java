@@ -13,6 +13,7 @@ import edu.ntnu.idi.idatt2003.view.components.TablePlaceholders;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -49,7 +50,7 @@ public class PortfolioView {
   private final StockDetailDialogPane detailPane;
   private Share selectedShare;
   private Consumer<Share> sellHandler = share -> {};
-  private Consumer<Share> confirmSellHandler = share -> {};
+  private BiConsumer<Share, BigDecimal> confirmSellHandler = (share, qty) -> {};
   private Consumer<Stock> detailsHandler = stock -> {};
   private Consumer<Parent> showModalHandler = modal -> {};
   private Runnable hideModalHandler = () -> {};
@@ -65,6 +66,9 @@ public class PortfolioView {
     searchField = buildSearchField();
     shareTable = buildTable();
     sellDialogPane = new SaleDialogPane(this::hideSellOverlay, this::confirmSell);
+    sellDialogPane.getQuantityField().textProperty().addListener(
+        (obs, oldVal, newVal) -> updateSellPreview()
+    );
     receiptPane = new ReceiptDialogPane(this::hideReceiptOverlay);
     detailPane = new StockDetailDialogPane(() -> hideModalHandler.run());
 
@@ -140,9 +144,9 @@ public class PortfolioView {
   /**
    * Sets the handler for confirmed sell actions.
    *
-   * @param handler the handler receiving the selected share
+   * @param handler the handler receiving the selected share and quantity to sell
    */
-  public void setOnConfirmSell(Consumer<Share> handler) {
+  public void setOnConfirmSell(BiConsumer<Share, BigDecimal> handler) {
     if (handler == null) {
       throw new IllegalArgumentException("Handler cannot be null");
     }
@@ -196,11 +200,13 @@ public class PortfolioView {
     sellDialogPane.setHeading(
         "Sell " + share.stock().getSymbol(),
         share.stock().getCompany()
-            + " · Quantity: " + formatQuantity(share.quantity())
+            + " · Max: " + formatQuantity(share.quantity())
             + " · Avg cost: " + formatCurrency(share.purchasePrice())
     );
+    sellDialogPane.resetQuantity(formatQuantity(share.quantity()));
     updateSellPreview();
     showModalHandler.accept(sellDialogPane.getRoot());
+    sellDialogPane.getQuantityField().requestFocus();
   }
 
   /**
@@ -330,8 +336,13 @@ public class PortfolioView {
     if (selectedShare == null) {
       return;
     }
-
-    SaleCalculator calculator = new SaleCalculator(selectedShare);
+    BigDecimal qty = parseQuantity(sellDialogPane.getQuantityField().getText());
+    if (qty == null || qty.compareTo(selectedShare.quantity()) > 0) {
+      sellDialogPane.showInvalidPreview();
+      return;
+    }
+    Share previewShare = new Share(selectedShare.stock(), qty, selectedShare.purchasePrice());
+    SaleCalculator calculator = new SaleCalculator(previewShare);
     sellDialogPane.setPreview(
         formatCurrency(calculator.calculateGross()),
         formatCurrency(calculator.calculateCommission()),
@@ -344,7 +355,25 @@ public class PortfolioView {
     if (selectedShare == null) {
       return;
     }
-    confirmSellHandler.accept(selectedShare);
+    BigDecimal qty = parseQuantity(sellDialogPane.getQuantityField().getText());
+    if (qty == null || qty.compareTo(selectedShare.quantity()) > 0) {
+      sellDialogPane.showError(
+          "Enter a valid quantity (up to " + formatQuantity(selectedShare.quantity()) + ").");
+      return;
+    }
+    confirmSellHandler.accept(selectedShare, qty);
+  }
+
+  private static BigDecimal parseQuantity(String text) {
+    if (text == null) {
+      return null;
+    }
+    String trimmed = text.trim();
+    if (!trimmed.matches("\\d+(\\.\\d+)?")) {
+      return null;
+    }
+    BigDecimal qty = new BigDecimal(trimmed);
+    return qty.compareTo(BigDecimal.ZERO) > 0 ? qty : null;
   }
 
   private void hideSellOverlay() {

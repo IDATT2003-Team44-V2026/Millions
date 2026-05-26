@@ -12,13 +12,19 @@ import edu.ntnu.idi.idatt2003.view.GameView;
 import edu.ntnu.idi.idatt2003.view.MarketView;
 import edu.ntnu.idi.idatt2003.view.PortfolioView;
 import edu.ntnu.idi.idatt2003.view.TransactionsView;
+import edu.ntnu.idi.idatt2003.view.components.ConfirmDialogPane;
+import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Controller for the main game shell and its swappable sections.
  */
 public class GameController implements GameObserver {
+
+  private static final Logger LOGGER = Logger.getLogger(GameController.class.getName());
 
   private final GameView view;
   private final GameSession gameSession;
@@ -26,6 +32,8 @@ public class GameController implements GameObserver {
   private final MarketView marketView;
   private final PortfolioView portfolioView;
   private final TransactionsView transactionsView;
+  private final ConfirmDialogPane exitConfirmPane;
+  private final ReceiptDialogPane exitReceiptPane;
 
   /**
    * Creates a controller for the main game shell.
@@ -51,6 +59,12 @@ public class GameController implements GameObserver {
     this.marketView = new MarketView();
     this.portfolioView = new PortfolioView();
     this.transactionsView = new TransactionsView();
+    this.exitReceiptPane = new ReceiptDialogPane(this::handleExitDone);
+    this.exitConfirmPane = new ConfirmDialogPane(view::hideModal, this::handleExitConfirmed);
+    this.exitConfirmPane.setContent(
+        "Exit game",
+        "All your shares will be sold at current market prices and your progress will be saved."
+    );
 
     initializeHandlers();
     gameSession.addObserver(this);
@@ -126,10 +140,12 @@ public class GameController implements GameObserver {
     transactionsView.setOnDetails(transactionsView::showDetailsDialog);
     transactionsView.setModalHandlers(view::showModal, view::hideModal);
     view.setOnSave(event -> saveGame());
+    view.setOnSellAll(event -> view.showModal(exitConfirmPane.getRoot()));
     view.setOnExit(event -> {
+      saveGame();
+      gameSession.removeObserver(this);
       gameSession.endSession();
       view.setAdvanceWeekEnabled(false);
-      gameSession.removeObserver(this);
       navigator.navigateTo(Route.START);
     });
   }
@@ -171,6 +187,39 @@ public class GameController implements GameObserver {
         gameSession.getPlayer().getTransactionArchive().getAllTransactions(),
         gameSession.getExchange().getWeek()
     );
+  }
+
+  private void handleExitConfirmed() {
+    try {
+      GameRepository.save(gameSession);
+    } catch (java.io.IOException e) {
+      LOGGER.warning("Auto-save on exit failed: " + e.getMessage());
+    }
+    gameSession.sellAll();
+    BigDecimal starting = gameSession.getPlayer().getStartingMoney();
+    BigDecimal finalBalance = gameSession.getPlayer().getMoney();
+    exitReceiptPane.setContent(
+        "Session Summary",
+        gameSession.getPlayer().getName() + " · Week " + gameSession.getExchange().getWeek(),
+        List.of(
+            new ReceiptDialogPane.ReceiptRow("Starting capital", format(starting), false),
+            new ReceiptDialogPane.ReceiptRow("Final balance", format(finalBalance), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Return", netWorthChangeText(starting, finalBalance), false),
+            new ReceiptDialogPane.ReceiptRow(
+                "Final rank",
+                gameSession.getPlayer().getStatus().getDisplayName(), true)
+        )
+    );
+    view.showModal(exitReceiptPane.getRoot());
+  }
+
+  private void handleExitDone() {
+    gameSession.removeObserver(this);
+    gameSession.endSession();
+    view.setAdvanceWeekEnabled(false);
+    view.hideModal();
+    navigator.navigateTo(Route.START);
   }
 
   private void saveGame() {

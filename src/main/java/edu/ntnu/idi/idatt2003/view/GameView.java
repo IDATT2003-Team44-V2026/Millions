@@ -33,6 +33,7 @@ public class GameView {
   private final Button transactionsButton;
   private final Button exitButton;
   private final Button saveButton;
+  private final Button sellAllButton;
   private final Button advanceWeekButton;
   private final Label playerNameValue;
   private final Label playerRankValue;
@@ -52,6 +53,7 @@ public class GameView {
     portfolioButton = createSidebarButton("Portfolio");
     transactionsButton = createSidebarButton("Transactions");
     saveButton = createSidebarButton("Save game");
+    sellAllButton = createSidebarButton("Sell all");
     exitButton = createSidebarButton("Exit game");
 
     playerNameValue = new Label("-");
@@ -81,7 +83,7 @@ public class GameView {
 
     Region sidebarSpacer = new Region();
     VBox.setVgrow(sidebarSpacer, Priority.ALWAYS);
-    sidebar.getChildren().addAll(sidebarSpacer, saveButton, exitButton);
+    sidebar.getChildren().addAll(sidebarSpacer, saveButton, sellAllButton, exitButton);
     return sidebar;
   }
 
@@ -363,5 +365,9 @@ public class GameView {
 
   public void setOnSave(EventHandler<ActionEvent> handler) {
     saveButton.setOnAction(handler);
+  }
+
+  public void setOnSellAll(EventHandler<ActionEvent> handler) {
+    sellAllButton.setOnAction(handler);
   }
 }

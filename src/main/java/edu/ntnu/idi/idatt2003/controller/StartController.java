@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.controller;
 
+import edu.ntnu.idi.idatt2003.io.GameRepository;
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
 import edu.ntnu.idi.idatt2003.navigation.Route;
 import edu.ntnu.idi.idatt2003.view.StartView;
@@ -39,7 +40,7 @@ public class StartController {
     view.setOnContinueGame(event -> {
       view.clearMessage();
       try {
-        if (edu.ntnu.idi.idatt2003.io.GameRepository.listSaves().isEmpty()) {
+        if (GameRepository.listSaves().isEmpty()) {
           view.showMessage("No saved games found. Start a new game first.");
         } else {
           navigator.navigateTo(Route.LOAD_GAME);

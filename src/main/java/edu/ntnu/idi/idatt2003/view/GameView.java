@@ -81,7 +81,7 @@ public class GameView {
 
     Region sidebarSpacer = new Region();
     VBox.setVgrow(sidebarSpacer, Priority.ALWAYS);
-    sidebar.getChildren().addAll(sidebarSpacer, exitButton);
+    sidebar.getChildren().addAll(sidebarSpacer, saveButton, exitButton);
     return sidebar;
   }
 

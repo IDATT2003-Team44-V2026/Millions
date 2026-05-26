@@ -174,11 +174,6 @@ public class GameRepository {
   private static List<Stock> rebuildStocks(List<GameSave.StockData> stockDataList) {
     List<Stock> stocks = new ArrayList<>();
     for (GameSave.StockData sd : stockDataList) {
-      if (sd == null || sd.priceHistory == null || sd.priceHistory.isEmpty()) {
-        throw new IllegalStateException(
-            "Stock " + (sd != null ? sd.symbol : "null") + " has missing or empty price history"
-        );
-      }
       List<String> history = sd.priceHistory;
       Stock stock = new Stock(sd.symbol, sd.company, new BigDecimal(history.get(0)));
       for (int i = 1; i < history.size(); i++) {

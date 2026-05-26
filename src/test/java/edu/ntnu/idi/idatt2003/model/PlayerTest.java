@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import edu.ntnu.idi.idatt2003.model.InsufficientFundsException;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -139,7 +140,7 @@ class PlayerTest {
         @DisplayName("Should throw exception when withdrawing more than available")
         void shouldThrowExceptionWhenWithdrawingMoreThanAvailable() {
             BigDecimal tooMuch = new BigDecimal("10000.01");
-            assertThrows(IllegalArgumentException.class, () ->
+            assertThrows(InsufficientFundsException.class, () ->
                 player.withdrawMoney(tooMuch)
             );
         }

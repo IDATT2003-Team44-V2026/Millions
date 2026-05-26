@@ -106,7 +106,7 @@ public class Player {
       throw new IllegalArgumentException("Amount must be positive");
     }
     if (this.money.compareTo(amount) < 0) {
-      throw new IllegalArgumentException("Insufficient funds");
+      throw new InsufficientFundsException("Insufficient funds");
     }
     this.money = this.money.subtract(amount);
   }

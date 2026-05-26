@@ -12,6 +12,7 @@ import edu.ntnu.idi.idatt2003.view.GameView;
 import edu.ntnu.idi.idatt2003.view.MarketView;
 import edu.ntnu.idi.idatt2003.view.PortfolioView;
 import edu.ntnu.idi.idatt2003.view.TransactionsView;
+import edu.ntnu.idi.idatt2003.model.InsufficientFundsException;
 import edu.ntnu.idi.idatt2003.view.components.ConfirmDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import java.math.BigDecimal;
@@ -107,9 +108,6 @@ public class GameController implements GameObserver {
   }
 
   private static String toBuyMessage(RuntimeException exception) {
-    if (exception.getMessage() != null && exception.getMessage().contains("Insufficient funds")) {
-      return "You do not have enough money for this purchase.";
-    }
     return "Could not complete purchase. " + exception.getMessage();
   }
 
@@ -239,6 +237,8 @@ public class GameController implements GameObserver {
     try {
       gameSession.buy(stock.getSymbol(), quantity);
       marketView.showBuyReceipt(stock, quantity);
+    } catch (InsufficientFundsException exception) {
+      marketView.showBuyError("You do not have enough money for this purchase.");
     } catch (IllegalArgumentException | IllegalStateException exception) {
       marketView.showBuyError(toBuyMessage(exception));
     }

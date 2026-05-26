@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.service;
 
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,7 +24,7 @@ class GameSessionFactoryTest {
     @Test
     @DisplayName("Should create game session with valid setup data")
     void shouldCreateGameSessionWithValidSetupData() {
-        GameSession session = factory.create("Alice", new BigDecimal("10000.00"), stocks);
+        GameSession session = factory.create("Alice", new BigDecimal("10000.00"), stocks, Difficulty.NORMAL);
 
         assertNotNull(session);
         assertTrue(session.isActive());
@@ -40,7 +41,7 @@ class GameSessionFactoryTest {
         BigDecimal startingCapital = new BigDecimal("10000.00");
 
         assertThrows(IllegalArgumentException.class, () ->
-            factory.create(" ", startingCapital, stocks)
+            factory.create(" ", startingCapital, stocks, Difficulty.NORMAL)
         );
     }
 
@@ -50,7 +51,7 @@ class GameSessionFactoryTest {
         BigDecimal invalidStartingCapital = new BigDecimal("-1.00");
 
         assertThrows(IllegalArgumentException.class, () ->
-            factory.create("Alice", invalidStartingCapital, stocks)
+            factory.create("Alice", invalidStartingCapital, stocks, Difficulty.NORMAL)
         );
     }
 
@@ -61,7 +62,7 @@ class GameSessionFactoryTest {
         BigDecimal startingCapital = new BigDecimal("10000.00");
 
         assertThrows(IllegalArgumentException.class, () ->
-            factory.create("Alice", startingCapital, invalidStocks)
+            factory.create("Alice", startingCapital, invalidStocks, Difficulty.NORMAL)
         );
     }
 }

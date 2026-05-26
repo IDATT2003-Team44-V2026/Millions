@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003.service;
 
 import edu.ntnu.idi.idatt2003.logic.Exchange;
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import java.math.BigDecimal;
@@ -19,11 +20,17 @@ public class GameSessionFactory {
    * @param playerName      the player's name
    * @param startingCapital the player's starting capital
    * @param stocks          the stocks listed on the exchange
+   * @param difficulty      the market difficulty level
    * @return a new game session
    */
-  public GameSession create(String playerName, BigDecimal startingCapital, List<Stock> stocks) {
+  public GameSession create(
+      String playerName,
+      BigDecimal startingCapital,
+      List<Stock> stocks,
+      Difficulty difficulty
+  ) {
     Player player = new Player(playerName, startingCapital);
-    Exchange exchange = new Exchange(DEFAULT_EXCHANGE_NAME, stocks);
+    Exchange exchange = new Exchange(DEFAULT_EXCHANGE_NAME, stocks, difficulty);
     return new GameSession(player, exchange);
   }
 }

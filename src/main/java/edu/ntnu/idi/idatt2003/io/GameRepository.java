@@ -3,6 +3,7 @@ package edu.ntnu.idi.idatt2003.io;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import edu.ntnu.idi.idatt2003.logic.Exchange;
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
@@ -167,7 +168,14 @@ public class GameRepository {
 
   private static GameSession reconstruct(GameSave save) {
     List<Stock> stocks = rebuildStocks(save.exchange.stocks);
-    Exchange exchange = new Exchange(save.exchange.name, stocks);
+    Difficulty difficulty = Difficulty.NORMAL;
+    if (save.exchange.difficulty != null) {
+      try {
+        difficulty = Difficulty.valueOf(save.exchange.difficulty);
+      } catch (IllegalArgumentException ignored) {
+      }
+    }
+    Exchange exchange = new Exchange(save.exchange.name, stocks, difficulty);
     exchange.setWeek(save.exchange.week);
     Player player = rebuildPlayer(save.player, stocks);
     return new GameSession(player, exchange);
@@ -287,6 +295,7 @@ public class GameRepository {
     GameSave.ExchangeData ed = new GameSave.ExchangeData();
     ed.name = exchange.getName();
     ed.week = exchange.getWeek();
+    ed.difficulty = exchange.getDifficulty().name();
     ed.stocks = exchange.getStocks().stream()
         .map(stock -> {
           GameSave.StockData sd = new GameSave.StockData();

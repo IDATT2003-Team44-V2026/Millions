@@ -29,6 +29,7 @@ public class GameSave {
 
     String name;
     int week;
+    String difficulty;
     List<StockData> stocks;
   }
 

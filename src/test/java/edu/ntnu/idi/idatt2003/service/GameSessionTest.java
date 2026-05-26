@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import edu.ntnu.idi.idatt2003.logic.Exchange;
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import java.math.BigDecimal;
@@ -28,7 +29,7 @@ class GameSessionTest {
     void setUp() {
         appleStock = new Stock("AAPL", "Apple Inc.", new BigDecimal("100.00"));
         player = new Player("Alice", new BigDecimal("1000.00"));
-        session = new GameSession(player, new Exchange("NASDAQ", List.of(appleStock)));
+        session = new GameSession(player, new Exchange("NASDAQ", List.of(appleStock), Difficulty.NORMAL));
         notifications = new AtomicInteger();
         session.addObserver(notifications::incrementAndGet);
     }

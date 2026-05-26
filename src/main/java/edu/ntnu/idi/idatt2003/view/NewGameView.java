@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.view;
 
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.view.components.FormLayouts;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -8,6 +9,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -23,9 +26,13 @@ public class NewGameView {
   private final TextField capitalField;
   private final Label fileLabel;
   private final Button chooseFileButton;
+  private final Button easyButton;
+  private final Button normalButton;
+  private final Button hardButton;
   private final Button startButton;
   private final Button backButton;
   private final Label errorLabel;
+  private Difficulty selectedDifficulty = Difficulty.NORMAL;
 
   public NewGameView() {
     Label eyebrowLabel = new Label("Millions");
@@ -54,6 +61,19 @@ public class NewGameView {
     chooseFileButton = FormLayouts.menuButton("Choose file", false);
     chooseFileButton.setAccessibleText("Choose stock data file");
 
+    easyButton = new Button("Easy");
+    normalButton = new Button("Normal");
+    hardButton = new Button("Hard");
+    easyButton.getStyleClass().addAll("secondary-button");
+    normalButton.getStyleClass().addAll("primary-button");
+    hardButton.getStyleClass().addAll("secondary-button");
+    easyButton.setMaxWidth(Double.MAX_VALUE);
+    normalButton.setMaxWidth(Double.MAX_VALUE);
+    hardButton.setMaxWidth(Double.MAX_VALUE);
+    easyButton.setOnAction(e -> applyDifficulty(Difficulty.EASY));
+    normalButton.setOnAction(e -> applyDifficulty(Difficulty.NORMAL));
+    hardButton.setOnAction(e -> applyDifficulty(Difficulty.HARD));
+
     startButton = FormLayouts.menuButton("Start game", true);
 
     backButton = new Button("Back");
@@ -69,6 +89,12 @@ public class NewGameView {
     VBox fileControls = new VBox(6, fileLabel, chooseFileButton);
     VBox fileGroup = FormLayouts.fieldGroup("Stock data", fileControls);
 
+    HBox difficultyRow = new HBox(8, easyButton, normalButton, hardButton);
+    difficultyRow.getStyleClass().add("form-width");
+    HBox.setHgrow(easyButton, Priority.ALWAYS);
+    HBox.setHgrow(normalButton, Priority.ALWAYS);
+    HBox.setHgrow(hardButton, Priority.ALWAYS);
+
     card = new VBox(
         18,
         eyebrowLabel,
@@ -77,6 +103,7 @@ public class NewGameView {
         FormLayouts.fieldGroup("Player name", nameField),
         FormLayouts.fieldGroup("Starting capital", capitalField),
         fileGroup,
+        FormLayouts.fieldGroup("Difficulty", difficultyRow),
         startButton,
         backButton,
         errorLabel
@@ -117,6 +144,17 @@ public class NewGameView {
 
   public void setChooseFileEnabled(boolean enabled) {
     chooseFileButton.setDisable(!enabled);
+  }
+
+  public Difficulty getDifficulty() {
+    return selectedDifficulty;
+  }
+
+  private void applyDifficulty(Difficulty difficulty) {
+    selectedDifficulty = difficulty;
+    easyButton.getStyleClass().setAll(difficulty == Difficulty.EASY ? "primary-button" : "secondary-button");
+    normalButton.getStyleClass().setAll(difficulty == Difficulty.NORMAL ? "primary-button" : "secondary-button");
+    hardButton.getStyleClass().setAll(difficulty == Difficulty.HARD ? "primary-button" : "secondary-button");
   }
 
   public void setOnChooseFile(EventHandler<ActionEvent> handler) {

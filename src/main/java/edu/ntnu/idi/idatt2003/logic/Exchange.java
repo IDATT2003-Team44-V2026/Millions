@@ -1,5 +1,6 @@
 package edu.ntnu.idi.idatt2003.logic;
 
+import edu.ntnu.idi.idatt2003.model.Difficulty;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
@@ -27,27 +28,34 @@ public class Exchange {
   private final Map<String, Stock> stockMap;
   private final Random random;
   private final TransactionFactory transactionFactory;
+  private final Difficulty difficulty;
   private int week;
 
   /**
-   * Creates a new exchange with the given name and listed stocks.
+   * Creates a new exchange with the given name, listed stocks, and difficulty.
    *
-   * @param name   the name of the exchange; must not be {@code null} or blank
-   * @param stocks the initial list of stocks to be listed on the exchange; must not be
-   *               {@code null}, empty, or contain {@code null} elements
+   * @param name       the name of the exchange; must not be {@code null} or blank
+   * @param stocks     the initial list of stocks to be listed on the exchange; must not be
+   *                   {@code null}, empty, or contain {@code null} elements
+   * @param difficulty the market difficulty controlling drift and volatility; must not be
+   *                   {@code null}
    * @throws IllegalArgumentException if {@code name} is {@code null} or blank, if {@code stocks} is
-   *                                  {@code null} or empty, or if any stock in the list is
-   *                                  {@code null}
+   *                                  {@code null} or empty, if any stock in the list is
+   *                                  {@code null}, or if {@code difficulty} is {@code null}
    */
-  public Exchange(String name, List<Stock> stocks) {
+  public Exchange(String name, List<Stock> stocks, Difficulty difficulty) {
     if (name == null || name.trim().isEmpty()) {
       throw new IllegalArgumentException("Name cannot be null or empty");
     }
     if (stocks == null || stocks.isEmpty()) {
       throw new IllegalArgumentException("Stocks list cannot be null or empty");
     }
+    if (difficulty == null) {
+      throw new IllegalArgumentException("Difficulty cannot be null");
+    }
 
     this.name = name.trim();
+    this.difficulty = difficulty;
     this.week = 1;
     this.stockMap = new HashMap<>();
     this.random = new Random();
@@ -68,6 +76,15 @@ public class Exchange {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * Returns the difficulty level of this exchange.
+   *
+   * @return the difficulty
+   */
+  public Difficulty getDifficulty() {
+    return difficulty;
   }
 
   /**
@@ -272,28 +289,22 @@ public class Exchange {
   }
 
   /**
-   * Advances the exchange by one week, updating all stock prices with random fluctuations.
+   * Advances the exchange by one week, updating all stock prices using Geometric Brownian Motion.
    *
-   * <p>Each stock's price is adjusted by a random percentage in the range
-   * of -10 % to +10 %. If the resulting price would be zero or negative, the price is instead set
-   * to 50 % of the current price to prevent non-positive values.</p>
+   * <p>Prices follow the GBM formula: S(t+dt) = S(t) * exp((μ - σ²/2)*dt + σ*√dt*Z),
+   * where Z ~ N(0,1). Drift and volatility are determined by the exchange's {@link Difficulty}.</p>
    */
   public void advance() {
     week++;
+    double dt = 1.0 / 52.0;
+    double driftTerm = (difficulty.drift - 0.5 * Math.pow(difficulty.volatility, 2)) * dt;
+    double volMultiplier = difficulty.volatility * Math.sqrt(dt);
 
     for (Stock stock : stockMap.values()) {
-      BigDecimal currentPrice = stock.getSalesPrice();
-
-      double changePercent = (random.nextDouble() * 0.20) - 0.10;
-      BigDecimal change = currentPrice.multiply(BigDecimal.valueOf(changePercent));
-      BigDecimal newPrice = currentPrice.add(change)
+      double exponent = driftTerm + (volMultiplier * random.nextGaussian());
+      BigDecimal newPrice = stock.getSalesPrice()
+          .multiply(BigDecimal.valueOf(Math.exp(exponent)))
           .setScale(2, RoundingMode.HALF_UP);
-
-      if (newPrice.compareTo(BigDecimal.ZERO) <= 0) {
-        newPrice = currentPrice.multiply(BigDecimal.valueOf(0.5))
-            .setScale(2, RoundingMode.HALF_UP);
-      }
-
       stock.addNewSalesPrice(newPrice);
     }
   }

@@ -175,7 +175,8 @@ public class NewGameController {
       GameSession gameSession = gameSessionFactory.create(
           playerName,
           startingCapital,
-          loadedStocks
+          loadedStocks,
+          view.getDifficulty()
       );
       activeSessionConsumer.accept(gameSession);
       logGameSessionDetails(gameSession);

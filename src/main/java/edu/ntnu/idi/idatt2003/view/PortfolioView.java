@@ -3,9 +3,11 @@ package edu.ntnu.idi.idatt2003.view;
 import edu.ntnu.idi.idatt2003.calculators.SaleCalculator;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
+import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SaleDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SectionCard;
+import edu.ntnu.idi.idatt2003.view.components.StockDetailDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.TableCells;
 import edu.ntnu.idi.idatt2003.view.components.TablePlaceholders;
 import java.math.BigDecimal;
@@ -27,6 +29,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
@@ -43,9 +46,11 @@ public class PortfolioView {
   private final SortedList<ShareRow> sortedShareRows;
   private final SaleDialogPane sellDialogPane;
   private final ReceiptDialogPane receiptPane;
+  private final StockDetailDialogPane detailPane;
   private Share selectedShare;
   private Consumer<Share> sellHandler = share -> {};
   private Consumer<Share> confirmSellHandler = share -> {};
+  private Consumer<Stock> detailsHandler = stock -> {};
   private Consumer<Parent> showModalHandler = modal -> {};
   private Runnable hideModalHandler = () -> {};
 
@@ -61,6 +66,7 @@ public class PortfolioView {
     shareTable = buildTable();
     sellDialogPane = new SaleDialogPane(this::hideSellOverlay, this::confirmSell);
     receiptPane = new ReceiptDialogPane(this::hideReceiptOverlay);
+    detailPane = new StockDetailDialogPane(() -> hideModalHandler.run());
 
     VBox content = new VBox(14, searchField, shareTable);
     content.setFillWidth(true);
@@ -141,6 +147,28 @@ public class PortfolioView {
       throw new IllegalArgumentException("Handler cannot be null");
     }
     confirmSellHandler = handler;
+  }
+
+  /**
+   * Sets the handler invoked when the user clicks Details on a share row.
+   *
+   * @param handler the handler receiving the stock
+   */
+  public void setOnDetails(Consumer<Stock> handler) {
+    if (handler == null) {
+      throw new IllegalArgumentException("Handler cannot be null");
+    }
+    detailsHandler = handler;
+  }
+
+  /**
+   * Shows the stock detail modal for the stock backing a share.
+   *
+   * @param stock the stock to display
+   */
+  public void showDetailsDialog(Stock stock) {
+    detailPane.setStock(stock);
+    showModalHandler.accept(detailPane.getRoot());
   }
 
   /**
@@ -243,10 +271,10 @@ public class PortfolioView {
     profitLossColumn.setCellValueFactory(cellData -> cellData.getValue().profitLossProperty());
     profitLossColumn.setCellFactory(column -> TableCells.signedChange());
 
-    TableColumn<ShareRow, Void> actionColumn = new TableColumn<>("Action");
-    actionColumn.setCellFactory(column -> sellButtonCell());
-    actionColumn.setMinWidth(96);
-    actionColumn.setMaxWidth(110);
+    TableColumn<ShareRow, Void> actionColumn = new TableColumn<>("Actions");
+    actionColumn.setCellFactory(column -> actionsCell());
+    actionColumn.setMinWidth(168);
+    actionColumn.setMaxWidth(184);
 
     table.getColumns().add(symbolColumn);
     table.getColumns().add(companyColumn);
@@ -265,22 +293,34 @@ public class PortfolioView {
     );
   }
 
-  private TableCell<ShareRow, Void> sellButtonCell() {
+  private TableCell<ShareRow, Void> actionsCell() {
     return new TableCell<>() {
+      private final Button detailsButton = new Button("Details");
       private final Button sellButton = new Button("Sell");
+      private final HBox buttons = new HBox(6, detailsButton, sellButton);
 
       {
+        detailsButton.getStyleClass().addAll("discreet-button", "table-action-button");
+        detailsButton.setOnAction(event -> {
+          ShareRow row = getTableRow().getItem();
+          if (row != null) {
+            detailsHandler.accept(row.getShare().stock());
+          }
+        });
         sellButton.getStyleClass().addAll("secondary-button", "table-action-button");
         sellButton.setOnAction(event -> {
-          ShareRow row = getTableView().getItems().get(getIndex());
-          sellHandler.accept(row.getShare());
+          ShareRow row = getTableRow().getItem();
+          if (row != null) {
+            sellHandler.accept(row.getShare());
+          }
         });
+        buttons.setAlignment(Pos.CENTER);
       }
 
       @Override
       protected void updateItem(Void item, boolean empty) {
         super.updateItem(item, empty);
-        setGraphic(empty ? null : sellButton);
+        setGraphic(empty ? null : buttons);
         setAlignment(Pos.CENTER);
       }
     };

@@ -134,6 +134,7 @@ public class GameController implements GameObserver {
     marketView.setModalHandlers(view::showModal, view::hideModal);
     portfolioView.setOnSell(this::showSellDialog);
     portfolioView.setOnConfirmSell(this::confirmSell);
+    portfolioView.setOnDetails(portfolioView::showDetailsDialog);
     portfolioView.setModalHandlers(view::showModal, view::hideModal);
     transactionsView.setOnDetails(transactionsView::showDetailsDialog);
     transactionsView.setModalHandlers(view::showModal, view::hideModal);

@@ -70,6 +70,41 @@ public final class TableCells {
   }
 
   /**
+   * Creates a right-aligned signed percentage change cell (e.g. {@code +3.45%}).
+   *
+   * @param <T> the row type
+   * @return the cell factory
+   */
+  public static <T> TableCell<T, BigDecimal> signedPct() {
+    return new TableCell<>() {
+      @Override
+      protected void updateItem(BigDecimal item, boolean empty) {
+        super.updateItem(item, empty);
+        getStyleClass().removeAll(
+            POSITIVE_CHANGE_CLASS,
+            NEGATIVE_CHANGE_CLASS,
+            NEUTRAL_CHANGE_CLASS
+        );
+
+        if (empty || item == null) {
+          setText(null);
+          return;
+        }
+
+        setText(formatSignedPct(item));
+        setAlignment(Pos.CENTER_RIGHT);
+        if (item.compareTo(BigDecimal.ZERO) > 0) {
+          getStyleClass().add(POSITIVE_CHANGE_CLASS);
+        } else if (item.compareTo(BigDecimal.ZERO) < 0) {
+          getStyleClass().add(NEGATIVE_CHANGE_CLASS);
+        } else {
+          getStyleClass().add(NEUTRAL_CHANGE_CLASS);
+        }
+      }
+    };
+  }
+
+  /**
    * Creates a right-aligned quantity cell.
    *
    * @param <T> the row type
@@ -140,6 +175,13 @@ public final class TableCells {
 
   private static String formatQuantity(BigDecimal quantity) {
     return quantity.stripTrailingZeros().toPlainString();
+  }
+
+  private static String formatSignedPct(BigDecimal pct) {
+    if (pct.compareTo(BigDecimal.ZERO) > 0) {
+      return "+" + pct.toPlainString() + "%";
+    }
+    return pct.toPlainString() + "%";
   }
 
   private static String formatSignedChange(BigDecimal change) {

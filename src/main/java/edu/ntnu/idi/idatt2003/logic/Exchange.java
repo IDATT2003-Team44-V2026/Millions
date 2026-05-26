@@ -172,8 +172,8 @@ public class Exchange {
     }
 
     return stockMap.values().stream()
-        .filter(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) > 0)
-        .sorted(Comparator.comparing(Stock::getLatestPriceChange).reversed())
+        .filter(stock -> stock.getLatestPriceChangePct().compareTo(BigDecimal.ZERO) > 0)
+        .sorted(Comparator.comparing(Stock::getLatestPriceChangePct).reversed())
         .limit(limit)
         .toList();
   }
@@ -191,8 +191,8 @@ public class Exchange {
     }
 
     return stockMap.values().stream()
-        .filter(stock -> stock.getLatestPriceChange().compareTo(BigDecimal.ZERO) < 0)
-        .sorted(Comparator.comparing(Stock::getLatestPriceChange))
+        .filter(stock -> stock.getLatestPriceChangePct().compareTo(BigDecimal.ZERO) < 0)
+        .sorted(Comparator.comparing(Stock::getLatestPriceChangePct))
         .limit(limit)
         .toList();
   }

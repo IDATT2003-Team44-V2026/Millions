@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,6 +130,25 @@ public class Stock {
     BigDecimal latestPrice = prices.get(prices.size() - 1);
     BigDecimal previousPrice = prices.get(prices.size() - 2);
     return latestPrice.subtract(previousPrice);
+  }
+
+  /**
+   * Returns the percentage change between the latest and previous registered sales price.
+   *
+   * <p>If only one price has been registered, returns {@link BigDecimal#ZERO}.</p>
+   *
+   * @return the percentage change, e.g. {@code 3.45} for a 3.45% increase
+   */
+  public BigDecimal getLatestPriceChangePct() {
+    if (prices.size() < 2) {
+      return BigDecimal.ZERO;
+    }
+    BigDecimal current = prices.get(prices.size() - 1);
+    BigDecimal previous = prices.get(prices.size() - 2);
+    return current.subtract(previous)
+        .divide(previous, 4, RoundingMode.HALF_UP)
+        .multiply(new BigDecimal("100"))
+        .setScale(2, RoundingMode.HALF_UP);
   }
 
   /**

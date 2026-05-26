@@ -152,9 +152,14 @@ public class NewGameView {
 
   private void applyDifficulty(Difficulty difficulty) {
     selectedDifficulty = difficulty;
-    easyButton.getStyleClass().setAll(difficulty == Difficulty.EASY ? "primary-button" : "secondary-button");
-    normalButton.getStyleClass().setAll(difficulty == Difficulty.NORMAL ? "primary-button" : "secondary-button");
-    hardButton.getStyleClass().setAll(difficulty == Difficulty.HARD ? "primary-button" : "secondary-button");
+    setDifficultyStyle(easyButton, difficulty == Difficulty.EASY);
+    setDifficultyStyle(normalButton, difficulty == Difficulty.NORMAL);
+    setDifficultyStyle(hardButton, difficulty == Difficulty.HARD);
+  }
+
+  private void setDifficultyStyle(Button button, boolean selected) {
+    button.getStyleClass().removeAll("primary-button", "secondary-button");
+    button.getStyleClass().add(selected ? "primary-button" : "secondary-button");
   }
 
   public void setOnChooseFile(EventHandler<ActionEvent> handler) {

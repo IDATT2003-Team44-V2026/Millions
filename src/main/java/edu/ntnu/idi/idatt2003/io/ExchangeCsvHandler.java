@@ -22,10 +22,11 @@ public class ExchangeCsvHandler {
    *
    * @param path the file to load from; must not be {@code null}
    * @return a list of stocks loaded from the file
-   * @throws IllegalArgumentException if {@code path} is {@code null} or a row has invalid format
+   * @throws IllegalArgumentException if {@code path} is {@code null}
+   * @throws StockDataParseException  if a row has invalid format
    * @throws IOException              if the file cannot be read
    */
-  public List<Stock> loadStocks(Path path) throws IOException {
+  public List<Stock> loadStocks(Path path) throws StockDataParseException, IOException {
     if (path == null) {
       throw new IllegalArgumentException("Path cannot be null");
     }
@@ -76,12 +77,12 @@ public class ExchangeCsvHandler {
     Files.write(path, lines);
   }
 
-  private Stock parseStock(String line, int lineNumber) {
+  Stock parseStock(String line, int lineNumber) throws StockDataParseException {
     int firstComma = line.indexOf(',');
     int lastComma = line.lastIndexOf(',');
 
     if (firstComma <= 0 || lastComma <= firstComma || lastComma >= line.length() - 1) {
-      throw new IllegalArgumentException("Invalid stock data at line " + lineNumber);
+      throw new StockDataParseException("Invalid stock data at line " + lineNumber);
     }
 
     String symbol = line.substring(0, firstComma).trim();
@@ -91,7 +92,7 @@ public class ExchangeCsvHandler {
     try {
       return new Stock(symbol, company, new BigDecimal(priceText));
     } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Invalid stock data at line " + lineNumber, e);
+      throw new StockDataParseException("Invalid stock data at line " + lineNumber, e);
     }
   }
 }

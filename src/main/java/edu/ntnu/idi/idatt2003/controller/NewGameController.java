@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003.controller;
 
 import edu.ntnu.idi.idatt2003.io.ExchangeCsvHandler;
+import edu.ntnu.idi.idatt2003.io.StockDataParseException;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
 import edu.ntnu.idi.idatt2003.navigation.Route;
@@ -138,7 +139,12 @@ public class NewGameController {
       view.setChooseFileEnabled(true);
     });
     task.setOnFailed(e -> {
-      view.showError(INVALID_STOCK_FILE_MESSAGE);
+      Throwable cause = task.getException();
+      if (cause instanceof StockDataParseException) {
+        view.showError("Invalid stock data: " + cause.getMessage());
+      } else {
+        view.showError(INVALID_STOCK_FILE_MESSAGE);
+      }
       view.setChooseFileEnabled(true);
     });
     Thread.ofVirtual().start(task);

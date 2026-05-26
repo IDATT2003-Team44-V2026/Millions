@@ -11,6 +11,7 @@ import edu.ntnu.idi.idatt2003.transactions.Purchase;
 import edu.ntnu.idi.idatt2003.transactions.Sale;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.logging.Logger;
 import java.math.RoundingMode;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
@@ -31,6 +32,7 @@ import java.util.stream.Stream;
  */
 public class GameRepository {
 
+  private static final Logger LOGGER = Logger.getLogger(GameRepository.class.getName());
   static Path SAVE_DIR =
       Path.of(System.getProperty("user.home"), ".millions", "saves");
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -85,7 +87,7 @@ public class GameRepository {
             saves.add(save);
           }
         } catch (Exception e) {
-          System.err.println("Skipping corrupt save file: " + path + " (" + e.getMessage() + ")");
+          LOGGER.warning("Skipping corrupt save file: " + path + " (" + e.getMessage() + ")");
         }
       }
     }

@@ -117,7 +117,7 @@ public class Exchange {
    *
    * @param symbol the ticker symbol to look up; must not be {@code null} or blank
    * @return {@code true} if a stock with the given symbol exists on this exchange, {@code false}
-   * otherwise
+   *     otherwise
    * @throws IllegalArgumentException if {@code symbol} is {@code null} or blank
    */
   public boolean hasStock(String symbol) {
@@ -132,7 +132,7 @@ public class Exchange {
    *
    * @param symbol the ticker symbol to look up; must not be {@code null} or blank
    * @return the {@link Stock} with the matching symbol, or {@code null} if no stock with that
-   * symbol is listed on this exchange
+   *     symbol is listed on this exchange
    * @throws IllegalArgumentException if {@code symbol} is {@code null} or blank
    */
   public Stock getStock(String symbol) {

@@ -10,6 +10,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+/**
+ * JavaFX application entry point for the Millions stock-trading game.
+ */
 public class Main extends Application {
 
   private static final double DEFAULT_WIDTH = 960;
@@ -18,6 +21,11 @@ public class Main extends Application {
       PseudoClass.getPseudoClass("keyboard-navigation");
   private boolean keyboardNavigationActive;
 
+  /**
+   * Launches the JavaFX application.
+   *
+   * @param args command-line arguments forwarded to the JavaFX launcher
+   */
   public static void main(String[] args) {
     launch(args);
   }

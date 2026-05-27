@@ -18,6 +18,7 @@ public final class ReceiptDialogPane {
   private final Label titleLabel;
   private final Label subtitleLabel;
   private final VBox summaryCard;
+
   /**
    * Creates a receipt dialog pane.
    *

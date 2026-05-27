@@ -44,7 +44,7 @@ public final class PurchaseDialogPane {
     quantityField.getStyleClass().add("form-input");
     quantityField.setMaxWidth(Double.MAX_VALUE);
 
-    VBox quantityGroup = FormLayouts.fieldGroup("Quantity", quantityField);
+    final VBox quantityGroup = FormLayouts.fieldGroup("Quantity", quantityField);
 
     grossCostValue = new Label("-");
     commissionValue = new Label("-");
@@ -55,7 +55,7 @@ public final class PurchaseDialogPane {
     HBox totalCostRow = SummaryRows.row("Total cost", totalCostValue);
     totalCostRow.getStyleClass().add("summary-row-total");
 
-    VBox summaryBox = SummaryRows.card(grossCostRow, commissionRow, totalCostRow);
+    final VBox summaryBox = SummaryRows.card(grossCostRow, commissionRow, totalCostRow);
 
     errorLabel = new Label();
     errorLabel.getStyleClass().add("error-label");

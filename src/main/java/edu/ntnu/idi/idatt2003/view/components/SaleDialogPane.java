@@ -56,7 +56,7 @@ public final class SaleDialogPane {
     HBox totalRow = SummaryRows.row("Total proceeds", totalProceedsValue);
     totalRow.getStyleClass().add("summary-row-total");
 
-    VBox summaryBox = SummaryRows.card(grossRow, commissionRow, taxRow, totalRow);
+    final VBox summaryBox = SummaryRows.card(grossRow, commissionRow, taxRow, totalRow);
 
     errorLabel = new Label();
     errorLabel.getStyleClass().add("error-label");

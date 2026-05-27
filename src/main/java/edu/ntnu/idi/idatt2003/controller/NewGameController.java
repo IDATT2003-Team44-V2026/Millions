@@ -182,7 +182,7 @@ public class NewGameController {
       logGameSessionDetails(gameSession);
       view.clearError();
       navigator.navigateTo(Route.GAME);
-    } catch (IllegalArgumentException _) {
+    } catch (IllegalArgumentException ignored) {
       view.showError(START_GAME_FAILED_MESSAGE);
     }
   }
@@ -190,7 +190,7 @@ public class NewGameController {
   private BigDecimal parseStartingCapital() {
     try {
       return new BigDecimal(view.getStartCapital().trim());
-    } catch (NullPointerException | NumberFormatException _) {
+    } catch (NullPointerException | NumberFormatException ignored) {
       view.showError(INVALID_STARTING_CAPITAL_MESSAGE);
       return null;
     }
@@ -198,7 +198,8 @@ public class NewGameController {
 
   private void logGameSessionDetails(GameSession gameSession) {
     LOGGER.info(() -> String.format(
-        "Started game session: player=%s, startingCapital=%s, exchange=%s, week=%d, stocks=%d, file=%s",
+        "Started game session: player=%s, startingCapital=%s,"
+            + " exchange=%s, week=%d, stocks=%d, file=%s",
         gameSession.getPlayer().getName(),
         gameSession.getPlayer().getStartingMoney(),
         gameSession.getExchange().getName(),

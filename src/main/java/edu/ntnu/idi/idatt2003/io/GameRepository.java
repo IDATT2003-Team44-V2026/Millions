@@ -174,6 +174,7 @@ public class GameRepository {
       try {
         difficulty = Difficulty.valueOf(save.exchange.difficulty);
       } catch (IllegalArgumentException ignored) {
+        // unrecognised difficulty value — keep the default
       }
     }
     Exchange exchange = new Exchange(save.exchange.name, stocks, difficulty);
@@ -256,7 +257,7 @@ public class GameRepository {
 
   private static GameSave toDto(GameSession session) {
     Player player = session.getPlayer();
-    Exchange exchange = session.getExchange();
+    final Exchange exchange = session.getExchange();
 
     GameSave save = new GameSave();
     save.playerName = player.getName();

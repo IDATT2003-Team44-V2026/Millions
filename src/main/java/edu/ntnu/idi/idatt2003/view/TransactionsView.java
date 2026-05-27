@@ -243,7 +243,7 @@ public class TransactionsView {
     }
     lastDistinctWeeks = Set.copyOf(distinctWeeks);
 
-    String previousSelection = weekFilter.getValue();
+    final String previousSelection = weekFilter.getValue();
     List<String> weekOptions = new ArrayList<>();
     weekOptions.add(ALL_WEEKS);
     for (Integer week : distinctWeeks) {

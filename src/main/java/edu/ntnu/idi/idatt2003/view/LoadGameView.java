@@ -194,7 +194,7 @@ public class LoadGameView {
         Label metaLabel = new Label("Week " + save.getSavedWeek() + "  ·  " + save.getSavedAt());
         metaLabel.getStyleClass().add("save-cell-meta");
 
-        VBox info = new VBox(2, nameLabel, metaLabel);
+        final VBox info = new VBox(2, nameLabel, metaLabel);
 
         Button deleteBtn = new Button("Delete");
         deleteBtn.getStyleClass().addAll("discreet-button", "save-cell-delete");

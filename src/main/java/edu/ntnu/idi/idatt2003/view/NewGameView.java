@@ -87,7 +87,7 @@ public class NewGameView {
     errorLabel.setAlignment(Pos.CENTER);
 
     VBox fileControls = new VBox(6, fileLabel, chooseFileButton);
-    VBox fileGroup = FormLayouts.fieldGroup("Stock data", fileControls);
+    final VBox fileGroup = FormLayouts.fieldGroup("Stock data", fileControls);
 
     HBox difficultyRow = new HBox(8, easyButton, normalButton, hardButton);
     difficultyRow.getStyleClass().add("form-width");

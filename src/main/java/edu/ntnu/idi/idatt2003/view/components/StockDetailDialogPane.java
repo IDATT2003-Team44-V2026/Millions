@@ -51,24 +51,24 @@ public final class StockDetailDialogPane {
     highPriceValue = new Label();
     lowPriceValue = new Label();
 
-    HBox statsStrip = new HBox(8,
+    final HBox statsStrip = new HBox(8,
         buildStatTile("Current Price", currentPriceValue),
         buildStatTile("All-time High", highPriceValue),
         buildStatTile("All-time Low", lowPriceValue)
     );
 
-    NumberAxis xAxis = new NumberAxis();
-    xAxis.setLabel("Week");
-    xAxis.setTickUnit(1);
-    xAxis.setMinorTickVisible(false);
-    xAxis.setForceZeroInRange(false);
+    NumberAxis weekAxis = new NumberAxis();
+    weekAxis.setLabel("Week");
+    weekAxis.setTickUnit(1);
+    weekAxis.setMinorTickVisible(false);
+    weekAxis.setForceZeroInRange(false);
 
-    NumberAxis yAxis = new NumberAxis();
-    yAxis.setLabel("Price (NOK)");
-    yAxis.setMinorTickVisible(false);
-    yAxis.setForceZeroInRange(false);
+    NumberAxis priceAxis = new NumberAxis();
+    priceAxis.setLabel("Price (NOK)");
+    priceAxis.setMinorTickVisible(false);
+    priceAxis.setForceZeroInRange(false);
 
-    chart = new LineChart<>(xAxis, yAxis);
+    chart = new LineChart<>(weekAxis, priceAxis);
     chart.setLegendVisible(false);
     chart.setAnimated(false);
     chart.getStyleClass().add("stock-detail-chart");
@@ -86,6 +86,22 @@ public final class StockDetailDialogPane {
     root = new VBox(16, heading, divider, statsStrip, chart, actions);
     root.getStyleClass().addAll("modal-card", "stock-detail-card");
     root.setMaxSize(560, Region.USE_PREF_SIZE);
+  }
+
+  private static VBox buildStatTile(String labelText, Label valueLabel) {
+    Label label = new Label(labelText);
+    label.getStyleClass().add("stat-label");
+    valueLabel.getStyleClass().add("stat-value");
+    valueLabel.getStyleClass().add("detail-stat-value");
+    VBox tile = new VBox(2, label, valueLabel);
+    tile.getStyleClass().add("stat");
+    tile.setMaxWidth(Double.MAX_VALUE);
+    HBox.setHgrow(tile, Priority.ALWAYS);
+    return tile;
+  }
+
+  private static String format(BigDecimal amount) {
+    return CurrencyFormatter.formatToNOK(amount.doubleValue());
   }
 
   /**
@@ -116,21 +132,5 @@ public final class StockDetailDialogPane {
       series.getData().add(new XYChart.Data<>(i + 1, history.get(i).doubleValue()));
     }
     chart.getData().setAll(List.of(series));
-  }
-
-  private static VBox buildStatTile(String labelText, Label valueLabel) {
-    Label label = new Label(labelText);
-    label.getStyleClass().add("stat-label");
-    valueLabel.getStyleClass().add("stat-value");
-    valueLabel.getStyleClass().add("detail-stat-value");
-    VBox tile = new VBox(2, label, valueLabel);
-    tile.getStyleClass().add("stat");
-    tile.setMaxWidth(Double.MAX_VALUE);
-    HBox.setHgrow(tile, Priority.ALWAYS);
-    return tile;
-  }
-
-  private static String format(BigDecimal amount) {
-    return CurrencyFormatter.formatToNOK(amount.doubleValue());
   }
 }

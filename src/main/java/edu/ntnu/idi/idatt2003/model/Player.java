@@ -136,8 +136,8 @@ public class Player {
    * Returns the player's current status level.
    *
    * <p>Status is determined by the player's current net worth compared with
-   * the starting capital, and the number of distinct weeks in which the player
-   * has made at least one transaction.</p>
+   * the starting capital, and the number of distinct weeks in which the player has made at least
+   * one transaction.</p>
    *
    * @return the player's current {@link PlayerStatus}
    */

@@ -56,7 +56,7 @@ public final class SaleDialogPane {
     HBox totalRow = SummaryRows.row("Total proceeds", totalProceedsValue);
     totalRow.getStyleClass().add("summary-row-total");
 
-    VBox summaryBox = SummaryRows.card(grossRow, commissionRow, taxRow, totalRow);
+    final VBox summaryBox = SummaryRows.card(grossRow, commissionRow, taxRow, totalRow);
 
     errorLabel = new Label();
     errorLabel.getStyleClass().add("error-label");
@@ -76,7 +76,8 @@ public final class SaleDialogPane {
     actions.getStyleClass().add("modal-actions");
     actions.setAlignment(Pos.CENTER_RIGHT);
 
-    root = new VBox(16, heading, FormLayouts.fieldGroup("Quantity", quantityField), summaryBox, errorLabel, actions);
+    root = new VBox(16, heading, FormLayouts.fieldGroup("Quantity", quantityField), summaryBox,
+        errorLabel, actions);
     root.getStyleClass().add("modal-card");
     root.setMaxSize(430, Region.USE_PREF_SIZE);
   }
@@ -132,10 +133,10 @@ public final class SaleDialogPane {
   /**
    * Updates the sale proceeds preview labels.
    *
-   * @param grossValue     formatted gross value
-   * @param commission     formatted commission
-   * @param tax            formatted tax
-   * @param totalProceeds  formatted total proceeds
+   * @param grossValue    formatted gross value
+   * @param commission    formatted commission
+   * @param tax           formatted tax
+   * @param totalProceeds formatted total proceeds
    */
   public void setPreview(String grossValue, String commission, String tax, String totalProceeds) {
     grossValueLabel.setText(grossValue);

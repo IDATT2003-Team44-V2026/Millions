@@ -65,6 +65,10 @@ public final class TransactionDetailDialogPane {
     root.setMaxSize(400, Region.USE_PREF_SIZE);
   }
 
+  private static String format(BigDecimal amount) {
+    return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
   /**
    * Returns the modal root node.
    *
@@ -81,8 +85,8 @@ public final class TransactionDetailDialogPane {
    */
   public void setTransaction(Transaction transaction) {
     boolean isPurchase = transaction instanceof Purchase;
-    Share share = transaction.getShare();
-    TransactionCalculator calc = transaction.getCalculator();
+    final Share share = transaction.getShare();
+    final TransactionCalculator calc = transaction.getCalculator();
 
     badgeLabel.setText(isPurchase ? "Purchase" : "Sale");
     badgeLabel.getStyleClass().removeAll("tx-badge-purchase", "tx-badge-sale");
@@ -120,9 +124,5 @@ public final class TransactionDetailDialogPane {
       row.getStyleClass().add("summary-row-total");
     }
     summaryCard.getChildren().add(row);
-  }
-
-  private static String format(BigDecimal amount) {
-    return CurrencyFormatter.formatToNOK(amount.doubleValue());
   }
 }

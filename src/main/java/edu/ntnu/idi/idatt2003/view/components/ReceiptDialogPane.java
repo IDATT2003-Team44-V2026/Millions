@@ -14,15 +14,6 @@ import javafx.scene.layout.VBox;
  */
 public final class ReceiptDialogPane {
 
-  /**
-   * A single line item on the receipt.
-   *
-   * @param label the row description
-   * @param value the formatted value
-   * @param total whether this row is the grand-total line (rendered in bold)
-   */
-  public record ReceiptRow(String label, String value, boolean total) {}
-
   private final VBox root;
   private final Label titleLabel;
   private final Label subtitleLabel;
@@ -96,5 +87,16 @@ public final class ReceiptDialogPane {
       }
       summaryCard.getChildren().add(summaryRow);
     }
+  }
+
+  /**
+   * A single line item on the receipt.
+   *
+   * @param label the row description
+   * @param value the formatted value
+   * @param total whether this row is the grand-total line (rendered in bold)
+   */
+  public record ReceiptRow(String label, String value, boolean total) {
+
   }
 }

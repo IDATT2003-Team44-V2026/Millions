@@ -100,11 +100,24 @@ public class Exchange {
   }
 
   /**
+   * Sets the current week number directly. Used when restoring a saved game.
+   *
+   * @param week the week to restore; must be at least 1
+   * @throws IllegalArgumentException if {@code week} is less than 1
+   */
+  public void setWeek(int week) {
+    if (week < 1) {
+      throw new IllegalArgumentException("Week cannot be less than 1");
+    }
+    this.week = week;
+  }
+
+  /**
    * Checks whether a stock with the given symbol is listed on this exchange.
    *
    * @param symbol the ticker symbol to look up; must not be {@code null} or blank
    * @return {@code true} if a stock with the given symbol exists on this exchange, {@code false}
-   * otherwise
+   *     otherwise
    * @throws IllegalArgumentException if {@code symbol} is {@code null} or blank
    */
   public boolean hasStock(String symbol) {
@@ -119,7 +132,7 @@ public class Exchange {
    *
    * @param symbol the ticker symbol to look up; must not be {@code null} or blank
    * @return the {@link Stock} with the matching symbol, or {@code null} if no stock with that
-   * symbol is listed on this exchange
+   *     symbol is listed on this exchange
    * @throws IllegalArgumentException if {@code symbol} is {@code null} or blank
    */
   public Stock getStock(String symbol) {
@@ -276,23 +289,11 @@ public class Exchange {
   }
 
   /**
-   * Sets the current week number directly. Used when restoring a saved game.
-   *
-   * @param week the week to restore; must be at least 1
-   * @throws IllegalArgumentException if {@code week} is less than 1
-   */
-  public void setWeek(int week) {
-    if (week < 1) {
-      throw new IllegalArgumentException("Week cannot be less than 1");
-    }
-    this.week = week;
-  }
-
-  /**
    * Advances the exchange by one week, updating all stock prices using Geometric Brownian Motion.
    *
    * <p>Prices follow the GBM formula: S(t+dt) = S(t) * exp((μ - σ²/2)*dt + σ*√dt*Z),
-   * where Z ~ N(0,1). Drift and volatility are determined by the exchange's {@link Difficulty}.</p>
+   * where Z ~ N(0,1). Drift and volatility are determined by the exchange's
+   * {@link Difficulty}.</p>
    */
   public void advance() {
     week++;

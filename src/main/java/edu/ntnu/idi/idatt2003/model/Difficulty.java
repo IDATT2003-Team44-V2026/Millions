@@ -1,7 +1,8 @@
 package edu.ntnu.idi.idatt2003.model;
 
 /**
- * Represents the market difficulty level, controlling drift and volatility used in price simulation.
+ * Represents the market difficulty level, controlling drift and volatility used in price
+ * simulation.
  */
 public enum Difficulty {
   EASY(0.12, 0.10),

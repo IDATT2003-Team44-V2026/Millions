@@ -56,9 +56,12 @@ public class TransactionsView {
   private final SortedList<TransactionRow> sortedTransactionRows;
   private final TransactionDetailDialogPane detailPane;
   private Set<Integer> lastDistinctWeeks = Set.of();
-  private Consumer<Transaction> detailsHandler = tx -> {};
-  private Consumer<Parent> showModalHandler = modal -> {};
-  private Runnable hideModalHandler = () -> {};
+  private Consumer<Transaction> detailsHandler = tx -> {
+  };
+  private Consumer<Parent> showModalHandler = modal -> {
+  };
+  private Runnable hideModalHandler = () -> {
+  };
 
   /**
    * Creates the transactions section view.
@@ -92,6 +95,36 @@ public class TransactionsView {
         "Review your buy and sell history.",
         content
     );
+  }
+
+  private static boolean matchesSearch(TransactionRow row, String query) {
+    if (query.isEmpty()) {
+      return true;
+    }
+    return row.getSymbol().toLowerCase(Locale.ROOT).contains(query)
+        || row.getCompany().toLowerCase(Locale.ROOT).contains(query);
+  }
+
+  private static boolean matchesType(TransactionRow row, String selectedType) {
+    if (ALL_TYPES.equals(selectedType)) {
+      return true;
+    }
+    return selectedType.equals(row.getType());
+  }
+
+  private static boolean matchesWeek(TransactionRow row, Integer weekNumber) {
+    if (weekNumber == null) {
+      return true;
+    }
+    return row.getWeek() == weekNumber;
+  }
+
+  private static Integer parseWeekFilter(String selectedWeek) {
+    if (ALL_WEEKS.equals(selectedWeek) || selectedWeek == null || !selectedWeek.startsWith(
+        "Week ")) {
+      return null;
+    }
+    return Integer.parseInt(selectedWeek.substring("Week ".length()));
   }
 
   private TextField buildSearchField() {
@@ -210,7 +243,7 @@ public class TransactionsView {
     }
     lastDistinctWeeks = Set.copyOf(distinctWeeks);
 
-    String previousSelection = weekFilter.getValue();
+    final String previousSelection = weekFilter.getValue();
     List<String> weekOptions = new ArrayList<>();
     weekOptions.add(ALL_WEEKS);
     for (Integer week : distinctWeeks) {
@@ -298,35 +331,6 @@ public class TransactionsView {
             && matchesType(row, selectedType)
             && matchesWeek(row, weekNumber)
     );
-  }
-
-  private static boolean matchesSearch(TransactionRow row, String query) {
-    if (query.isEmpty()) {
-      return true;
-    }
-    return row.getSymbol().toLowerCase(Locale.ROOT).contains(query)
-        || row.getCompany().toLowerCase(Locale.ROOT).contains(query);
-  }
-
-  private static boolean matchesType(TransactionRow row, String selectedType) {
-    if (ALL_TYPES.equals(selectedType)) {
-      return true;
-    }
-    return selectedType.equals(row.getType());
-  }
-
-  private static boolean matchesWeek(TransactionRow row, Integer weekNumber) {
-    if (weekNumber == null) {
-      return true;
-    }
-    return row.getWeek() == weekNumber;
-  }
-
-  private static Integer parseWeekFilter(String selectedWeek) {
-    if (ALL_WEEKS.equals(selectedWeek) || selectedWeek == null || !selectedWeek.startsWith("Week ")) {
-      return null;
-    }
-    return Integer.parseInt(selectedWeek.substring("Week ".length()));
   }
 
   private static final class TransactionRow {

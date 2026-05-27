@@ -63,23 +63,6 @@ public class Portfolio {
   }
 
   /**
-   * Returns the total net sale value of all shares in this portfolio.
-   *
-   * <p>Each share is valued using a {@link SaleCalculator}, so the returned
-   * amount reflects the total value the player would receive if all holdings were sold at their
-   * current prices.</p>
-   *
-   * @return the total net worth of this portfolio
-   */
-  public BigDecimal getNetWorth() {
-    BigDecimal netWorth = BigDecimal.ZERO;
-    for (Share share : shares) {
-      netWorth = netWorth.add(new SaleCalculator(share).calculateTotal());
-    }
-    return netWorth;
-  }
-
-  /**
    * Returns all shares in this portfolio that belong to the stock with the given ticker symbol
    * (case-insensitive).
    *
@@ -98,6 +81,23 @@ public class Portfolio {
       }
     }
     return filteredShares;
+  }
+
+  /**
+   * Returns the total net sale value of all shares in this portfolio.
+   *
+   * <p>Each share is valued using a {@link SaleCalculator}, so the returned
+   * amount reflects the total value the player would receive if all holdings were sold at their
+   * current prices.</p>
+   *
+   * @return the total net worth of this portfolio
+   */
+  public BigDecimal getNetWorth() {
+    BigDecimal netWorth = BigDecimal.ZERO;
+    for (Share share : shares) {
+      netWorth = netWorth.add(new SaleCalculator(share).calculateTotal());
+    }
+    return netWorth;
   }
 
   /**

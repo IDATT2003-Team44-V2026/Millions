@@ -141,11 +141,12 @@ public final class TableCells {
   /**
    * Creates a transaction total cell colored by buy (negative) or sell (positive).
    *
-   * @param <T> the row type
+   * @param <T>    the row type
    * @param isSale checks whether the row represents a sale
    * @return the cell factory
    */
-  public static <T> TableCell<T, BigDecimal> transactionTotal(java.util.function.Function<T, Boolean> isSale) {
+  public static <T> TableCell<T, BigDecimal> transactionTotal(
+      java.util.function.Function<T, Boolean> isSale) {
     return new TableCell<>() {
       @Override
       protected void updateItem(BigDecimal item, boolean empty) {

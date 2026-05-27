@@ -77,6 +77,62 @@ public class GameView {
     StackPane.setMargin(toastLabel, new Insets(0, 0, 28, 0));
   }
 
+  private static VBox createStat(String label, Label value) {
+    Label statLabel = new Label(label);
+    statLabel.getStyleClass().add("stat-label");
+    value.getStyleClass().add("stat-value");
+    statLabel.setLabelFor(value);
+
+    VBox box = new VBox(4, statLabel, value);
+    box.getStyleClass().add("stat");
+    box.setAlignment(Pos.CENTER);
+    return box;
+  }
+
+  private static VBox createNetWorthStat(String label, Label value, Label changeLabel) {
+    Label statLabel = new Label(label);
+    statLabel.getStyleClass().add("stat-label");
+    value.getStyleClass().add("stat-value");
+    changeLabel.getStyleClass().add("stat-change");
+    statLabel.setLabelFor(value);
+
+    VBox values = new VBox(2, value, changeLabel);
+    values.setAlignment(Pos.CENTER);
+
+    VBox box = new VBox(4, statLabel, values);
+    box.getStyleClass().add("stat");
+    box.setAlignment(Pos.CENTER);
+    return box;
+  }
+
+  private static VBox createPlayerStat(String label, Label nameValue, Label rankValue) {
+    Label statLabel = new Label(label);
+    statLabel.getStyleClass().add("stat-label");
+    nameValue.getStyleClass().add("stat-value");
+    rankValue.getStyleClass().add("stat-rank");
+    statLabel.setLabelFor(nameValue);
+
+    VBox values = new VBox(2, nameValue, rankValue);
+    values.setAlignment(Pos.CENTER);
+
+    VBox box = new VBox(4, statLabel, values);
+    box.getStyleClass().add("stat");
+    box.setAlignment(Pos.CENTER);
+    return box;
+  }
+
+  private static void updateStat(Label label, String accessibleName, String value) {
+    label.setText(value);
+    label.setAccessibleText(accessibleName + ": " + value);
+  }
+
+  private static Button createSidebarButton(String text) {
+    Button button = new Button(text);
+    button.getStyleClass().addAll("secondary-button", "sidebar-button");
+    button.setMaxWidth(Double.MAX_VALUE);
+    return button;
+  }
+
   private VBox buildSidebar() {
     VBox sidebar = new VBox(10, marketButton, portfolioButton, transactionsButton);
     sidebar.getStyleClass().add("sidebar");
@@ -143,62 +199,6 @@ public class GameView {
     toast.setManaged(false);
     toast.setMouseTransparent(true);
     return toast;
-  }
-
-  private static VBox createStat(String label, Label value) {
-    Label statLabel = new Label(label);
-    statLabel.getStyleClass().add("stat-label");
-    value.getStyleClass().add("stat-value");
-    statLabel.setLabelFor(value);
-
-    VBox box = new VBox(4, statLabel, value);
-    box.getStyleClass().add("stat");
-    box.setAlignment(Pos.CENTER);
-    return box;
-  }
-
-  private static VBox createNetWorthStat(String label, Label value, Label changeLabel) {
-    Label statLabel = new Label(label);
-    statLabel.getStyleClass().add("stat-label");
-    value.getStyleClass().add("stat-value");
-    changeLabel.getStyleClass().add("stat-change");
-    statLabel.setLabelFor(value);
-
-    VBox values = new VBox(2, value, changeLabel);
-    values.setAlignment(Pos.CENTER);
-
-    VBox box = new VBox(4, statLabel, values);
-    box.getStyleClass().add("stat");
-    box.setAlignment(Pos.CENTER);
-    return box;
-  }
-
-  private static VBox createPlayerStat(String label, Label nameValue, Label rankValue) {
-    Label statLabel = new Label(label);
-    statLabel.getStyleClass().add("stat-label");
-    nameValue.getStyleClass().add("stat-value");
-    rankValue.getStyleClass().add("stat-rank");
-    statLabel.setLabelFor(nameValue);
-
-    VBox values = new VBox(2, nameValue, rankValue);
-    values.setAlignment(Pos.CENTER);
-
-    VBox box = new VBox(4, statLabel, values);
-    box.getStyleClass().add("stat");
-    box.setAlignment(Pos.CENTER);
-    return box;
-  }
-
-  private static void updateStat(Label label, String accessibleName, String value) {
-    label.setText(value);
-    label.setAccessibleText(accessibleName + ": " + value);
-  }
-
-  private static Button createSidebarButton(String text) {
-    Button button = new Button(text);
-    button.getStyleClass().addAll("secondary-button", "sidebar-button");
-    button.setMaxWidth(Double.MAX_VALUE);
-    return button;
   }
 
   /**
@@ -280,13 +280,13 @@ public class GameView {
   /**
    * Updates the shared game statistics shown in the topbar.
    *
-   * @param playerName          the player name
-   * @param playerRank          the player rank label
-   * @param balance             the formatted balance
-   * @param netWorth            the formatted net worth
-   * @param week                the current week
-   * @param netWorthChange      the formatted percentage change from starting capital (e.g. "+12.5%")
-   * @param netWorthChangeCss   one of: "positive-change", "negative-change", "neutral-change"
+   * @param playerName        the player name
+   * @param playerRank        the player rank label
+   * @param balance           the formatted balance
+   * @param netWorth          the formatted net worth
+   * @param week              the current week
+   * @param netWorthChange    the formatted percentage change from starting capital (e.g. "+12.5%")
+   * @param netWorthChangeCss one of: "positive-change", "negative-change", "neutral-change"
    */
   public void updateStats(
       String playerName,

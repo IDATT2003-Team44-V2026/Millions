@@ -1,6 +1,7 @@
 package edu.ntnu.idi.idatt2003.controller;
 
 import edu.ntnu.idi.idatt2003.io.GameRepository;
+import edu.ntnu.idi.idatt2003.model.InsufficientFundsException;
 import edu.ntnu.idi.idatt2003.model.Share;
 import edu.ntnu.idi.idatt2003.model.Stock;
 import edu.ntnu.idi.idatt2003.navigation.Navigator;
@@ -12,7 +13,6 @@ import edu.ntnu.idi.idatt2003.view.GameView;
 import edu.ntnu.idi.idatt2003.view.MarketView;
 import edu.ntnu.idi.idatt2003.view.PortfolioView;
 import edu.ntnu.idi.idatt2003.view.TransactionsView;
-import edu.ntnu.idi.idatt2003.model.InsufficientFundsException;
 import edu.ntnu.idi.idatt2003.view.components.ConfirmDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import java.math.BigDecimal;

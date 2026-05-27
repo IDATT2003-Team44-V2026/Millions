@@ -2,8 +2,8 @@ package edu.ntnu.idi.idatt2003.view;
 
 import edu.ntnu.idi.idatt2003.calculators.SaleCalculator;
 import edu.ntnu.idi.idatt2003.model.Share;
-import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
 import edu.ntnu.idi.idatt2003.model.Stock;
+import edu.ntnu.idi.idatt2003.util.CurrencyFormatter;
 import edu.ntnu.idi.idatt2003.view.components.ReceiptDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SaleDialogPane;
 import edu.ntnu.idi.idatt2003.view.components.SectionCard;
@@ -49,11 +49,16 @@ public class PortfolioView {
   private final ReceiptDialogPane receiptPane;
   private final StockDetailDialogPane detailPane;
   private Share selectedShare;
-  private Consumer<Share> sellHandler = share -> {};
-  private BiConsumer<Share, BigDecimal> confirmSellHandler = (share, qty) -> {};
-  private Consumer<Stock> detailsHandler = stock -> {};
-  private Consumer<Parent> showModalHandler = modal -> {};
-  private Runnable hideModalHandler = () -> {};
+  private Consumer<Share> sellHandler = share -> {
+  };
+  private BiConsumer<Share, BigDecimal> confirmSellHandler = (share, qty) -> {
+  };
+  private Consumer<Stock> detailsHandler = stock -> {
+  };
+  private Consumer<Parent> showModalHandler = modal -> {
+  };
+  private Runnable hideModalHandler = () -> {
+  };
 
   /**
    * Creates the portfolio section view.
@@ -82,6 +87,26 @@ public class PortfolioView {
         "Review owned shares and sell holdings.",
         content
     );
+  }
+
+  private static BigDecimal parseQuantity(String text) {
+    if (text == null) {
+      return null;
+    }
+    String trimmed = text.trim();
+    if (!trimmed.matches("\\d+(\\.\\d+)?")) {
+      return null;
+    }
+    BigDecimal qty = new BigDecimal(trimmed);
+    return qty.compareTo(BigDecimal.ZERO) > 0 ? qty : null;
+  }
+
+  private static String formatCurrency(BigDecimal amount) {
+    return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
+  private static String formatQuantity(BigDecimal quantity) {
+    return quantity.stripTrailingZeros().toPlainString();
   }
 
   private TextField buildSearchField() {
@@ -364,18 +389,6 @@ public class PortfolioView {
     confirmSellHandler.accept(selectedShare, qty);
   }
 
-  private static BigDecimal parseQuantity(String text) {
-    if (text == null) {
-      return null;
-    }
-    String trimmed = text.trim();
-    if (!trimmed.matches("\\d+(\\.\\d+)?")) {
-      return null;
-    }
-    BigDecimal qty = new BigDecimal(trimmed);
-    return qty.compareTo(BigDecimal.ZERO) > 0 ? qty : null;
-  }
-
   private void hideSellOverlay() {
     hideModalHandler.run();
     selectedShare = null;
@@ -383,14 +396,6 @@ public class PortfolioView {
 
   private void hideReceiptOverlay() {
     hideModalHandler.run();
-  }
-
-  private static String formatCurrency(BigDecimal amount) {
-    return CurrencyFormatter.formatToNOK(amount.doubleValue());
-  }
-
-  private static String formatQuantity(BigDecimal quantity) {
-    return quantity.stripTrailingZeros().toPlainString();
   }
 
   private static final class ShareRow {

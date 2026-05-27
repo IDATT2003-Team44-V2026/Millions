@@ -12,7 +12,6 @@ import edu.ntnu.idi.idatt2003.transactions.Purchase;
 import edu.ntnu.idi.idatt2003.transactions.Sale;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.logging.Logger;
 import java.math.RoundingMode;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
@@ -23,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -34,17 +34,18 @@ import java.util.stream.Stream;
 public class GameRepository {
 
   private static final Logger LOGGER = Logger.getLogger(GameRepository.class.getName());
-  static Path SAVE_DIR =
-      Path.of(System.getProperty("user.home"), ".millions", "saves");
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
   private static final DateTimeFormatter TIMESTAMP_FMT =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+  static Path SAVE_DIR =
+      Path.of(System.getProperty("user.home"), ".millions", "saves");
 
   private GameRepository() {
   }
 
   /**
-   * Saves the given game session atomically. Overwrites any existing save for the same player name.
+   * Saves the given game session atomically. Overwrites any existing save for the same player
+   * name.
    *
    * @param session the session to save; must not be {@code null}
    * @throws IOException if the file cannot be written

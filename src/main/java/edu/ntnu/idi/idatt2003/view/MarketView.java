@@ -40,6 +40,7 @@ import javafx.scene.layout.VBox;
  */
 public class MarketView {
 
+  private static final int MOVERS_COUNT = 3;
   private final VBox root;
   private final TextField searchField;
   private final TableView<StockRow> stockTable;
@@ -52,11 +53,16 @@ public class MarketView {
   private final VBox gainersRows;
   private final VBox losersRows;
   private Stock selectedStock;
-  private Consumer<Stock> buyHandler = stock -> {};
-  private Consumer<Stock> detailsHandler = stock -> {};
-  private BiConsumer<Stock, BigDecimal> confirmBuyHandler = (stock, quantity) -> {};
-  private Consumer<Parent> showModalHandler = modal -> {};
-  private Runnable hideModalHandler = () -> {};
+  private Consumer<Stock> buyHandler = stock -> {
+  };
+  private Consumer<Stock> detailsHandler = stock -> {
+  };
+  private BiConsumer<Stock, BigDecimal> confirmBuyHandler = (stock, quantity) -> {
+  };
+  private Consumer<Parent> showModalHandler = modal -> {
+  };
+  private Runnable hideModalHandler = () -> {
+  };
 
   /**
    * Creates the market section view.
@@ -89,6 +95,43 @@ public class MarketView {
         "Search available stocks and prepare purchases.",
         content
     );
+  }
+
+  private static VBox buildMoversCard(String header, VBox rowsContainer) {
+    Label headerLabel = new Label(header);
+    headerLabel.getStyleClass().add("movers-header");
+    VBox card = new VBox(0, headerLabel, rowsContainer);
+    card.getStyleClass().add("movers-card");
+    card.setPrefWidth(0);
+    card.setMaxWidth(Double.MAX_VALUE);
+    return card;
+  }
+
+  private static BigDecimal parseQuantity(String quantityText) {
+    if (quantityText == null) {
+      return null;
+    }
+    String trimmed = quantityText.trim();
+    if (!trimmed.matches("\\d+(\\.\\d+)?")) {
+      return null;
+    }
+
+    BigDecimal quantity = new BigDecimal(trimmed);
+    if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+      return null;
+    }
+    return quantity;
+  }
+
+  private static String formatCurrency(BigDecimal amount) {
+    return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
+  private static String formatSignedPct(BigDecimal pct) {
+    if (pct.compareTo(BigDecimal.ZERO) > 0) {
+      return "+" + pct.toPlainString() + "%";
+    }
+    return pct.toPlainString() + "%";
   }
 
   private TextField buildSearchField() {
@@ -268,16 +311,6 @@ public class MarketView {
     return strip;
   }
 
-  private static VBox buildMoversCard(String header, VBox rowsContainer) {
-    Label headerLabel = new Label(header);
-    headerLabel.getStyleClass().add("movers-header");
-    VBox card = new VBox(0, headerLabel, rowsContainer);
-    card.getStyleClass().add("movers-card");
-    card.setPrefWidth(0);
-    card.setMaxWidth(Double.MAX_VALUE);
-    return card;
-  }
-
   /**
    * Updates the top gainers and losers strip.
    *
@@ -288,8 +321,6 @@ public class MarketView {
     populateMoverRows(gainersRows, gainers, true);
     populateMoverRows(losersRows, losers, false);
   }
-
-  private static final int MOVERS_COUNT = 3;
 
   private void populateMoverRows(VBox container, List<Stock> stocks, boolean positive) {
     container.getChildren().clear();
@@ -419,22 +450,6 @@ public class MarketView {
     confirmBuyHandler.accept(selectedStock, quantity);
   }
 
-  private static BigDecimal parseQuantity(String quantityText) {
-    if (quantityText == null) {
-      return null;
-    }
-    String trimmed = quantityText.trim();
-    if (!trimmed.matches("\\d+(\\.\\d+)?")) {
-      return null;
-    }
-
-    BigDecimal quantity = new BigDecimal(trimmed);
-    if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
-      return null;
-    }
-    return quantity;
-  }
-
   private void hideBuyOverlay() {
     hideModalHandler.run();
     selectedStock = null;
@@ -442,17 +457,6 @@ public class MarketView {
 
   private void hideReceiptOverlay() {
     hideModalHandler.run();
-  }
-
-  private static String formatCurrency(BigDecimal amount) {
-    return CurrencyFormatter.formatToNOK(amount.doubleValue());
-  }
-
-  private static String formatSignedPct(BigDecimal pct) {
-    if (pct.compareTo(BigDecimal.ZERO) > 0) {
-      return "+" + pct.toPlainString() + "%";
-    }
-    return pct.toPlainString() + "%";
   }
 
   private static final class StockRow {

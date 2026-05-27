@@ -15,6 +15,32 @@ public class GameSave {
   PlayerData player;
   ExchangeData exchange;
 
+  /**
+   * Returns the player name stored in this save.
+   *
+   * @return the player name
+   */
+  public String getPlayerName() {
+    return playerName;
+  }
+
+  /**
+   * Returns the formatted timestamp when this save was created.
+   *
+   * @return the save timestamp
+   */
+  public String getSavedAt() {
+    return savedAt;
+  }
+
+  /**
+   * Returns the exchange week stored in this save.
+   *
+   * @return the week number, or 0 if unavailable
+   */
+  public int getSavedWeek() {
+    return exchange != null ? exchange.week : 0;
+  }
 
   static class PlayerData {
 
@@ -56,32 +82,5 @@ public class GameSave {
     String quantity;
     String purchasePrice;
     String salesPrice;
-  }
-
-  /**
-   * Returns the player name stored in this save.
-   *
-   * @return the player name
-   */
-  public String getPlayerName() {
-    return playerName;
-  }
-
-  /**
-   * Returns the formatted timestamp when this save was created.
-   *
-   * @return the save timestamp
-   */
-  public String getSavedAt() {
-    return savedAt;
-  }
-
-  /**
-   * Returns the exchange week stored in this save.
-   *
-   * @return the week number, or 0 if unavailable
-   */
-  public int getSavedWeek() {
-    return exchange != null ? exchange.week : 0;
   }
 }

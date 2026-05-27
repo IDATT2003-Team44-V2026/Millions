@@ -65,6 +65,10 @@ public final class TransactionDetailDialogPane {
     root.setMaxSize(400, Region.USE_PREF_SIZE);
   }
 
+  private static String format(BigDecimal amount) {
+    return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
   /**
    * Returns the modal root node.
    *
@@ -120,9 +124,5 @@ public final class TransactionDetailDialogPane {
       row.getStyleClass().add("summary-row-total");
     }
     summaryCard.getChildren().add(row);
-  }
-
-  private static String format(BigDecimal amount) {
-    return CurrencyFormatter.formatToNOK(amount.doubleValue());
   }
 }

@@ -88,6 +88,22 @@ public final class StockDetailDialogPane {
     root.setMaxSize(560, Region.USE_PREF_SIZE);
   }
 
+  private static VBox buildStatTile(String labelText, Label valueLabel) {
+    Label label = new Label(labelText);
+    label.getStyleClass().add("stat-label");
+    valueLabel.getStyleClass().add("stat-value");
+    valueLabel.getStyleClass().add("detail-stat-value");
+    VBox tile = new VBox(2, label, valueLabel);
+    tile.getStyleClass().add("stat");
+    tile.setMaxWidth(Double.MAX_VALUE);
+    HBox.setHgrow(tile, Priority.ALWAYS);
+    return tile;
+  }
+
+  private static String format(BigDecimal amount) {
+    return CurrencyFormatter.formatToNOK(amount.doubleValue());
+  }
+
   /**
    * Returns the modal root node.
    *
@@ -116,21 +132,5 @@ public final class StockDetailDialogPane {
       series.getData().add(new XYChart.Data<>(i + 1, history.get(i).doubleValue()));
     }
     chart.getData().setAll(List.of(series));
-  }
-
-  private static VBox buildStatTile(String labelText, Label valueLabel) {
-    Label label = new Label(labelText);
-    label.getStyleClass().add("stat-label");
-    valueLabel.getStyleClass().add("stat-value");
-    valueLabel.getStyleClass().add("detail-stat-value");
-    VBox tile = new VBox(2, label, valueLabel);
-    tile.getStyleClass().add("stat");
-    tile.setMaxWidth(Double.MAX_VALUE);
-    HBox.setHgrow(tile, Priority.ALWAYS);
-    return tile;
-  }
-
-  private static String format(BigDecimal amount) {
-    return CurrencyFormatter.formatToNOK(amount.doubleValue());
   }
 }

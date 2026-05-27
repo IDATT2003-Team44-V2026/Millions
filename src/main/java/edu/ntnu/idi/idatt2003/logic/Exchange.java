@@ -100,6 +100,19 @@ public class Exchange {
   }
 
   /**
+   * Sets the current week number directly. Used when restoring a saved game.
+   *
+   * @param week the week to restore; must be at least 1
+   * @throws IllegalArgumentException if {@code week} is less than 1
+   */
+  public void setWeek(int week) {
+    if (week < 1) {
+      throw new IllegalArgumentException("Week cannot be less than 1");
+    }
+    this.week = week;
+  }
+
+  /**
    * Checks whether a stock with the given symbol is listed on this exchange.
    *
    * @param symbol the ticker symbol to look up; must not be {@code null} or blank
@@ -276,23 +289,11 @@ public class Exchange {
   }
 
   /**
-   * Sets the current week number directly. Used when restoring a saved game.
-   *
-   * @param week the week to restore; must be at least 1
-   * @throws IllegalArgumentException if {@code week} is less than 1
-   */
-  public void setWeek(int week) {
-    if (week < 1) {
-      throw new IllegalArgumentException("Week cannot be less than 1");
-    }
-    this.week = week;
-  }
-
-  /**
    * Advances the exchange by one week, updating all stock prices using Geometric Brownian Motion.
    *
    * <p>Prices follow the GBM formula: S(t+dt) = S(t) * exp((μ - σ²/2)*dt + σ*√dt*Z),
-   * where Z ~ N(0,1). Drift and volatility are determined by the exchange's {@link Difficulty}.</p>
+   * where Z ~ N(0,1). Drift and volatility are determined by the exchange's
+   * {@link Difficulty}.</p>
    */
   public void advance() {
     week++;

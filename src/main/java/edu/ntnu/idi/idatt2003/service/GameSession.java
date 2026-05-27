@@ -3,8 +3,8 @@ package edu.ntnu.idi.idatt2003.service;
 import edu.ntnu.idi.idatt2003.logic.Exchange;
 import edu.ntnu.idi.idatt2003.model.Player;
 import edu.ntnu.idi.idatt2003.model.Share;
-import java.math.BigDecimal;
 import edu.ntnu.idi.idatt2003.observer.GameObserver;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -112,9 +112,9 @@ public final class PurchaseDialogPane {
   /**
    * Updates the purchase cost preview labels.
    *
-   * @param grossCost   formatted gross cost
-   * @param commission  formatted commission
-   * @param totalCost   formatted total cost
+   * @param grossCost  formatted gross cost
+   * @param commission formatted commission
+   * @param totalCost  formatted total cost
    */
   public void setPreview(String grossCost, String commission, String totalCost) {
     grossCostValue.setText(grossCost);

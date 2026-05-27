@@ -189,12 +189,12 @@ public class GameController implements GameObserver {
   }
 
   private void handleExitConfirmed() {
+    gameSession.sellAll();
     try {
       GameRepository.save(gameSession);
     } catch (java.io.IOException e) {
       LOGGER.warning("Auto-save on exit failed: " + e.getMessage());
     }
-    gameSession.sellAll();
     BigDecimal starting = gameSession.getPlayer().getStartingMoney();
     BigDecimal finalBalance = gameSession.getPlayer().getMoney();
     exitReceiptPane.setContent(
